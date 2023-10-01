@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AppRestaurante</string>
+    <string name="textMesasSalones">Seleccion</string>
+    <string name="textSalones">Salones</string>
+    <string name="textMesas">Mesas</string>
+    <string name="textDescripcion">ScrollBarr</string>
 </resources>
