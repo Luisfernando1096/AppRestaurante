@@ -8,6 +8,8 @@ public class Mesa {
     Boolean disponible;
     int idSalon;
 
+    String salon;
+
     public Mesa() {
     }
 
@@ -66,5 +68,13 @@ public class Mesa {
 
     public void setIdSalon(int idSalon) {
         this.idSalon = idSalon;
+    }
+
+    public String getSalon() {
+        return salon;
+    }
+
+    public void setSalon(String salon) {
+        this.salon = salon;
     }
 }

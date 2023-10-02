@@ -3,6 +3,7 @@ package com.example.apprestaurante;
 import android.annotation.SuppressLint;
 import java.util.List;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -44,21 +45,6 @@ public class MesasSalones extends AppCompatActivity {
         //Obtener datos api
         //BuscarSalonesPorId("3");
 
-        // Define un OnClickListener común para los botones de salones
-        View.OnClickListener salonClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
-                String tag = String.valueOf(view.getTag());
-                textMesas.setText("Mesas : " + ((Button) view).getText().toString());
-                // Ahora puedes usar 'tag' para saber qué botón se ha presionado y realizar acciones en consecuencia.
-                // Por ejemplo, puedes mostrar un mensaje con el nombre o realizar alguna otra acción.
-                Toast.makeText(getApplicationContext(), "Botón de salón presionado: " + tag, Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        BuscarSalones(salonClickListener);
-
         // Define un OnClickListener común para los botones de mesas
         View.OnClickListener mesaClickListener = new View.OnClickListener() {
             @Override
@@ -72,14 +58,25 @@ public class MesasSalones extends AppCompatActivity {
             }
         };
 
-        //BuscarMesaPorSalon(salonClickListener);
+        // Define un OnClickListener común para los botones de salones
+        View.OnClickListener salonClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
+                BuscarMesaPorSalon(mesaClickListener, view.getTag().toString());
+                textMesas.setText("Mesas : " + ((Button) view).getText().toString());
+            }
+        };
+
+        BuscarSalones(salonClickListener);
+
 
 
     }
 
-    private void BuscarMesaPorSalon(View.OnClickListener mesaClickListener) {
+    private void BuscarMesaPorSalon(View.OnClickListener mesaClickListener, String idSalon) {
 
-        Call<List<Mesa>> call = ApiClient.getClient().create(MesaApi.class).mesasPorSalon();
+        Call<List<Mesa>> call = ApiClient.getClient().create(MesaApi.class).mesasPorSalon(idSalon);
         call.enqueue(new Callback<List<Mesa>>() {
             @Override
             public void onResponse(Call<List<Mesa>> call, Response<List<Mesa>> response) {
@@ -90,12 +87,17 @@ public class MesasSalones extends AppCompatActivity {
                         lstMesas = response.body();
 
                         if (lstMesas != null) {
-
+                            glMesas.removeAllViews();
                             for (Mesa mesa : lstMesas) {
                                 Button btnMesa = new Button(MesasSalones.this);
                                 btnMesa.setTag(mesa.getIdMesa());
                                 btnMesa.setText(mesa.getNombre());
 
+                                if (!mesa.getDisponible())
+                                {
+                                    btnMesa.setBackgroundColor(Color.parseColor("#3393FF"));
+                                    btnMesa.setTextColor(Color.parseColor("#FFFFFF"));
+                                }
                                 //Obtener el total de mesas
                                 int tMesas = lstMesas.size();
                                 int enteroRedondeado = (int) Math.ceil(tMesas/2);
