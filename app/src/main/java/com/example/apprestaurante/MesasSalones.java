@@ -2,6 +2,8 @@ package com.example.apprestaurante;
 
 import android.annotation.SuppressLint;
 import java.util.List;
+
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -42,9 +44,6 @@ public class MesasSalones extends AppCompatActivity {
         glMesas = findViewById(R.id.glMesas);
         textMesas = findViewById(R.id.textMesas);
 
-        //Obtener datos api
-        //BuscarSalonesPorId("3");
-
         // Define un OnClickListener común para los botones de mesas
         View.OnClickListener mesaClickListener = new View.OnClickListener() {
             @Override
@@ -54,7 +53,9 @@ public class MesasSalones extends AppCompatActivity {
 
                 // Ahora puedes usar 'tag' para saber qué botón se ha presionado y realizar acciones en consecuencia.
                 // Por ejemplo, puedes mostrar un mensaje con el nombre o realizar alguna otra acción.
-                Toast.makeText(getApplicationContext(), "Botón de mesa presionado: " + tag, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
+                intent.putExtra("idMesa", Integer.parseInt(view.getTag().toString()) + 0);
+                startActivity(intent);
             }
         };
 
@@ -84,10 +85,11 @@ public class MesasSalones extends AppCompatActivity {
                 try {
 
                     if (response.isSuccessful()) {
+                        glMesas.removeAllViews();
                         lstMesas = response.body();
 
                         if (lstMesas != null) {
-                            glMesas.removeAllViews();
+
                             for (Mesa mesa : lstMesas) {
                                 Button btnMesa = new Button(MesasSalones.this);
                                 btnMesa.setTag(mesa.getIdMesa());
