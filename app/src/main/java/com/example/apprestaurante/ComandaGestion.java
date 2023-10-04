@@ -1,6 +1,10 @@
 package com.example.apprestaurante;
 
+import static com.example.apprestaurante.MesasSalones.lstPedidos;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -9,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -16,12 +21,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.apprestaurante.adapters.PedidosAdapter;
 import com.example.apprestaurante.clases.Familia;
+import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.clases.Producto;
 import com.example.apprestaurante.interfaces.FamiliaApi;
 import com.example.apprestaurante.interfaces.ProductoApi;
 import com.example.apprestaurante.network.ApiClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -30,6 +38,8 @@ import retrofit2.Response;
 
 public class ComandaGestion extends AppCompatActivity {
 
+    RecyclerView rcvPedidos;
+    private LinearLayoutManager layoutManager;
     LinearLayout llFamilias;
     LinearLayout llProductos;
     TextView textProductos;
@@ -38,10 +48,30 @@ public class ComandaGestion extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_comanda_gestion);
         llFamilias = findViewById(R.id.llFamilias);
         llProductos = findViewById(R.id.llProductos);
         textProductos = findViewById(R.id.textProductos);
+        rcvPedidos = findViewById(R.id.rcvPedidos);
+
+        Toast.makeText(this, "DATOS: " + lstPedidos,
+                Toast.LENGTH_LONG).show();
+        System.out.println("DATOS:");
+        for (PedidoDetalle elemento : lstPedidos) {
+            System.out.println(elemento.getSubTotal());
+        }
+
+        if(lstPedidos != null){
+            // Configurando adaptador
+            PedidosAdapter pedidosAdapter = new PedidosAdapter(lstPedidos);
+            layoutManager = new LinearLayoutManager(this);
+            rcvPedidos = findViewById(R.id.rcvPedidos);
+            rcvPedidos.setAdapter(pedidosAdapter);
+            rcvPedidos.setLayoutManager(layoutManager);
+            rcvPedidos.setHasFixedSize(true);
+        }
+
 
         //Obteniendo idMesa
         Intent intent = getIntent();

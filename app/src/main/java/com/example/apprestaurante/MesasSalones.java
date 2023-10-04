@@ -1,6 +1,8 @@
 package com.example.apprestaurante;
 
 import android.annotation.SuppressLint;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Intent;
@@ -18,8 +20,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.apprestaurante.clases.Mesa;
+import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.clases.Salon;
 import com.example.apprestaurante.interfaces.MesaApi;
+import com.example.apprestaurante.interfaces.PedidoDetalleApi;
 import com.example.apprestaurante.interfaces.SalonApi;
 import com.example.apprestaurante.network.ApiClient;
 
@@ -34,6 +38,8 @@ public class MesasSalones extends AppCompatActivity {
     TextView textMesas;
     List<Salon> lstSalones;
     List<Mesa> lstMesas;
+
+    public static List<PedidoDetalle> lstPedidos = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +56,7 @@ public class MesasSalones extends AppCompatActivity {
             public void onClick(View view) {
                 // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
                 String tag = String.valueOf(view.getTag());
-
-                // Ahora puedes usar 'tag' para saber qué botón se ha presionado y realizar acciones en consecuencia.
-                // Por ejemplo, puedes mostrar un mensaje con el nombre o realizar alguna otra acción.
-                Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
-                intent.putExtra("idMesa", Integer.parseInt(view.getTag().toString()) + 0);
-                startActivity(intent);
+                ObtenerProductosEnMesa(tag);
             }
         };
 
@@ -73,6 +74,46 @@ public class MesasSalones extends AppCompatActivity {
 
 
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(lstPedidos != null){
+            lstPedidos.clear();
+        }
+
+    }
+
+    private void ObtenerProductosEnMesa(String id){
+        Call<List<PedidoDetalle>> call = ApiClient.getClient().create(PedidoDetalleApi.class).productosEnMesa(id);
+        call.enqueue(new Callback<List<PedidoDetalle>>() {
+            @Override
+            public void onResponse(Call<List<PedidoDetalle>> call, Response<List<PedidoDetalle>> response) {
+                // Si hay respuesta
+                try {
+
+                    if (response.isSuccessful()) {
+                        lstPedidos = response.body();
+                        Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
+                        intent.putExtra("idMesa", Integer.parseInt(id.toString()) + 0);
+                        startActivity(intent);
+                    }else{
+                        System.out.println("Fallo el isSuccessful");
+                    }
+
+                } catch (Exception e) {
+                    Toast.makeText(MesasSalones.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<PedidoDetalle>> call, Throwable t) {
+                // Si hay un error
+                Toast.makeText(MesasSalones.this, "Error en conexión de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                System.out.println("Error en conexión de red: " + t.getMessage());
+            }
+        });
     }
 
     private void BuscarMesaPorSalon(View.OnClickListener mesaClickListener, String idSalon) {
