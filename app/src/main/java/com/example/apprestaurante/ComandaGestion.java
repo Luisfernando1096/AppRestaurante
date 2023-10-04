@@ -114,8 +114,8 @@ public class ComandaGestion extends AppCompatActivity {
                                 @SuppressLint("UseCompatLoadingForDrawables") Drawable originalDrawable = getResources().getDrawable(R.drawable.productos); // Reemplaza "tu_imagen" con el nombre de tu imagen en res/drawable
 
                                 // Redimensiona la imagen al tamaño deseado
-                                int width = 70; // Ancho en píxeles
-                                int height = 60; // Alto en píxeles
+                                int width = 200; // Ancho en píxeles
+                                int height = 200; // Alto en píxeles
                                 Bitmap bitmap = ((BitmapDrawable) originalDrawable).getBitmap();
                                 Drawable icono = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, width, height, true));
 
