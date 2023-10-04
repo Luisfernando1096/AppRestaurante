@@ -1,6 +1,6 @@
 package com.example.apprestaurante.adapters;
 
-import static com.example.apprestaurante.MesasSalones.lstPedidos;
+import static com.example.apprestaurante.ComandaGestion.lstPedidos;
 import static com.google.gson.internal.$Gson$Types.arrayOf;
 
 import android.renderscript.Sampler;
@@ -20,10 +20,11 @@ import java.util.List;
 
 public class PedidosAdapter extends RecyclerView.Adapter<ViewHolderPedidos>{
     private List<PedidoDetalle> datos;
-    private View encabezadoView;
+    private OnItemClickListener onItemClickListener;
 
-    public PedidosAdapter(List<PedidoDetalle> datos) {
+    public PedidosAdapter(List<PedidoDetalle> datos, OnItemClickListener itemClickListener) {
         this.datos = datos;
+        this.onItemClickListener = itemClickListener;
     }
 
     @NonNull
@@ -37,14 +38,27 @@ public class PedidosAdapter extends RecyclerView.Adapter<ViewHolderPedidos>{
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolderPedidos holder, int position) {
+        final PedidoDetalle pedidoDetalleItem = datos.get(position);
         System.out.println("Cantidad : " + datos.get(position).getCantidad());
         holder.getTvCantidad().setText(datos.get(position).getCantidad() + "");
         holder.getTvProducto().setText(datos.get(position).getNombre() + "");
         holder.getTvSubTotal().setText(datos.get(position).getSubTotal() + "");
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(onItemClickListener != null){
+                    onItemClickListener.onItemClick(pedidoDetalleItem);
+                }
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return lstPedidos.size();
+        return datos.size();
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(PedidoDetalle pedidoDetalle);
     }
 }

@@ -1,5 +1,7 @@
 package com.example.apprestaurante;
 
+import static com.example.apprestaurante.ComandaGestion.lstPedidos;
+
 import android.annotation.SuppressLint;
 
 import java.util.ArrayList;
@@ -38,8 +40,6 @@ public class MesasSalones extends AppCompatActivity {
     TextView textMesas;
     List<Salon> lstSalones;
     List<Mesa> lstMesas;
-
-    public static List<PedidoDetalle> lstPedidos = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

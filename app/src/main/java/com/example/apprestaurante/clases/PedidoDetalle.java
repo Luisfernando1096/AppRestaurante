@@ -1,33 +1,77 @@
 package com.example.apprestaurante.clases;
 
 public class PedidoDetalle {
-    int idPedido;
+    int idDetalle;
+    boolean cocinando;
+    String extras;
+    String horaEntregado;
+    String horaPedido;
+    int idCocinero;
+    String cocinero;
     int idProducto;
+    String nombre;
+    int idPedido;
     int cantidad;
     double precio;
-    String nombre;
     double subTotal;
+    String grupo;
+    String usuario;
     String fecha;
 
-    public PedidoDetalle() {
+    public int getIdDetalle() {
+        return idDetalle;
     }
 
-    public PedidoDetalle(int idPedido, int idProducto, int cantidad, double precio, String nombre, double subTotal, String fecha) {
-        this.idPedido = idPedido;
-        this.idProducto = idProducto;
-        this.cantidad = cantidad;
-        this.precio = precio;
-        this.nombre = nombre;
-        this.subTotal = subTotal;
-        this.fecha = fecha;
+    public void setIdDetalle(int idDetalle) {
+        this.idDetalle = idDetalle;
     }
 
-    public int getIdPedido() {
-        return idPedido;
+    public boolean isCocinando() {
+        return cocinando;
     }
 
-    public void setIdPedido(int idPedido) {
-        this.idPedido = idPedido;
+    public void setCocinando(boolean cocinando) {
+        this.cocinando = cocinando;
+    }
+
+    public String getExtras() {
+        return extras;
+    }
+
+    public void setExtras(String extras) {
+        this.extras = extras;
+    }
+
+    public String getHoraEntregado() {
+        return horaEntregado;
+    }
+
+    public void setHoraEntregado(String horaEntregado) {
+        this.horaEntregado = horaEntregado;
+    }
+
+    public String getHoraPedido() {
+        return horaPedido;
+    }
+
+    public void setHoraPedido(String horaPedido) {
+        this.horaPedido = horaPedido;
+    }
+
+    public int getIdCocinero() {
+        return idCocinero;
+    }
+
+    public void setIdCocinero(int idCocinero) {
+        this.idCocinero = idCocinero;
+    }
+
+    public String getCocinero() {
+        return cocinero;
+    }
+
+    public void setCocinero(String cocinero) {
+        this.cocinero = cocinero;
     }
 
     public int getIdProducto() {
@@ -36,6 +80,22 @@ public class PedidoDetalle {
 
     public void setIdProducto(int idProducto) {
         this.idProducto = idProducto;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public int getIdPedido() {
+        return idPedido;
+    }
+
+    public void setIdPedido(int idPedido) {
+        this.idPedido = idPedido;
     }
 
     public int getCantidad() {
@@ -54,20 +114,28 @@ public class PedidoDetalle {
         this.precio = precio;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
     public double getSubTotal() {
         return subTotal;
     }
 
     public void setSubTotal(double subTotal) {
         this.subTotal = subTotal;
+    }
+
+    public String getGrupo() {
+        return grupo;
+    }
+
+    public void setGrupo(String grupo) {
+        this.grupo = grupo;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
     }
 
     public String getFecha() {

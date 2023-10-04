@@ -1,7 +1,5 @@
 package com.example.apprestaurante;
 
-import static com.example.apprestaurante.MesasSalones.lstPedidos;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,11 +7,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -36,7 +32,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ComandaGestion extends AppCompatActivity {
+public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter.OnItemClickListener{
 
     RecyclerView rcvPedidos;
     private LinearLayoutManager layoutManager;
@@ -45,6 +41,7 @@ public class ComandaGestion extends AppCompatActivity {
     TextView textProductos;
     List<Familia> lstFamilias;
     List<Producto> lstProductos;
+    public static List<PedidoDetalle> lstPedidos = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,16 +52,13 @@ public class ComandaGestion extends AppCompatActivity {
         textProductos = findViewById(R.id.textProductos);
         rcvPedidos = findViewById(R.id.rcvPedidos);
 
-        Toast.makeText(this, "DATOS: " + lstPedidos,
-                Toast.LENGTH_LONG).show();
-        System.out.println("DATOS:");
         for (PedidoDetalle elemento : lstPedidos) {
             System.out.println(elemento.getSubTotal());
         }
 
         if(lstPedidos != null){
             // Configurando adaptador
-            PedidosAdapter pedidosAdapter = new PedidosAdapter(lstPedidos);
+            PedidosAdapter pedidosAdapter = new PedidosAdapter(lstPedidos, ComandaGestion.this);
             layoutManager = new LinearLayoutManager(this);
             rcvPedidos = findViewById(R.id.rcvPedidos);
             rcvPedidos.setAdapter(pedidosAdapter);
@@ -77,7 +71,6 @@ public class ComandaGestion extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null) {
             int idMesa = intent.getIntExtra("idMesa", 0); // El segundo parámetro (0) es el valor predeterminado si no se encuentra "idMesa"
-            Toast.makeText(this, "Id: " + idMesa, Toast.LENGTH_SHORT).show();
         }
 
         // Define un OnClickListener común para los botones de productos
@@ -105,8 +98,12 @@ public class ComandaGestion extends AppCompatActivity {
 
         BuscarFamilias(familiaClickListener);
 
+    }
 
-
+    @Override
+    public void onItemClick(PedidoDetalle pedidoDetalle) {
+        //Programar aqui cuando se quiere disminuir un pedido
+        Toast.makeText(this, "Esta es un prueba: " + pedidoDetalle.getNombre(), Toast.LENGTH_SHORT).show();
     }
 
     private void BuscarProductoPorFamilia(View.OnClickListener productoClickListener, String idFamilia) {
