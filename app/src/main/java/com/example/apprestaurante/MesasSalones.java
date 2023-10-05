@@ -56,7 +56,9 @@ public class MesasSalones extends AppCompatActivity {
             public void onClick(View view) {
                 // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
                 String tag = String.valueOf(view.getTag());
-                ObtenerProductosEnMesa(tag);
+                Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
+                intent.putExtra("idMesa", Integer.parseInt(tag.toString()) + 0);
+                startActivity(intent);
             }
         };
 
@@ -72,8 +74,6 @@ public class MesasSalones extends AppCompatActivity {
 
         BuscarSalones(salonClickListener);
 
-
-
     }
 
     @Override
@@ -83,37 +83,6 @@ public class MesasSalones extends AppCompatActivity {
             lstPedidos.clear();
         }
 
-    }
-
-    private void ObtenerProductosEnMesa(String id){
-        Call<List<PedidoDetalle>> call = ApiClient.getClient().create(PedidoDetalleApi.class).productosEnMesa(id);
-        call.enqueue(new Callback<List<PedidoDetalle>>() {
-            @Override
-            public void onResponse(Call<List<PedidoDetalle>> call, Response<List<PedidoDetalle>> response) {
-                // Si hay respuesta
-                try {
-
-                    if (response.isSuccessful()) {
-                        lstPedidos = response.body();
-                        Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
-                        intent.putExtra("idMesa", Integer.parseInt(id.toString()) + 0);
-                        startActivity(intent);
-                    }else{
-                        System.out.println("Fallo el isSuccessful");
-                    }
-
-                } catch (Exception e) {
-                    Toast.makeText(MesasSalones.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<PedidoDetalle>> call, Throwable t) {
-                // Si hay un error
-                Toast.makeText(MesasSalones.this, "Error en conexión de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                System.out.println("Error en conexión de red: " + t.getMessage());
-            }
-        });
     }
 
     private void BuscarMesaPorSalon(View.OnClickListener mesaClickListener, String idSalon) {
