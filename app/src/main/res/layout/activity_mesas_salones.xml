@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:columnCount="3"
             android:orientation="horizontal"
-            android:layout_margin="15dp">
+            android:layout_marginLeft="15dp">
 
     </GridLayout>
 </ScrollView>
