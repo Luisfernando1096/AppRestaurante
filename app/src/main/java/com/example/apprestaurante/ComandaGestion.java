@@ -22,11 +22,11 @@ import android.widget.Toast;
 
 import com.example.apprestaurante.adapters.PedidosAdapter;
 import com.example.apprestaurante.clases.Familia;
+import com.example.apprestaurante.clases.Mesa;
 import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.clases.Producto;
 import com.example.apprestaurante.interfaces.CallBackApi;
-import com.example.apprestaurante.interfaces.PedidoApi;
 import com.example.apprestaurante.interfaces.PedidoDetalleApi;
 import com.example.apprestaurante.interfaces.ProductoApi;
 import com.example.apprestaurante.network.ApiClient;
@@ -138,6 +138,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
 
             @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
             public void onResponseList(List<Familia> response) {
                 lstFamilias = response;
                 for (Familia familia : lstFamilias) {
@@ -204,35 +209,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         }
     }
 
-    private void InsertarPedido(Pedido pedido) {
-
-        // Crea una instancia de la interfaz de Retrofit para realizar la inserción
-        PedidoApi pedidoApi = ApiClient.getClient().create(PedidoApi.class);
-
-        // Realiza la llamada para insertar el pedido
-        Call<Boolean> call = pedidoApi.insertarPedido(pedido);
-
-        call.enqueue(new Callback<Boolean>() {
-            @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                if (response.isSuccessful()) {
-
-                    Toast.makeText(ComandaGestion.this, "Producto insertado con éxito", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Ocurrió un error en la inserción
-                    Toast.makeText(ComandaGestion.this, "Error al insertar el producto", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Boolean> call, Throwable t) {
-                // Si hay un error en la conexión de red
-                Toast.makeText(ComandaGestion.this, "Error en conexión de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
     @Override
     public void onItemClick(PedidoDetalle pedidoDetalle) {
         //Programar aqui cuando se quiere disminuir un pedido
@@ -247,6 +223,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 // Procesa la respuesta del producto aquí
                 producto = response;
                 ProcesarComanda(cantidad, id);
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
             }
 
             @Override
@@ -289,6 +270,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, precio));
                 //pedidoDetalle.ActualizarCompra()
                 Toast.makeText(this, "Se aumentara el producto: " + producto.getNombre(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "idPedido: " + idPedido + "Cantidad: " + cantidad + "SubTotal: " + CalcularSubTotal(cantidad, precio), Toast.LENGTH_LONG).show();
             }
             else
             {
@@ -302,11 +284,10 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 pedidoDetalle.setIdPedido(idPedido);
                 pedidoDetalle.setCantidad(cantidad);
                 pedidoDetalle.setPrecio(producto.getPrecio());
-                pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, 0));
+                pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, producto.getPrecio()));
                 pedidoDetalle.setGrupo("0");
                 pedidoDetalle.setUsuario(null);
-                //pedidoDetalle.Insertar();
-                Toast.makeText(this, "Se creara el producto: " + producto.getNombre(), Toast.LENGTH_SHORT).show();
+                InsertarPedidoDetalle(pedidoDetalle);
             }
 
         }
@@ -334,60 +315,170 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             pedido.setCredito(0);
             pedido.setBtc(0);
 
+            //Actualizar estado de la mesa
+            Mesa mesa = new Mesa();
+            mesa.setIdMesa(idMesa);
+            mesa.setDisponible(false);
+            ActualizarEstadoMesa(mesa);
+
             //pedido.Insertar()
-            InsertarPedido(pedido);
+            InsertarPedido(pedido, fecha, cantidad, idProducto);
 
 
-            //Agregamos detalles al pedido
-            PedidoDetalle pedidoDetalle = new PedidoDetalle();
-            pedidoDetalle.setIdDetalle(0);
-            pedidoDetalle.setCocinando(true);
-            pedidoDetalle.setExtras("");
-            pedidoDetalle.setHoraEntregado(fecha);
-            pedidoDetalle.setHoraPedido(fecha);
-            //pedidoDetalle.setIdCocinero(null);
-            pedidoDetalle.setIdProducto(Integer.parseInt(idProducto));
-            //DataTable up = DataManager.DBConsultas.UltimoPedido();
-            //pedidoDetalle.setIdPedido(idPedido);
-            pedidoDetalle.setCantidad(cantidad);
-            pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, producto.getPrecio()));
-            pedidoDetalle.setGrupo("0");
-            pedidoDetalle.setUsuario(null);
-            //pedidoDetalle.Fecha = null;
-
-            /*if (pedidoDetalle.Insertar())
-            {
-                Mesa mesa = new Mesa();
-                mesa.setIdMesa(idMesa);
-                mesa.setDisponible(false);
-                if (mesa.ActualizarEstado())
-                {
-                    //MessageBox.Show("SE ACTUALIZO CON EXITO");
-                    btnComanda.Enabled = true;
-                    btnDisminuir.Enabled = true;
-                    btnExtras.Enabled = true;
-                }
-                else
-                {
-                    //MessageBox.Show("ERROR AL ACTUALIZAR");
-                }
-                //MessageBox.Show("SE INSERTO CON EXITO");
-            }
-            else
-            {
-                //MessageBox.Show("ERROR AL INSERTAR");
-            }*/
-            Toast.makeText(this, "Se creo el producto: " + producto.getNombre(), Toast.LENGTH_SHORT).show();
         }
         //Vamos a actualizar el total del pedido
         Pedido pedido2 = new Pedido();
         pedido2.setIdMesa(idMesa);
         double total = CalcularTotal();
-        //pedido2.ActualizarTotal(total);
+        //pedido2.ActualizarTotalPedido(total);
 
         //Actualizar al final el datagrid
-        //CargarProductosPorMesa(lblMesa.Tag.ToString());
 
+
+    }
+
+    private void ActualizarEstadoMesa(Mesa mesa) {
+        MesaService mesaService = new MesaService();
+        mesaService.ActualizarEstadoMesa(mesa, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+
+                    //Toast.makeText(ComandaGestion.this, "Estado mesa actualizado", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void ObtenerUltimoPedido(PedidoDetalle pedidoDetalle, int cantidad) {
+        PedidoService pedidoService = new PedidoService();
+        pedidoService.obtenerUltimoPedido(new CallBackApi<Pedido>() {
+            @Override
+            public void onResponse(Pedido response) {
+                // Procesa la respuesta del producto aquí
+                pedidoDetalle.setIdPedido(response.getIdPedido());
+                pedidoDetalle.setCantidad(cantidad);
+                pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, producto.getPrecio()));
+                pedidoDetalle.setGrupo("0");
+                pedidoDetalle.setUsuario(null);
+                //pedidoDetalle.Fecha = null;
+
+               InsertarPedidoDetalle(pedidoDetalle);
+            }
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+            @Override
+            public void onResponseList(List<Pedido> response) {
+
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void InsertarPedidoDetalle(PedidoDetalle pedidoDetalle) {
+        PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
+        pedidoDetalleService.InsertarPedidoDetalle(pedidoDetalle, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    Boolean insertado = response.body();
+                    if (insertado != null && insertado) {
+                        // El pedido se insertó con éxito
+                        Toast.makeText(ComandaGestion.this, "Insertado con éxito pedidodetalle", Toast.LENGTH_SHORT).show();
+                        ObtenerProductosEnMesa(String.valueOf(idMesa));
+                    } else {
+                        // Hubo un error en la inserción del pedido
+                        Toast.makeText(ComandaGestion.this, "Hubo un error al insertar pedido detalle", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta al insertar detallepedido: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(ComandaGestion.this, "Error al insertar detalle pedido: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void InsertarPedido(Pedido pedido, String fecha, int cantidad, String idProducto) {
+        PedidoService pedidoService = new PedidoService();
+        pedidoService.InsertarPedido(pedido, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    Boolean insertado = response.body();
+                    if (insertado != null && insertado) {
+                        // El pedido se insertó con éxito
+                        //Agregamos detalles al pedido
+                        PedidoDetalle pedidoDetalle = new PedidoDetalle();
+                        pedidoDetalle.setCocinando(true);
+                        pedidoDetalle.setExtras("");
+                        pedidoDetalle.setHoraEntregado(fecha);
+                        pedidoDetalle.setHoraPedido(fecha);
+                        //pedidoDetalle.setIdCocinero(null);
+                        pedidoDetalle.setIdProducto(Integer.parseInt(idProducto));
+                        //Obtenemos el ultimo pedido y asignamos idpedio a pedidodetalle
+                        ObtenerUltimoPedido(pedidoDetalle, cantidad);
+
+                    } else {
+                        // Hubo un error en la inserción del pedido
+                        Toast.makeText(ComandaGestion.this, "Hubo un error al insertar pedido", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private double CalcularTotal() {
@@ -469,9 +560,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
         });
 
-
-
     }
-
 
 }

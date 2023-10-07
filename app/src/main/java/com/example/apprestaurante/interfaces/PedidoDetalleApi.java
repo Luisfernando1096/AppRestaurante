@@ -14,6 +14,6 @@ public interface PedidoDetalleApi {
     @GET("api/pedidodetalle/{id}")
     Call<List<PedidoDetalle>> productosEnMesa(@Path("id") String id);
     @POST("api/pedidodetalle/insertar")
-    Call<PedidoDetalle> insertarPedidoDetalle(@Body PedidoDetalle pedidoDetalle);
+    Call<Boolean> insertarPedidoDetalle(@Body PedidoDetalle pedidoDetalle);
 
 }

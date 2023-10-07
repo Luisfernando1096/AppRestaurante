@@ -83,6 +83,11 @@ public class MesasSalones extends AppCompatActivity {
             lstPedidos.clear();
         }
 
+        if(lstMesas != null){
+            lstMesas.clear();
+            glMesas.removeAllViews();
+        }
+
     }
 
     private void BuscarMesaPorSalon(View.OnClickListener mesaClickListener, String idSalon) {
