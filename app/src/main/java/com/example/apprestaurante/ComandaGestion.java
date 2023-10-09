@@ -32,6 +32,7 @@ import com.example.apprestaurante.interfaces.ProductoApi;
 import com.example.apprestaurante.network.ApiClient;
 import com.example.apprestaurante.services.*;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +52,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     List<Familia> lstFamilias;
     List<Producto> lstProductos;
     Producto producto;
+    Pedido nuevoPedido = null;
     public static List<PedidoDetalle> lstPedidos;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -243,6 +245,16 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                             PedidoDetalle pedido = lstPedidos.get(0);
                             idPedido = pedido.getIdPedido();
                             tvTicket.setText("#Ticket: " + idPedido);
+                            if(nuevoPedido != null){
+                                nuevoPedido.setIdPedido(idPedido);
+                                //Vamos a actualizar el total del pedido cuando es nuevo
+                                nuevoPedido.setIdMesa(idMesa);
+                                double total = CalcularTotal();
+                                nuevoPedido.setTotal(total);
+                                Toast.makeText(ComandaGestion.this, "Esto tiene total: " + total, Toast.LENGTH_SHORT).show();
+                                ActualizarTotalPedido();
+
+                            }
                             CargarPedidos();
                         }
                     }else{
@@ -273,6 +285,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             rcvPedidos.setLayoutManager(layoutManager);
             rcvPedidos.setHasFixedSize(true);
         }
+
     }
 
     @Override
@@ -313,7 +326,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         String fecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         if (lstPedidos.size() > 0)
         {
-            //Ya existe un pedido
+            nuevoPedido = new Pedido();
             boolean aumentarUnProducto = false;
             double precio = 0;
             //Saber si ya existe algun producto igual en los detalles
@@ -360,7 +373,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         else
         {
             //Creamos un nuevo pedido
-
+            nuevoPedido = new Pedido();
             //No hay productos, se inicia el pedido
             //Creamos el pedido
             Pedido pedido = new Pedido();
@@ -387,20 +400,44 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             mesa.setDisponible(false);
             ActualizarEstadoMesa(mesa);
 
-            //pedido.Insertar()
+            //Creamos el pedido
             InsertarPedido(pedido, fecha, cantidad, idProducto);
 
-
         }
-        //Vamos a actualizar el total del pedido
-        Pedido pedido2 = new Pedido();
-        pedido2.setIdMesa(idMesa);
-        double total = CalcularTotal();
-        //pedido2.ActualizarTotalPedido(total);
-
-        //Actualizar al final el datagrid
 
 
+    }
+
+    private void ActualizarTotalPedido() {
+        PedidoService pedidoService = new PedidoService();
+        pedidoService.ActualizarTotal(nuevoPedido, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    nuevoPedido = null;
+                    //Toast.makeText(ComandaGestion.this, "Estado mesa actualizado", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
+            }
+        });
     }
 
     private void ActualizarEstadoMesa(Mesa mesa) {
@@ -480,6 +517,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         // El pedido se insertó con éxito
                         Toast.makeText(ComandaGestion.this, "Insertado con éxito pedidodetalle", Toast.LENGTH_SHORT).show();
                         ObtenerProductosEnMesa(String.valueOf(idMesa));
+
                     } else {
                         // Hubo un error en la inserción del pedido
                         Toast.makeText(ComandaGestion.this, "Hubo un error al insertar pedido detalle", Toast.LENGTH_SHORT).show();
@@ -549,20 +587,22 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
     private double CalcularTotal() {
         double total = 0;
+        DecimalFormat df = new DecimalFormat("#.00");
         if (lstPedidos != null)
         {
             for (PedidoDetalle pDetalle: lstPedidos) {
                 total += pDetalle.getSubTotal();
             }
         }
-        return total;
+        return Double.parseDouble(df.format(total));
     }
 
-    private double CalcularSubTotal(int cantidad, double precio)
+    public double CalcularSubTotal(int cantidad, double precio)
     {
+        DecimalFormat df = new DecimalFormat("#.00");
         double subTotal;
         subTotal = precio*cantidad;
-        return subTotal;
+        return Double.parseDouble(df.format(subTotal));
     }
 
     private void BuscarProductoPorFamilia(View.OnClickListener productoClickListener, String idFamilia, View.OnLongClickListener productoLongClickListener) {

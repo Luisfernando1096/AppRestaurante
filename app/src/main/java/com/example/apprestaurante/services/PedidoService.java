@@ -4,6 +4,7 @@ import android.widget.Toast;
 
 import com.example.apprestaurante.ComandaGestion;
 import com.example.apprestaurante.clases.Familia;
+import com.example.apprestaurante.clases.Mesa;
 import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.clases.Producto;
 import com.example.apprestaurante.interfaces.CallBackApi;
@@ -60,6 +61,28 @@ public class PedidoService {
 
             @Override
             public void onFailure(Call<Pedido> call, Throwable t) {
+                callback.onFailure("Error en conexión de red: " + t.getMessage());
+            }
+        });
+    }
+
+    public void ActualizarTotal(Pedido pedido, final CallBackApi<Boolean> callback) {
+
+        // Crea una instancia de la interfaz de Retrofit para realizar la inserción
+        PedidoApi pedidoApi = ApiClient.getClient().create(PedidoApi.class);
+
+        // Realiza la llamada para insertar el pedido
+        Call<Boolean> call = pedidoApi.actualizarTotal(pedido);
+
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                callback.onResponseBool(response);
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                // Si hay un error en la conexión de red
                 callback.onFailure("Error en conexión de red: " + t.getMessage());
             }
         });
