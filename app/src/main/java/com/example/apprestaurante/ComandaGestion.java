@@ -347,7 +347,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 pedidoDetalle.setIdProducto(Integer.parseInt(idProducto));
                 pedidoDetalle.setCantidad(cantidad);
                 pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, precio));
-                //pedidoDetalle.ActualizarCompra()
+                ActualizarCompra(pedidoDetalle);
                 Toast.makeText(this, "Se aumentara el producto: " + producto.getNombre(), Toast.LENGTH_SHORT).show();
                 Toast.makeText(this, "idPedido: " + idPedido + "Cantidad: " + cantidad + "SubTotal: " + CalcularSubTotal(cantidad, precio), Toast.LENGTH_LONG).show();
             }
@@ -367,6 +367,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 pedidoDetalle.setGrupo("0");
                 pedidoDetalle.setUsuario(null);
                 InsertarPedidoDetalle(pedidoDetalle);
+
             }
 
         }
@@ -406,6 +407,39 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         }
 
 
+    }
+
+    private void ActualizarCompra(PedidoDetalle pedidoDetalle) {
+        PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
+        pedidoDetalleService.ActualizarCompra(pedidoDetalle, new CallBackApi<Boolean>() {
+
+
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    //Toast.makeText(ComandaGestion.this, "Estado mesa actualizado", Toast.LENGTH_SHORT).show();
+                    ObtenerProductosEnMesa(String.valueOf(idMesa));
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
+            }
+        });
     }
 
     private void ActualizarTotalPedido() {
