@@ -42,12 +42,12 @@ import retrofit2.Response;
 
 public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter.OnItemClickListener{
 
+    Button btnMesero;
     int idMesa, idPedido;
-    TextView tvTicket, textProductos;
+    TextView tvTicket, textProductos, tvMesa;
     RecyclerView rcvPedidos;
     private LinearLayoutManager layoutManager;
-    LinearLayout llFamilias, llProductos;
-
+    LinearLayout llFamilias, llProductos, llAcciones;
     List<Familia> lstFamilias;
     List<Producto> lstProductos;
     Producto producto;
@@ -62,11 +62,15 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         textProductos = findViewById(R.id.textProductos);
         rcvPedidos = findViewById(R.id.rcvPedidos);
         tvTicket = findViewById(R.id.tvTicket);
+        tvMesa = findViewById(R.id.tvMesa);
+        llAcciones = findViewById(R.id.llAcciones);
+
 
         //Obteniendo idMesa
         Intent intent = getIntent();
         if (intent != null) {
             idMesa = intent.getIntExtra("idMesa", 0); // El segundo parámetro (0) es el valor predeterminado si no se encuentra "idMesa"
+            tvMesa.setText("#Mesa: " + idMesa);
             ObtenerProductosEnMesa(String.valueOf(idMesa));
         }
 
@@ -79,6 +83,14 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             BuscarProductoPorId(tag, cantidad);
 
         };
+
+        View.OnClickListener accionClickListener = view -> {
+            // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
+            String tag = String.valueOf(view.getTag());
+            ProgramarAcciones(tag);
+        };
+
+        CrearBotones(accionClickListener);
 
         View.OnLongClickListener productoLongClickListener = view -> {
             // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
@@ -97,6 +109,61 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
         BuscarFamilias(familiaClickListener);
 
+    }
+
+    private void ProgramarAcciones(String tag) {
+        if(tag.equals("1")){
+            //Comanda
+            Toast.makeText(this, "Click en comanda", Toast.LENGTH_SHORT).show();
+        }else if(tag.equals("2")){
+            //Extra
+            Toast.makeText(this, "Click en extra", Toast.LENGTH_SHORT).show();
+        }else if(tag.equals("3")){
+            //Cambiar mesa
+            Toast.makeText(this, "Click en cambio mesa", Toast.LENGTH_SHORT).show();
+        }else if(tag.equals("4")){
+            //Mesero
+            Toast.makeText(this, "Click en mesero", Toast.LENGTH_SHORT).show();
+        }else if(tag.equals("5")){
+            //Cliente
+            Toast.makeText(this, "Click en cliente", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void CrearBotones(View.OnClickListener accionClickListener) {
+        String[] valores = {"comanda", "Extras", "Cambiar mesa", "Mesero", "Cliente"};
+        int[] imagen = {R.drawable.comanda, R.drawable.extras, R.drawable.cambio_mesa, R.drawable.mesero, R.drawable.cliente};
+        for (int i = 0; i < valores.length; i++) {
+            Button btnAccion = new Button(ComandaGestion.this);
+            btnAccion.setText(valores[i]);
+            btnAccion.setTag(i+1);
+            btnAccion.setOnClickListener(accionClickListener);
+
+            btnAccion.setTextSize(8);
+
+            DarEstiloBoton(btnAccion, imagen[i], 50, 50);
+
+            llAcciones.addView(btnAccion);
+        }
+    }
+
+    private void DarEstiloBoton(Button btn, int imagen, int ancho, int alto) {
+        // Obtén la imagen que deseas usar desde los recursos drawable
+        @SuppressLint("UseCompatLoadingForDrawables") Drawable originalDrawable = getResources().getDrawable(imagen); // Reemplaza "tu_imagen" con el nombre de tu imagen en res/drawable
+
+        // Redimensiona la imagen al tamaño deseado
+        int width = ancho; // Ancho en píxeles
+        int height = alto; // Alto en píxeles
+        Bitmap bitmap = ((BitmapDrawable) originalDrawable).getBitmap();
+        Drawable icono = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, width, height, true));
+
+        // Establece la posición del icono en el botón (izquierda, arriba, derecha, abajo)
+        btn.setCompoundDrawablesWithIntrinsicBounds(null, icono, null, null);
+
+        // Agrega el botón al GridLayout
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+        params.setMargins(5, 5, 5, 5); // Espacio entre los botones
+        btn.setLayoutParams(params);
     }
 
     private void CrearAlertaDialogo(String tag, View view){
@@ -176,7 +243,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                             PedidoDetalle pedido = lstPedidos.get(0);
                             idPedido = pedido.getIdPedido();
                             tvTicket.setText("#Ticket: " + idPedido);
-                            Toast.makeText(ComandaGestion.this, "Ingreso perfectamente el idPedido", Toast.LENGTH_SHORT).show();
                             CargarPedidos();
                         }
                     }else{
@@ -522,22 +588,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
                                 btnProducto.setTextSize(8);
 
-                                // Obtén la imagen que deseas usar desde los recursos drawable
-                                @SuppressLint("UseCompatLoadingForDrawables") Drawable originalDrawable = getResources().getDrawable(R.drawable.productos); // Reemplaza "tu_imagen" con el nombre de tu imagen en res/drawable
-
-                                // Redimensiona la imagen al tamaño deseado
-                                int width = 100; // Ancho en píxeles
-                                int height = 100; // Alto en píxeles
-                                Bitmap bitmap = ((BitmapDrawable) originalDrawable).getBitmap();
-                                Drawable icono = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, width, height, true));
-
-                                // Establece la posición del icono en el botón (izquierda, arriba, derecha, abajo)
-                                btnProducto.setCompoundDrawablesWithIntrinsicBounds(null, icono, null, null);
-
-                                // Agrega el botón al GridLayout
-                                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                                params.setMargins(5, 5, 5, 5); // Espacio entre los botones
-                                btnProducto.setLayoutParams(params);
+                                DarEstiloBoton(btnProducto, R.drawable.productos, 100, 100);
 
                                 llProductos.addView(btnProducto);
 
