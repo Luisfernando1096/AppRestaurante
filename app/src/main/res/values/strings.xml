@@ -5,6 +5,10 @@
     <string name="textSalones">Salones</string>
         <string name="textFamilias">Familias</string>
     <string name="textProductos">Productos</string>
-    <string name="textMesas">Mesas</string>
     <string name="textDescripcion">ScrollBarr</string>
+    <string name="textComandaGestionDiv">Divir pedido</string>
+    <string name="txtCuenta1">Cuenta 1</string>
+    <string name="txtCuenta2">Cuenta 2</string>
+    <string name="textAgregarCuenta2">Agregar a una segunda cuenta</string>
+
 </resources>
