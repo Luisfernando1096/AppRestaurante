@@ -16,11 +16,14 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".DividirPedidos"
+            android:exported="false" />
+        <activity
             android:name=".ComandaGestion"
             android:exported="false" />
         <activity
             android:name=".MesasSalones"
-            android:exported="false"></activity>
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
