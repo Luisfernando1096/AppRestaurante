@@ -28,8 +28,8 @@ public class ViewHolderPedidoCuenta1 extends RecyclerView.ViewHolder{
 
     public ViewHolderPedidoCuenta1(@NonNull View itemView) {
         super(itemView);
-        this.tvCantidad = itemView.findViewById(R.id.tvCantidadDiv1);
-        this.tvProducto = itemView.findViewById(R.id.tvProductoDiv1);
-        this.tvSubTotal = itemView.findViewById(R.id.tvSubTotalDiv1);
+        this.tvCantidad = itemView.findViewById(R.id.tvCantidad);
+        this.tvProducto = itemView.findViewById(R.id.tvProducto);
+        this.tvSubTotal = itemView.findViewById(R.id.tvSubTotal);
     }
 }

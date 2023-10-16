@@ -31,32 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="1dp">
 
-        <TextView
-            android:id="@+id/tvCantidadDiv1"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="Cant"
-            android:textSize="16dp"
-            android:textAlignment="center"/>
 
-        <TextView
-            android:id="@+id/tvProductoDiv1"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="Producto"
-            android:textSize="16dp"
-            android:textAlignment="center"/>
-
-        <TextView
-            android:id="@+id/tvSubTotalDiv1"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="Subtotal"
-            android:textSize="16dp"
-            android:textAlignment="center"/>
 
     </LinearLayout>
 

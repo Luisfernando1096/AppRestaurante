@@ -43,14 +43,13 @@ import retrofit2.Response;
 
 public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter.OnItemClickListener{
 
-    Button btnMesero;
     int idMesa, idPedido;
     TextView tvTicket, textProductos, tvMesa;
     RecyclerView rcvPedidos;
     private LinearLayoutManager layoutManager;
     LinearLayout llFamilias, llProductos, llAcciones;
     List<Familia> lstFamilias;
-    List<Producto> lstProductos;
+    public static List<Producto> lstProductos;
     Producto producto;
     Pedido nuevoPedido = null;
     public static List<PedidoDetalle> lstPedidos;
@@ -116,7 +115,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void ProgramarAcciones(String tag) {
         if(tag.equals("1")){
             //Comanda
-            Toast.makeText(this, "Click en comanda", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(ComandaGestion.this, DividirPedidos.class);
+            startActivity(intent);
         }else if(tag.equals("2")){
             //Extra
             Toast.makeText(this, "Click en extra", Toast.LENGTH_SHORT).show();

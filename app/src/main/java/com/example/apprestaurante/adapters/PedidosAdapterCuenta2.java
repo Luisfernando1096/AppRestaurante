@@ -18,9 +18,8 @@ public class PedidosAdapterCuenta2 extends RecyclerView.Adapter<ViewHolderPedido
     private List<PedidoDetalle> datos;
     private OnItemClickListener onItemClickListener;
 
-    public PedidosAdapterCuenta2(List<PedidoDetalle> datos, OnItemClickListener itemClickListener) {
+    public PedidosAdapterCuenta2(List<PedidoDetalle> datos) {
         this.datos = datos;
-        this.onItemClickListener = itemClickListener;
     }
 
     @NonNull

@@ -11,16 +11,15 @@ import com.example.apprestaurante.R;
 import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.viewHolders.ViewHolderPedidoCuenta1;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PedidosAdapterCuenta1  extends RecyclerView.Adapter<ViewHolderPedidoCuenta1>{
     private List<PedidoDetalle> datos;
-    private OnItemClickListener onItemClickListener;
 
-    public PedidosAdapterCuenta1(List<PedidoDetalle> datos, OnItemClickListener itemClickListener) {
+    public PedidosAdapterCuenta1(List<PedidoDetalle> datos) {
         this.datos = datos;
-        this.onItemClickListener = itemClickListener;
     }
 
     @NonNull
@@ -38,15 +37,9 @@ public class PedidosAdapterCuenta1  extends RecyclerView.Adapter<ViewHolderPedid
         System.out.println("Cantidad : " + datos.get(position).getCantidad());
         holder.getTvCantidad().setText(datos.get(position).getCantidad() + "");
         holder.getTvProducto().setText(datos.get(position).getNombre() + "");
-        holder.getTvSubTotal().setText(datos.get(position).getSubTotal() + "");
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(onItemClickListener != null){
-                    onItemClickListener.onItemClick(pedidoDetalleItem);
-                }
-            }
-        });
+        DecimalFormat df = new DecimalFormat("#.00");
+
+        holder.getTvSubTotal().setText(df.format(datos.get(position).getSubTotal()) + "");
     }
 
     @Override
