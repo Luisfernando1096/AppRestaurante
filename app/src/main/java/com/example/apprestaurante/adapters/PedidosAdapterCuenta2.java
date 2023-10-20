@@ -1,5 +1,4 @@
 package com.example.apprestaurante.adapters;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import java.util.List;
 public class PedidosAdapterCuenta2 extends RecyclerView.Adapter<ViewHolderPedidoCuenta2>{
     private List<PedidoDetalle> datos;
     private OnItemClickListener onItemClickListener;
-
     public PedidosAdapterCuenta2(List<PedidoDetalle> datos) {
         this.datos = datos;
     }
@@ -55,5 +53,8 @@ public class PedidosAdapterCuenta2 extends RecyclerView.Adapter<ViewHolderPedido
 
     public interface OnItemClickListener {
         void onItemClick(PedidoDetalle pedidoDetalle);
+    }
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
     }
 }

@@ -115,11 +115,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void ProgramarAcciones(String tag) {
         if(tag.equals("1")){
             //Comanda
-            Intent intent = new Intent(ComandaGestion.this, DividirPedidos.class);
-            startActivity(intent);
+            Toast.makeText(this, "Click en comandas", Toast.LENGTH_SHORT).show();
         }else if(tag.equals("2")){
             //Extra
-            Toast.makeText(this, "Click en extra", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(ComandaGestion.this, DividirPedidos.class);
+            startActivity(intent);
         }else if(tag.equals("3")){
             //Cambiar mesa
             Toast.makeText(this, "Click en cambio mesa", Toast.LENGTH_SHORT).show();

@@ -1,23 +1,19 @@
 package com.example.apprestaurante.adapters;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.apprestaurante.R;
 import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.viewHolders.ViewHolderPedidoCuenta1;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PedidosAdapterCuenta1  extends RecyclerView.Adapter<ViewHolderPedidoCuenta1>{
     private List<PedidoDetalle> datos;
-
+    private OnItemClickListener onItemClickListener; //Se agrego
     public PedidosAdapterCuenta1(List<PedidoDetalle> datos) {
         this.datos = datos;
     }
@@ -38,8 +34,15 @@ public class PedidosAdapterCuenta1  extends RecyclerView.Adapter<ViewHolderPedid
         holder.getTvCantidad().setText(datos.get(position).getCantidad() + "");
         holder.getTvProducto().setText(datos.get(position).getNombre() + "");
         DecimalFormat df = new DecimalFormat("#.00");
-
         holder.getTvSubTotal().setText(df.format(datos.get(position).getSubTotal()) + "");
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(onItemClickListener != null){
+                    onItemClickListener.onItemClick(pedidoDetalleItem);
+                }
+            }
+        });
     }
 
     @Override
@@ -50,4 +53,8 @@ public class PedidosAdapterCuenta1  extends RecyclerView.Adapter<ViewHolderPedid
     public interface OnItemClickListener {
         void onItemClick(PedidoDetalle pedidoDetalle);
     }
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
+    }
+
 }

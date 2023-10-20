@@ -26,7 +26,7 @@ public class PedidoDetalle {
         this.idDetalle = idDetalle;
     }
 
-    public boolean isCocinando() {
+    public boolean getCocinando() {
         return cocinando;
     }
 
