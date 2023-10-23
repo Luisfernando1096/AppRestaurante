@@ -12,17 +12,28 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.apprestaurante.adapters.PedidosAdapterCuenta1;
 import com.example.apprestaurante.adapters.PedidosAdapterCuenta2;
+import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.clases.PedidoDetalle;
+import com.example.apprestaurante.interfaces.CallBackApi;
+import com.example.apprestaurante.services.PedidoDetalleService;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import retrofit2.Response;
 
 public class DividirPedidos extends AppCompatActivity {
 
@@ -32,6 +43,7 @@ public class DividirPedidos extends AppCompatActivity {
     List<PedidoDetalle> lstPedidosSiguiente;
     List<PedidoDetalle> lstPedidoGuardadosR1;
     List<PedidoDetalle> lstInicial;
+    Button btnDividir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +51,161 @@ public class DividirPedidos extends AppCompatActivity {
         setContentView(R.layout.activity_dividir_pedidos);
         lstPedidoGuardadosR1 = new ArrayList<>(); // Inicializa la lista lstPedidoGuardados
 
+        btnDividir = findViewById(R.id.btnDividir);
+
         lstInicial = new ArrayList<>();
         for (PedidoDetalle elemento : lstPedidos) {
             lstInicial.add((PedidoDetalle) elemento.clone()); // Asumiendo que TuTipoDeElemento implementa el método clone()
         }
 
+        btnDividir.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ProcesoDividirPedido();
+            }
+        });
+
         CargarPedidosDetalle1BD();
         CargarPedidosDetalle2();
+    }
+
+    private void ProcesoDividirPedido() {
+
+        int idPedido = getIntent().getIntExtra("idPedido", 0);
+        int idMesa = getIntent().getIntExtra("idMesa", 0);
+
+        if (lstPedidosSiguiente != null)
+        {
+            //Programado para el pedido principal
+            PedidoDetalle pedidoDetalle;
+            if (lstInicial == lstPedidosActual)
+            {
+                //Solo actualizacion
+                for (PedidoDetalle siguiente : lstPedidosSiguiente)
+                {
+                    for (PedidoDetalle actual : lstPedidosActual)
+                    {
+                        if (siguiente.getIdProducto() == actual.getIdProducto())
+                        {
+                            pedidoDetalle = new PedidoDetalle();
+                            pedidoDetalle.setIdDetalle(actual.getIdDetalle());
+                            pedidoDetalle.setIdPedido(idPedido);
+                            pedidoDetalle.setIdProducto(actual.getIdProducto());
+                            pedidoDetalle.setCantidad(actual.getCantidad());
+                            pedidoDetalle.setSubTotal(actual.getSubTotal());
+                            //ActualizarCompra(pedidoDetalle);
+
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                boolean eliminar = false;
+                //Habra eliminacion y posible actualizacion
+                for (PedidoDetalle siguiente : lstPedidosSiguiente)
+                {
+                    for (PedidoDetalle actual : lstPedidosActual)
+                    {
+                        if (siguiente.getIdProducto() == actual.getIdProducto())
+                        {
+                            pedidoDetalle = new PedidoDetalle();
+                            pedidoDetalle.setIdDetalle(actual.getIdDetalle());
+                            pedidoDetalle.setIdPedido(idPedido);
+                            pedidoDetalle.setIdProducto(actual.getIdProducto());
+                            pedidoDetalle.setCantidad(actual.getCantidad());
+                            pedidoDetalle.setSubTotal(actual.getSubTotal());
+                            //ActualizarCompra(pedidoDetalle);
+                            eliminar = false;
+                            break;
+                        }
+                        else
+                        {
+                            eliminar = true;
+                        }
+                    }
+
+                    if (eliminar)
+                    {
+                        pedidoDetalle = new PedidoDetalle();
+                        pedidoDetalle.setIdDetalle(siguiente.getIdDetalle());
+                        //Eliminar(pedidoDetalle);
+                    }
+                    //Vamos a actualizar el total del pedido
+                    Pedido pedido2 = new Pedido();
+                    pedido2.setIdPedido(idPedido);
+                    pedido2.setIdMesa(idMesa);
+                    double total = CalcularTotal(lstPedidosActual);
+                    pedido2.setTotal(total);
+                    //ActualizarTotal(pedido2);
+                }
+
+            }
+
+            // Obtiene la fecha y hora actual
+            Date fechaActual = new Date();
+
+            // Crea un objeto SimpleDateFormat con el formato deseado
+            SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            // Formatea la fecha y hora actual
+            String fechaFormateada = formato.format(fechaActual);
+
+            //Creamos un nuevo pedido y despues los detalles
+            Pedido pedido = new Pedido();
+            pedido.setIdMesa(idMesa);
+            pedido.setIdCuenta(1);
+            pedido.setCancelado(false);
+            pedido.setFecha(fechaFormateada);
+            pedido.setListo(false);
+            pedido.setTotal(0);
+            pedido.setDescuento(0);
+            pedido.setIva(0);
+            pedido.setPropina(0);
+            pedido.setTotalPago(0);
+            pedido.setSaldo(0);
+            pedido.setnFactura("0");
+            pedido.setAnular(false);
+            pedido.setEfectivo(0);
+            pedido.setCredito(0);
+            pedido.setBtc(0);
+
+            //Agregamos detalles al pedido
+            PedidoDetalle pedidoDetalle2;
+            //ObtenerUltimoPedido();
+            int idPedidoInsertado = 0;//Guardamos el id del ultimo pedido
+            //Insertar(pedido);
+            //Insertamos en la base de datos el pedido
+                for (PedidoDetalle siguiente : lstPedidosSiguiente)
+                {
+                    pedidoDetalle2 = new PedidoDetalle();
+                    pedidoDetalle2.setIdDetalle(0);
+                    pedidoDetalle2.setCocinando(true);
+                    pedidoDetalle2.setExtras("");
+                    pedidoDetalle2.setHoraEntregado(fechaFormateada);
+                    pedidoDetalle2.setHoraPedido(fechaFormateada);
+                    //pedidoDetalle2.IdCocinero = null;
+                    pedidoDetalle2.setIdProducto(siguiente.getIdProducto());
+                    pedidoDetalle2.setIdPedido(idPedidoInsertado);
+                    pedidoDetalle2.setCantidad(siguiente.getCantidad());
+                    pedidoDetalle2.setPrecio(siguiente.getPrecio());
+                    pedidoDetalle2.setSubTotal(siguiente.getSubTotal());
+                    pedidoDetalle2.setGrupo("0");
+                    pedidoDetalle2.setUsuario("1");
+                    //pedidoDetalle2.Fecha = null;
+                    //Insertar(pedidoDetalle2);
+                }
+                double total = CalcularTotal(lstPedidosSiguiente);
+                pedido.setIdPedido(idPedidoInsertado);
+                pedido.setTotal(total);
+                //ActualizarTotal(pedido);
+            finish();
+        }
+        else
+        {
+            Toast.makeText(this, "No hay nada que separar", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void CargarPedidosDetalle1BD(){
@@ -425,5 +585,50 @@ public class DividirPedidos extends AppCompatActivity {
                 });
             }
         }
+    }
+
+    private void ActualizarCompra(PedidoDetalle pedidoDetalle) {
+        PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
+        pedidoDetalleService.ActualizarCompra(pedidoDetalle, new CallBackApi<Boolean>() {
+
+
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    //Toast.makeText(ComandaGestion.this, "Estado mesa actualizado", Toast.LENGTH_SHORT).show();
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(DividirPedidos.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
+            }
+        });
+
+    }
+
+    private double CalcularTotal(List<PedidoDetalle> lst) {
+        double total = 0;
+        DecimalFormat df = new DecimalFormat("#.00");
+        if (lst != null)
+        {
+            for (PedidoDetalle pDetalle: lst) {
+                total += pDetalle.getSubTotal();
+            }
+        }
+        return Double.parseDouble(df.format(total));
     }
 }

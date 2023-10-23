@@ -119,6 +119,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         }else if(tag.equals("2")){
             //Extra
             Intent intent = new Intent(ComandaGestion.this, DividirPedidos.class);
+            intent.putExtra("idPedido", idPedido);
+            intent.putExtra("idMesa", idMesa);
             startActivity(intent);
         }else if(tag.equals("3")){
             //Cambiar mesa
