@@ -1,6 +1,6 @@
 package com.example.apprestaurante.clases;
 
-public class PedidoDetalle {
+public class PedidoDetalle implements Cloneable{
     int idDetalle;
     boolean cocinando;
     String extras;
@@ -144,5 +144,14 @@ public class PedidoDetalle {
 
     public void setFecha(String fecha) {
         this.fecha = fecha;
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            return super.clone(); // Llama al método clone() de la superclase
+        } catch (CloneNotSupportedException e) {
+            throw new InternalError(e);
+        }
     }
 }

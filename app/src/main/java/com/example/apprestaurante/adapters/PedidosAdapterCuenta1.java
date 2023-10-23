@@ -2,6 +2,7 @@ package com.example.apprestaurante.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.apprestaurante.R;
@@ -14,6 +15,7 @@ import java.util.List;
 public class PedidosAdapterCuenta1  extends RecyclerView.Adapter<ViewHolderPedidoCuenta1>{
     private List<PedidoDetalle> datos;
     private OnItemClickListener onItemClickListener; //Se agrego
+    private OnItemLongClickListener onItemLongClickListener;
     public PedidosAdapterCuenta1(List<PedidoDetalle> datos) {
         this.datos = datos;
     }
@@ -43,6 +45,15 @@ public class PedidosAdapterCuenta1  extends RecyclerView.Adapter<ViewHolderPedid
                 }
             }
         });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(onItemLongClickListener != null){
+                    onItemLongClickListener.onItemLongClick(pedidoDetalleItem);
+                }
+                return true;
+            }
+        });
     }
 
     @Override
@@ -53,8 +64,17 @@ public class PedidosAdapterCuenta1  extends RecyclerView.Adapter<ViewHolderPedid
     public interface OnItemClickListener {
         void onItemClick(PedidoDetalle pedidoDetalle);
     }
+
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.onItemClickListener = listener;
+    }
+
+    public interface OnItemLongClickListener {
+        void onItemLongClick(PedidoDetalle pedidoDetalle);
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.onItemLongClickListener = listener;
     }
 
 }

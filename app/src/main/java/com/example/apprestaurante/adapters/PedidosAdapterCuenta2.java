@@ -16,6 +16,8 @@ import java.util.List;
 public class PedidosAdapterCuenta2 extends RecyclerView.Adapter<ViewHolderPedidoCuenta2>{
     private List<PedidoDetalle> datos;
     private OnItemClickListener onItemClickListener;
+    private OnItemLongClickListener onItemLongClickListener;
+
     public PedidosAdapterCuenta2(List<PedidoDetalle> datos) {
         this.datos = datos;
     }
@@ -44,6 +46,15 @@ public class PedidosAdapterCuenta2 extends RecyclerView.Adapter<ViewHolderPedido
                 }
             }
         });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(onItemLongClickListener != null){
+                    onItemLongClickListener.onItemLongClick(pedidoDetalleItem);
+                }
+                return true;
+            }
+        });
     }
 
     @Override
@@ -56,5 +67,12 @@ public class PedidosAdapterCuenta2 extends RecyclerView.Adapter<ViewHolderPedido
     }
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.onItemClickListener = listener;
+    }
+    public interface OnItemLongClickListener {
+        void onItemLongClick(PedidoDetalle pedidoDetalle);
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.onItemLongClickListener = listener;
     }
 }

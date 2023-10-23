@@ -25,19 +25,24 @@ import java.util.Iterator;
 import java.util.List;
 
 public class DividirPedidos extends AppCompatActivity {
-    private String origenClic; // Variable para rastrear el origen del clic
 
     RecyclerView rcvPedidosActual, rcvPedidosSiguiente;
     private LinearLayoutManager layoutManagerActual, layoutManagerSiguiente;
     List<PedidoDetalle> lstPedidosActual;
     List<PedidoDetalle> lstPedidosSiguiente;
     List<PedidoDetalle> lstPedidoGuardadosR1;
+    List<PedidoDetalle> lstInicial;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dividir_pedidos);
         lstPedidoGuardadosR1 = new ArrayList<>(); // Inicializa la lista lstPedidoGuardados
+
+        lstInicial = new ArrayList<>();
+        for (PedidoDetalle elemento : lstPedidos) {
+            lstInicial.add((PedidoDetalle) elemento.clone()); // Asumiendo que TuTipoDeElemento implementa el método clone()
+        }
 
         CargarPedidosDetalle1BD();
         CargarPedidosDetalle2();
@@ -56,9 +61,9 @@ public class DividirPedidos extends AppCompatActivity {
 
             if (rcvPedidosActual != null){
                 PedidosAdapterCuenta1 pedidosAdapterC1 = (PedidosAdapterCuenta1) rcvPedidosActual.getAdapter();
-                pedidosAdapterC1.setOnItemClickListener(new PedidosAdapterCuenta1.OnItemClickListener() {
+                pedidosAdapterC1.setOnItemLongClickListener(new PedidosAdapterCuenta1.OnItemLongClickListener() {
                     @Override
-                    public void onItemClick(PedidoDetalle pedidoDetalle) {
+                    public void onItemLongClick(PedidoDetalle pedidoDetalle) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(DividirPedidos.this);
                         TextView title = new TextView(DividirPedidos.this);
                         title.setText("Ingrese la cantidad del producto: " + pedidoDetalle.getNombre());
@@ -246,9 +251,9 @@ public class DividirPedidos extends AppCompatActivity {
 
             if (rcvPedidosSiguiente != null) {
                 PedidosAdapterCuenta2 pedidosAdapterC2 = (PedidosAdapterCuenta2) rcvPedidosSiguiente.getAdapter();
-                pedidosAdapterC2.setOnItemClickListener(new PedidosAdapterCuenta2.OnItemClickListener() {
+                pedidosAdapterC2.setOnItemLongClickListener(new PedidosAdapterCuenta2.OnItemLongClickListener() {
                     @Override
-                    public void onItemClick(PedidoDetalle pedidoDetalle) {
+                    public void onItemLongClick(PedidoDetalle pedidoDetalle) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(DividirPedidos.this);
                         TextView title = new TextView(DividirPedidos.this);
                         title.setText("Ingrese la cantidad del producto: " + pedidoDetalle.getNombre());
