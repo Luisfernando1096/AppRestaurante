@@ -6,6 +6,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -18,4 +19,6 @@ public interface PedidoDetalleApi {
     Call<Boolean> insertarPedidoDetalle(@Body PedidoDetalle pedidoDetalle);
     @PUT("api/pedidodetalle/actualizarcompra")
     Call<Boolean> ActualizarCompra(@Body PedidoDetalle pedidoDetalle);
+    @DELETE("api/pedidodetalle/eliminarpedidodetalle/{id}")
+    Call<Boolean> EliminarPedidoDetalle(@Path("id") String id);
 }

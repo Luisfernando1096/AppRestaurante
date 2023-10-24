@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -43,7 +44,7 @@ import retrofit2.Response;
 
 public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter.OnItemClickListener{
 
-    int idMesa, idPedido;
+    int idMesa, idPedido = 0;
     TextView tvTicket, textProductos, tvMesa;
     RecyclerView rcvPedidos;
     private LinearLayoutManager layoutManager;
@@ -76,7 +77,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             idMesa = intent.getIntExtra("idMesa", 0); // El segundo parámetro (0) es el valor predeterminado si no se encuentra "idMesa"
             tvMesa.setText("#Mesa: " + idMesa);
             CargarPedidosEnMesa();
-            ObtenerProductosEnMesa(String.valueOf(idMesa), "0");
+            ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
         }
 
         // Define un OnClickListener común para los botones de productos
@@ -113,6 +114,46 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         };
 
         BuscarFamilias(familiaClickListener);
+
+        btnCuentas.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Infla el diseño XML personalizado
+                View customLayout = getLayoutInflater().inflate(R.layout.item_dialog, null);
+
+                // Crea un AlertDialog con el diseño personalizado
+                AlertDialog.Builder builder = new AlertDialog.Builder(ComandaGestion.this);
+                builder.setView(customLayout);
+
+                // Declara una variable para almacenar el número seleccionado
+                final AlertDialog alertDialog = builder.create();
+
+                for (final Integer integer : lstPedidosEnMesa) {
+                    Button button = new Button(ComandaGestion.this);
+                    button.setText(integer.toString());
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            // Almacena el número entero seleccionado en la variable
+                            idPedido = integer;
+                            ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
+                            tvTicket.setText("#Ticket: " + idPedido);
+                            // Cierra el AlertDialog
+                            alertDialog.dismiss();
+                        }
+                    });
+                    ((LinearLayout) customLayout).addView(button);
+                }
+
+                builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+                alertDialog.show();
+            }
+        });
 
     }
 
@@ -394,7 +435,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 pedidoDetalle.setPrecio(producto.getPrecio());
                 pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, producto.getPrecio()));
                 pedidoDetalle.setGrupo("0");
-                pedidoDetalle.setUsuario(null);
+                pedidoDetalle.setUsuario("1");
                 InsertarPedidoDetalle(pedidoDetalle);
 
             }
@@ -451,7 +492,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
                     //Toast.makeText(ComandaGestion.this, "Estado mesa actualizado", Toast.LENGTH_SHORT).show();
-                    ObtenerProductosEnMesa(String.valueOf(idMesa), "0");
+                    ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
                 } else {
                     // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
@@ -547,7 +588,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Boolean insertado = response.body();
                     if (insertado != null && insertado) {
                         // El pedido se insertó con éxito
-                        ObtenerProductosEnMesa(String.valueOf(idMesa), "0");
+                        ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
 
                     } else {
                         // Hubo un error en la inserción del pedido
@@ -686,5 +727,10 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         });
 
     }
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CargarPedidosEnMesa();
+        ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
+    }
 }

@@ -24,6 +24,7 @@ import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.services.PedidoDetalleService;
+import com.example.apprestaurante.services.PedidoService;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -93,7 +94,7 @@ public class DividirPedidos extends AppCompatActivity {
                             pedidoDetalle.setIdProducto(actual.getIdProducto());
                             pedidoDetalle.setCantidad(actual.getCantidad());
                             pedidoDetalle.setSubTotal(actual.getSubTotal());
-                            //ActualizarCompra(pedidoDetalle);
+                            ActualizarCompra(pedidoDetalle);
 
                         }
                     }
@@ -116,7 +117,7 @@ public class DividirPedidos extends AppCompatActivity {
                             pedidoDetalle.setIdProducto(actual.getIdProducto());
                             pedidoDetalle.setCantidad(actual.getCantidad());
                             pedidoDetalle.setSubTotal(actual.getSubTotal());
-                            //ActualizarCompra(pedidoDetalle);
+                            ActualizarCompra(pedidoDetalle);
                             eliminar = false;
                             break;
                         }
@@ -128,9 +129,8 @@ public class DividirPedidos extends AppCompatActivity {
 
                     if (eliminar)
                     {
-                        pedidoDetalle = new PedidoDetalle();
-                        pedidoDetalle.setIdDetalle(siguiente.getIdDetalle());
-                        //Eliminar(pedidoDetalle);
+                        Toast.makeText(this, "Eliminara: " + siguiente.getIdDetalle(), Toast.LENGTH_SHORT).show();
+                        EliminarPedidoDetalle(String.valueOf(siguiente.getIdDetalle()));
                     }
                     //Vamos a actualizar el total del pedido
                     Pedido pedido2 = new Pedido();
@@ -138,7 +138,7 @@ public class DividirPedidos extends AppCompatActivity {
                     pedido2.setIdMesa(idMesa);
                     double total = CalcularTotal(lstPedidosActual);
                     pedido2.setTotal(total);
-                    //ActualizarTotal(pedido2);
+                    ActualizarTotalPedido(pedido2);
                 }
 
             }
@@ -171,41 +171,171 @@ public class DividirPedidos extends AppCompatActivity {
             pedido.setCredito(0);
             pedido.setBtc(0);
 
-            //Agregamos detalles al pedido
-            PedidoDetalle pedidoDetalle2;
-            //ObtenerUltimoPedido();
-            int idPedidoInsertado = 0;//Guardamos el id del ultimo pedido
-            //Insertar(pedido);
-            //Insertamos en la base de datos el pedido
-                for (PedidoDetalle siguiente : lstPedidosSiguiente)
-                {
-                    pedidoDetalle2 = new PedidoDetalle();
-                    pedidoDetalle2.setIdDetalle(0);
-                    pedidoDetalle2.setCocinando(true);
-                    pedidoDetalle2.setExtras("");
-                    pedidoDetalle2.setHoraEntregado(fechaFormateada);
-                    pedidoDetalle2.setHoraPedido(fechaFormateada);
-                    //pedidoDetalle2.IdCocinero = null;
-                    pedidoDetalle2.setIdProducto(siguiente.getIdProducto());
-                    pedidoDetalle2.setIdPedido(idPedidoInsertado);
-                    pedidoDetalle2.setCantidad(siguiente.getCantidad());
-                    pedidoDetalle2.setPrecio(siguiente.getPrecio());
-                    pedidoDetalle2.setSubTotal(siguiente.getSubTotal());
-                    pedidoDetalle2.setGrupo("0");
-                    pedidoDetalle2.setUsuario("1");
-                    //pedidoDetalle2.Fecha = null;
-                    //Insertar(pedidoDetalle2);
-                }
-                double total = CalcularTotal(lstPedidosSiguiente);
-                pedido.setIdPedido(idPedidoInsertado);
-                pedido.setTotal(total);
-                //ActualizarTotal(pedido);
-            finish();
+            InsertarPedido(pedido, fechaFormateada);
         }
         else
         {
             Toast.makeText(this, "No hay nada que separar", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void InsertarPedido(Pedido pedido, String fechaFormateada) {
+        PedidoService pedidoService = new PedidoService();
+        pedidoService.InsertarPedido(pedido, new CallBackApi<Integer>() {
+            @Override
+            public void onResponse(Integer response) {
+                if(response.intValue() > 0){
+                    int idPedido = response.intValue();
+                    // El pedido se insertó con éxito
+                    //Insertamos en la base de datos el pedido
+                    for (PedidoDetalle siguiente : lstPedidosSiguiente)
+                    {
+                        PedidoDetalle pedidoDetalle2;
+                        pedidoDetalle2 = new PedidoDetalle();
+                        pedidoDetalle2.setIdDetalle(0);
+                        pedidoDetalle2.setCocinando(true);
+                        pedidoDetalle2.setExtras("");
+                        pedidoDetalle2.setHoraEntregado(fechaFormateada);
+                        pedidoDetalle2.setHoraPedido(fechaFormateada);
+                        //pedidoDetalle2.IdCocinero = null;
+                        pedidoDetalle2.setIdProducto(siguiente.getIdProducto());
+                        pedidoDetalle2.setIdPedido(idPedido);
+                        pedidoDetalle2.setCantidad(siguiente.getCantidad());
+                        pedidoDetalle2.setPrecio(siguiente.getPrecio());
+                        pedidoDetalle2.setSubTotal(siguiente.getSubTotal());
+                        pedidoDetalle2.setGrupo("0");
+                        pedidoDetalle2.setUsuario("1");
+                        //pedidoDetalle2.Fecha = null;
+                        InsertarPedidoDetalle(pedidoDetalle2);
+                    }
+                    double total = CalcularTotal(lstPedidosSiguiente);
+                    pedido.setIdPedido(idPedido);
+                    pedido.setTotal(total);
+                    ActualizarTotalPedido(pedido);
+                    finish();
+                }else {
+                    // Hubo un error en la inserción del pedido
+                    Toast.makeText(DividirPedidos.this, "Hubo un error al insertar pedido", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
+            public void onResponseList(List<Integer> response) {
+
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(DividirPedidos.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void InsertarPedidoDetalle(PedidoDetalle pedidoDetalle) {
+        PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
+        pedidoDetalleService.InsertarPedidoDetalle(pedidoDetalle, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    Boolean insertado = response.body();
+                    if (insertado != null && insertado) {
+                        // El pedido se insertó con éxito
+
+                    } else {
+                        // Hubo un error en la inserción del pedido
+                        Toast.makeText(DividirPedidos.this, "Hubo un error al insertar pedido detalle", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(DividirPedidos.this, "Error en la respuesta al insertar detallepedido: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(DividirPedidos.this, "Error al insertar detalle pedido: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void ActualizarTotalPedido(Pedido nuevoPedido) {
+        PedidoService pedidoService = new PedidoService();
+        pedidoService.ActualizarTotal(nuevoPedido, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    //Toast.makeText(ComandaGestion.this, "Estado mesa actualizado", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(DividirPedidos.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
+            }
+        });
+    }
+
+    private void EliminarPedidoDetalle(String id) {
+        PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
+        pedidoDetalleService.EliminarPedidoDetalle(id, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    Boolean eliminado = response.body();
+                    if (eliminado != null && eliminado) {
+                        // El pedido se insertó con éxito
+                    } else {
+                        // Hubo un error en la inserción del pedido
+                        //Toast.makeText(DividirPedidos.this, "Hubo un error al eliminar pedido detalle", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(DividirPedidos.this, "Error en la respuesta al eliminar detallepedido: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
+            }
+        });
     }
 
     private void CargarPedidosDetalle1BD(){

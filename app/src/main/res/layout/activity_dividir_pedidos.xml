@@ -26,14 +26,6 @@
         android:text="@string/txtCuenta1"
         android:textSize="17sp"
         android:textStyle="bold" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="1dp">
-
-
-
-    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcvPedidos1"
@@ -59,39 +51,6 @@
         android:text="@string/txtCuenta2"
         android:textSize="17sp"
         android:textStyle="bold" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="1dp">
-
-        <TextView
-            android:id="@+id/tvCantidadDiv2"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="Cant"
-            android:textSize="16dp"
-            android:textAlignment="center"/>
-
-        <TextView
-            android:id="@+id/tvProductoDiv2"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="Producto"
-            android:textSize="16dp"
-            android:textAlignment="center"/>
-
-        <TextView
-            android:id="@+id/tvSubTotalDiv2"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="Subtotal"
-            android:textSize="16dp"
-            android:textAlignment="center"/>
-    </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcvPedidos2"
         android:layout_width="match_parent"

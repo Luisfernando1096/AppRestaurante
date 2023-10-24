@@ -10,6 +10,7 @@ import com.example.apprestaurante.R;
 import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.viewHolders.ViewHolderPedidoCuenta2;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,9 @@ public class PedidosAdapterCuenta2 extends RecyclerView.Adapter<ViewHolderPedido
         System.out.println("Cantidad : " + datos.get(position).getCantidad());
         holder.getTvCantidad().setText(datos.get(position).getCantidad() + "");
         holder.getTvProducto().setText(datos.get(position).getNombre() + "");
-        holder.getTvSubTotal().setText(datos.get(position).getSubTotal() + "");
+        DecimalFormat df = new DecimalFormat("#.00");
+
+        holder.getTvSubTotal().setText(df.format(datos.get(position).getSubTotal()) + "");
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -9,6 +9,6 @@
     <string name="textComandaGestionDiv">Divir pedido</string>
     <string name="txtCuenta1">Cuenta 1</string>
     <string name="txtCuenta2">Cuenta 2</string>
-    <string name="textAgregarCuenta2">Agregar a una segunda cuenta</string>
+    <string name="textAgregarCuenta2">Agregar a nueva cuenta</string>
 
 </resources>
