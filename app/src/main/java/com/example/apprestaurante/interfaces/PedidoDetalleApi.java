@@ -12,8 +12,8 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface PedidoDetalleApi {
-    @GET("api/pedidodetalle/{id}")
-    Call<List<PedidoDetalle>> productosEnMesa(@Path("id") String id);
+    @GET("api/pedidodetalle/detallesdepedido/{id}/{idPedido}")
+    Call<List<PedidoDetalle>> productosEnMesa(@Path("id") String id,@Path("idPedido") String idPedido);
     @POST("api/pedidodetalle/insertar")
     Call<Boolean> insertarPedidoDetalle(@Body PedidoDetalle pedidoDetalle);
     @PUT("api/pedidodetalle/actualizarcompra")

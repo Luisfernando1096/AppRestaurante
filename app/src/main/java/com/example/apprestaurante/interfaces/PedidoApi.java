@@ -2,17 +2,22 @@ package com.example.apprestaurante.interfaces;
 
 import com.example.apprestaurante.clases.Pedido;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Path;
 
 public interface PedidoApi {
     @POST("api/pedido/insertar")
-    Call<Boolean> insertarPedido(@Body Pedido pedido);
+    Call<Integer> insertarPedido(@Body Pedido pedido);
     @GET("api/pedido/obtenerultimopedido")
     Call<Pedido> obtenerUltimoPedido();
     @PUT("api/pedido/actualizartotal")
     Call<Boolean> actualizarTotal(@Body Pedido pedido);
+    @GET("api/pedido/pedidosenmesa/{id}")
+    Call<List<Integer>> obtenerPedidosEnMesa(@Path("id") String id);
 }
