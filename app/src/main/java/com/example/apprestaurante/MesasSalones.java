@@ -1,18 +1,22 @@
 package com.example.apprestaurante;
 
 import static com.example.apprestaurante.ComandaGestion.lstPedidos;
+import static com.example.apprestaurante.ComandaGestion.lstPedidosEnMesa;
 
 import android.annotation.SuppressLint;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -22,12 +26,16 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.apprestaurante.clases.Mesa;
+import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.clases.Salon;
+import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.interfaces.MesaApi;
 import com.example.apprestaurante.interfaces.PedidoDetalleApi;
 import com.example.apprestaurante.interfaces.SalonApi;
 import com.example.apprestaurante.network.ApiClient;
+import com.example.apprestaurante.services.MesaService;
+import com.example.apprestaurante.services.PedidoService;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,6 +48,9 @@ public class MesasSalones extends AppCompatActivity {
     TextView textMesas;
     List<Salon> lstSalones;
     List<Mesa> lstMesas;
+    public static boolean cambiarMesa = false;
+    public static int idPedidoCambioMesa = 0;
+    public static int idMesaAnterior = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +67,40 @@ public class MesasSalones extends AppCompatActivity {
             public void onClick(View view) {
                 // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
                 String tag = String.valueOf(view.getTag());
-                Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
-                intent.putExtra("idMesa", Integer.parseInt(tag.toString()) + 0);
-                startActivity(intent);
+
+                if (cambiarMesa)
+                {
+                    if(Integer.parseInt(tag.toString()) != idMesaAnterior){
+                        Pedido pedido = new Pedido();
+                        pedido.setIdPedido(idPedidoCambioMesa);
+                        pedido.setIdMesa(Integer.parseInt(tag.toString()));
+
+                        //Aqui el codigo para cambiar de mesa
+                        Mesa mesa = new Mesa();
+                        mesa.setDisponible(false);
+                        mesa.setIdMesa(Integer.parseInt(tag.toString()));
+                        ActualizarEstadoMesa(mesa);
+                        if (lstPedidosEnMesa.size() == 1)
+                        {
+                            //Hacer disponible la mesa anterior
+                            Mesa mesa2 = new Mesa();
+                            mesa2.setDisponible(true);
+                            mesa2.setIdMesa(idMesaAnterior);
+                            ActualizarEstadoMesa(mesa2);
+                        }
+                        ActualizarMesa(pedido, tag.toString());
+                    } else{
+                        Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
+                        intent.putExtra("idMesa", Integer.parseInt(tag.toString()) + 0);
+                        startActivity(intent);
+                    }
+
+                } else{
+                    Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
+                    intent.putExtra("idMesa", Integer.parseInt(tag.toString()) + 0);
+                    startActivity(intent);
+                }
+
             }
         };
 
@@ -74,6 +116,39 @@ public class MesasSalones extends AppCompatActivity {
 
         BuscarSalones(salonClickListener);
 
+    }
+
+    private void ActualizarMesa(Pedido pedido, String tag) {
+        PedidoService pedidoService = new PedidoService();
+        pedidoService.ActualizarMesa(pedido, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+
+                    Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
+                    intent.putExtra("idMesa", Integer.parseInt(tag.toString()) + 0);
+                    startActivity(intent);
+
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(MesasSalones.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(MesasSalones.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -112,8 +187,21 @@ public class MesasSalones extends AppCompatActivity {
 
                                 if (!mesa.getDisponible())
                                 {
-                                    btnMesa.setBackgroundColor(Color.parseColor("#3393FF"));
-                                    btnMesa.setTextColor(Color.parseColor("#FFFFFF"));
+                                    //Hacer que las mesas se puedan o no seleccionar
+                                    if (cambiarMesa && Integer.parseInt(btnMesa.getTag().toString()) != idMesaAnterior)
+                                    {
+                                        btnMesa.setEnabled(false);
+                                        btnMesa.setBackgroundColor(Color.parseColor("#909CA9"));
+                                        btnMesa.setTextColor(Color.parseColor("#FFFFFF"));
+                                    } else{
+                                        btnMesa.setBackgroundColor(Color.parseColor("#3393FF"));
+                                        btnMesa.setTextColor(Color.parseColor("#FFFFFF"));
+                                    }
+
+                                    if(!cambiarMesa){
+                                        btnMesa.setEnabled(true);
+                                    }
+
                                 }
                                 //Obtener el total de mesas
                                 int tMesas = lstMesas.size();
@@ -164,31 +252,6 @@ public class MesasSalones extends AppCompatActivity {
 
     }
 
-    /*private void BuscarSalonesPorId(String id){
-        Call<Salon> call = ApiClient.getClient().create(SalonApi.class).find("3");
-        call.enqueue(new Callback<Salon>() {
-            @Override
-            public void onResponse(Call<Salon> call, Response<Salon> response) {
-                //Si hay respuesta
-                try {
-                    if(response.isSuccessful()){
-                        salones = response.body();
-                        Toast.makeText(MesasSalones.this, "Nombre salon: " + salones.getNombre(), Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e){
-                    Toast.makeText(MesasSalones.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Salon> call, Throwable t) {
-                //Si hay error
-                Toast.makeText(MesasSalones.this, "Error en conexion de red." + t.getMessage(), Toast.LENGTH_SHORT).show();
-                System.out.println("Error en conexion de red." + t.getMessage());
-            }
-        });
-    }*/
-
     private void BuscarSalones(View.OnClickListener salonClickListener){
 
         Call<List<Salon>> call = ApiClient.getClient().create(SalonApi.class).findAll();
@@ -228,5 +291,66 @@ public class MesasSalones extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void ActualizarEstadoMesa(Mesa mesa) {
+        MesaService mesaService = new MesaService();
+        mesaService.ActualizarEstadoMesa(mesa, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+
+                    //Toast.makeText(ComandaGestion.this, "Estado mesa actualizado", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(MesasSalones.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(MesasSalones.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            showConfirmationDialog();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void showConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("¿Está seguro de que desea salir?, se cerrara la sesion");
+        builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Realiza la acción de retroceder aquí
+                finish();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Cancela el retroceso
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

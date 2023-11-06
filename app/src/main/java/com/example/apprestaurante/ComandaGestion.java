@@ -4,6 +4,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import static com.example.apprestaurante.MesasSalones.cambiarMesa;
+import static com.example.apprestaurante.MesasSalones.idMesaAnterior;
+import static com.example.apprestaurante.MesasSalones.idPedidoCambioMesa;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
@@ -35,6 +38,7 @@ import com.example.apprestaurante.services.*;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -50,12 +54,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private LinearLayoutManager layoutManager;
     LinearLayout llFamilias, llProductos, llAcciones;
     List<Familia> lstFamilias;
-    List<Integer> lstPedidosEnMesa = null;
+    public static List<Integer> lstPedidosEnMesa = null;
     public static List<Producto> lstProductos;
     Producto producto;
     Pedido nuevoPedido = null;
     Button btnCuentas;
-    public static List<PedidoDetalle> lstPedidos;
+    public static List<PedidoDetalle> lstPedidos = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,8 +80,14 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         if (intent != null) {
             idMesa = intent.getIntExtra("idMesa", 0); // El segundo parámetro (0) es el valor predeterminado si no se encuentra "idMesa"
             tvMesa.setText("#Mesa: " + idMesa);
-            CargarPedidosEnMesa();
-            ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
+
+            View.OnClickListener accionClickListener = view -> {
+                // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
+                String tag = String.valueOf(view.getTag());
+                ProgramarAcciones(tag);
+            };
+
+            CrearBotones(accionClickListener);
         }
 
         // Define un OnClickListener común para los botones de productos
@@ -89,14 +99,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             BuscarProductoPorId(tag, cantidad);
 
         };
-
-        View.OnClickListener accionClickListener = view -> {
-            // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
-            String tag = String.valueOf(view.getTag());
-            ProgramarAcciones(tag);
-        };
-
-        CrearBotones(accionClickListener);
 
         View.OnLongClickListener productoLongClickListener = view -> {
             // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
@@ -197,7 +199,10 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             startActivity(intent);
         }else if(tag.equals("3")){
             //Cambiar mesa
-            Toast.makeText(this, "Click en cambio mesa", Toast.LENGTH_SHORT).show();
+            cambiarMesa = true;
+            idMesaAnterior = idMesa;
+            idPedidoCambioMesa = idPedido;
+            finish();
         }else if(tag.equals("4")){
             //Mesero
             Toast.makeText(this, "Click en mesero", Toast.LENGTH_SHORT).show();
@@ -208,12 +213,19 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
 
     private void CrearBotones(View.OnClickListener accionClickListener) {
+        llAcciones.removeAllViews();
         String[] valores = {"comanda", "Extras", "Cambiar mesa", "Mesero", "Cliente"};
         int[] imagen = {R.drawable.comanda, R.drawable.extras, R.drawable.cambio_mesa, R.drawable.mesero, R.drawable.cliente};
+        int tamano = lstPedidos.size();
         for (int i = 0; i < valores.length; i++) {
             Button btnAccion = new Button(ComandaGestion.this);
             btnAccion.setText(valores[i]);
             btnAccion.setTag(i+1);
+            if(tamano > 0){
+                btnAccion.setEnabled(true);
+            } else{
+                btnAccion.setEnabled(false);
+            }
             btnAccion.setOnClickListener(accionClickListener);
 
             btnAccion.setTextSize(8);
@@ -221,6 +233,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             DarEstiloBoton(btnAccion, imagen[i], 50, 50);
 
             llAcciones.addView(btnAccion);
+
         }
     }
 
@@ -331,6 +344,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                             }
                             CargarPedidos();
                         }
+
                     }else{
                         System.out.println("Fallo el isSuccessful");
                     }
@@ -359,7 +373,13 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             rcvPedidos.setLayoutManager(layoutManager);
             rcvPedidos.setHasFixedSize(true);
         }
+        View.OnClickListener accionClickListener = view -> {
+            // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
+            String tag = String.valueOf(view.getTag());
+            ProgramarAcciones(tag);
+        };
 
+        CrearBotones(accionClickListener);
     }
 
     @Override
@@ -732,5 +752,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         super.onResume();
         CargarPedidosEnMesa();
         ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
+        cambiarMesa = false;
     }
 }

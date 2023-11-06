@@ -17,6 +17,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.example.apprestaurante.MesasSalones.cambiarMesa;
+
 public class MainActivity extends AppCompatActivity {
 
     Button btnIngresar;
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         edtPin.setText("");
+        cambiarMesa = false;
     }
 
     private void IniciarSesion(){

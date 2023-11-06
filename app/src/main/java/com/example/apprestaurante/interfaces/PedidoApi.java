@@ -18,6 +18,8 @@ public interface PedidoApi {
     Call<Pedido> obtenerUltimoPedido();
     @PUT("api/pedido/actualizartotal")
     Call<Boolean> actualizarTotal(@Body Pedido pedido);
+    @PUT("api/pedido/actualizarmesa")
+    Call<Boolean> actualizarMesa(@Body Pedido pedido);
     @GET("api/pedido/pedidosenmesa/{id}")
     Call<List<Integer>> obtenerPedidosEnMesa(@Path("id") String id);
 }
