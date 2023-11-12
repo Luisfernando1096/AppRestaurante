@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.example.apprestaurante.adapters.PedidosAdapter;
 import com.example.apprestaurante.clases.Familia;
+import com.example.apprestaurante.clases.Ingrediente;
 import com.example.apprestaurante.clases.Mesa;
 import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.clases.PedidoDetalle;
@@ -417,6 +418,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
     private void ProcesarComanda(int cantidad, String idProducto){
 
+        int cant = cantidad;
         String fecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         if (lstPedidos.size() > 0)
         {
@@ -494,9 +496,61 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             //Creamos el pedido
             InsertarPedido(pedido, fecha, cantidad, idProducto);
 
+            ActualizarStockProductosIngredientes(idProducto, cant, producto, true);
         }
 
 
+    }
+
+    private void ActualizarStockProductosIngredientes(String idProducto, int cant, Producto producto, boolean b) {
+        //List<Ingredientes> ingredientes = BuscarIngredientesPorProducto(idProducto);
+
+        //Ingrediente ingrediente;
+        Producto prod;
+
+            /*if (aumentar)//Si seleccionamos un producto
+            {
+                if (ingredientes.Rows.Count > 0)
+                {
+                    foreach (Ingrediente item : List<Ingrediente>)
+                    {
+                        ingrediente = new Ingrediente();
+                        ingrediente.IdIngrediente = Int32.Parse(item["idIngrediente"].ToString());
+                        ingrediente.Stock = Decimal.Parse(item["stock_ingrediente"].ToString()) - CalcularCantidad(cantidad, Decimal.Parse(item["cantidad"].ToString()));
+                        ingrediente.ActualizarStock();
+                    }
+                }
+                else
+                {
+                    //El producto no tiene ingredientes
+                    producto = new Producto();
+                    producto.IdProducto = Int32.Parse(id);
+                    producto.Stock = Int32.Parse(productoNuevo.Rows[0]["stock"].ToString()) - cantidad;
+                    producto.ActualizarStock();
+                }
+            }
+            else//Si disminuimos
+            {
+                if (ingredientes.Rows.Count > 0)
+                {
+                    foreach (DataRow item in ingredientes.Rows)
+                    {
+                        ingrediente = new Ingrediente();
+                        ingrediente.IdIngrediente = Int32.Parse(item["idIngrediente"].ToString());
+                        ingrediente.Stock = Decimal.Parse(item["stock_ingrediente"].ToString()) + CalcularCantidad(cantidad, Decimal.Parse(item["cantidad"].ToString()));
+                        ingrediente.ActualizarStock();
+                    }
+                }
+                else
+                {
+                    //El producto no tiene ingredientes
+                    producto = new Producto();
+                    producto.IdProducto = Int32.Parse(id);
+                    producto.Stock = Int32.Parse(productoNuevo.Rows[0]["stock"].ToString()) + cantidad;
+                    producto.ActualizarStock();
+                }
+            }
+        }*/
     }
 
     private void ActualizarCompra(PedidoDetalle pedidoDetalle) {
