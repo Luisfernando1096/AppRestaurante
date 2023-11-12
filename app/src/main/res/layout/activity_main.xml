@@ -16,7 +16,6 @@
     android:gravity="center"
     android:orientation="vertical"
     android:layout_margin="30dp"
-
     >
 
     <ImageView
@@ -25,19 +24,28 @@
         android:layout_height="250dp"
         app:srcCompat="@drawable/bdatos" />
 
-    <EditText
-        android:id="@+id/edtPin"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="30dp"
         android:hint="Ingrese el Pin"
-        android:inputType="numberPassword" />
+        android:inputType="numberPassword"
+        app:endIconMode="clear_text" >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtPin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btnIngresar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ingresar" />
+        android:text="Ingresar"
+        android:textStyle="bold"/>
 
 </LinearLayout>
 </androidx.cardview.widget.CardView>
