@@ -17,6 +17,7 @@ public class PedidoDetalle implements Cloneable{
     String grupo;
     String usuario;
     String fecha;
+    String mesa;
 
     public int getIdDetalle() {
         return idDetalle;
@@ -144,6 +145,18 @@ public class PedidoDetalle implements Cloneable{
 
     public void setFecha(String fecha) {
         this.fecha = fecha;
+    }
+
+    public boolean isCocinando() {
+        return cocinando;
+    }
+
+    public String getMesa() {
+        return mesa;
+    }
+
+    public void setMesa(String mesa) {
+        this.mesa = mesa;
     }
 
     @Override

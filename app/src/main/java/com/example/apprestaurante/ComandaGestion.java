@@ -16,6 +16,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,6 +37,7 @@ import com.example.apprestaurante.interfaces.PedidoDetalleApi;
 import com.example.apprestaurante.interfaces.ProductoApi;
 import com.example.apprestaurante.network.ApiClient;
 import com.example.apprestaurante.services.*;
+import com.example.apprestaurante.utils.EnviarListaTask;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -47,7 +49,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter.OnItemClickListener{
+public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter.OnItemClickListener {
 
     int idMesa, idPedido = 0;
     TextView tvTicket, textProductos, tvMesa;
@@ -60,7 +62,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     Producto producto;
     Pedido nuevoPedido = null;
     Button btnCuentas;
+    PedidoDetalle pDetalle;
     public static List<PedidoDetalle> lstPedidos = new ArrayList<>();
+    List<PedidoDetalle> lstPD = new ArrayList<>();
+    // Crear una instancia de EnviarListaTask y ejecutarla en segundo plano
+    EnviarListaTask enviarListaTask = new EnviarListaTask();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +87,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         Intent intent = getIntent();
         if (intent != null) {
             idMesa = intent.getIntExtra("idMesa", 0); // El segundo parámetro (0) es el valor predeterminado si no se encuentra "idMesa"
-            tvMesa.setText("#Mesa: " + idMesa);
+            tvMesa.setText("Mesa: " + idMesa);
 
             View.OnClickListener accionClickListener = view -> {
                 // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
@@ -176,7 +183,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             @Override
             public void onResponseList(List<Integer> response) {
                 lstPedidosEnMesa = response;
-                if(lstPedidosEnMesa.size() > 1){
+                if (lstPedidosEnMesa.size() > 1) {
                     btnCuentas.setVisibility(View.VISIBLE);
                 }
             }
@@ -189,25 +196,25 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
 
     private void ProgramarAcciones(String tag) {
-        if(tag.equals("1")){
+        if (tag.equals("1")) {
             //Comanda
             Toast.makeText(this, "Click en comandas", Toast.LENGTH_SHORT).show();
-        }else if(tag.equals("2")){
+        } else if (tag.equals("2")) {
             //Extra
             Intent intent = new Intent(ComandaGestion.this, DividirPedidos.class);
             intent.putExtra("idPedido", idPedido);
             intent.putExtra("idMesa", idMesa);
             startActivity(intent);
-        }else if(tag.equals("3")){
+        } else if (tag.equals("3")) {
             //Cambiar mesa
             cambiarMesa = true;
             idMesaAnterior = idMesa;
             idPedidoCambioMesa = idPedido;
             finish();
-        }else if(tag.equals("4")){
+        } else if (tag.equals("4")) {
             //Mesero
             Toast.makeText(this, "Click en mesero", Toast.LENGTH_SHORT).show();
-        }else if(tag.equals("5")){
+        } else if (tag.equals("5")) {
             //Cliente
             Toast.makeText(this, "Click en cliente", Toast.LENGTH_SHORT).show();
         }
@@ -221,10 +228,10 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         for (int i = 0; i < valores.length; i++) {
             Button btnAccion = new Button(ComandaGestion.this);
             btnAccion.setText(valores[i]);
-            btnAccion.setTag(i+1);
-            if(tamano > 0){
+            btnAccion.setTag(i + 1);
+            if (tamano > 0) {
                 btnAccion.setEnabled(true);
-            } else{
+            } else {
                 btnAccion.setEnabled(false);
             }
             btnAccion.setOnClickListener(accionClickListener);
@@ -257,7 +264,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         btn.setLayoutParams(params);
     }
 
-    private void CrearAlertaDialogo(String tag, View view){
+    private void CrearAlertaDialogo(String tag, View view) {
         // Crear el AlertDialog
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(view.getContext());
         alertDialogBuilder.setTitle("¿Cuantos productos desea agregar?");
@@ -320,7 +327,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
     }
 
-    private void ObtenerProductosEnMesa(String id, String idPed){
+    private void ObtenerProductosEnMesa(String id, String idPed) {
         Call<List<PedidoDetalle>> call = ApiClient.getClient().create(PedidoDetalleApi.class).productosEnMesa(id, idPed);
         call.enqueue(new Callback<List<PedidoDetalle>>() {
             @Override
@@ -330,11 +337,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
                     if (response.isSuccessful()) {
                         lstPedidos = response.body();
-                        if(lstPedidos.size()>0){
+                        if (lstPedidos.size() > 0) {
                             PedidoDetalle pedido = lstPedidos.get(0);
                             idPedido = pedido.getIdPedido();
                             tvTicket.setText("#Ticket: " + idPedido);
-                            if(nuevoPedido != null){
+                            if (nuevoPedido != null) {
                                 nuevoPedido.setIdPedido(idPedido);
                                 //Vamos a actualizar el total del pedido cuando es nuevo
                                 nuevoPedido.setIdMesa(idMesa);
@@ -346,7 +353,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                             CargarPedidos();
                         }
 
-                    }else{
+                    } else {
                         System.out.println("Fallo el isSuccessful");
                     }
 
@@ -364,8 +371,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         });
     }
 
-    private void CargarPedidos(){
-        if(lstPedidos.size() > 0){
+    private void CargarPedidos() {
+        if (lstPedidos.size() > 0) {
             // Configurando adaptador
             PedidosAdapter pedidosAdapter = new PedidosAdapter(lstPedidos, ComandaGestion.this);
             layoutManager = new LinearLayoutManager(this);
@@ -396,7 +403,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             public void onResponse(Producto response) {
                 // Procesa la respuesta del producto aquí
                 producto = response;
-                ProcesarComanda(cantidad, id);
+                ProcesarComanda(cantidad, producto);
             }
 
             @Override
@@ -416,42 +423,72 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         });
     }
 
-    private void ProcesarComanda(int cantidad, String idProducto){
+    private void ProcesarComanda(int cantidad, Producto prod) {
 
+        pDetalle = new PedidoDetalle();
         int cant = cantidad;
         String fecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-        if (lstPedidos.size() > 0)
+        pDetalle.setCantidad(cantidad);
+        if (!tvTicket.getText().equals(""))
         {
+            pDetalle.setIdPedido(idPedido);
+        }
+        pDetalle.setMesa(tvMesa.getText().toString());
+        pDetalle.setIdProducto(prod.getIdProducto());
+        pDetalle.setFecha(fecha);
+
+        pDetalle.setNombre(prod.getNombre());
+        Toast.makeText(this, "Nombre: " + prod.getNombre(), Toast.LENGTH_SHORT).show();
+        pDetalle.setGrupo(prod.getGrupoPrinter());
+        Boolean encontrado = false;
+
+        if (lstPD.size() > 0)
+        {
+            for (PedidoDetalle item : lstPD)
+            {
+                if (prod.getIdProducto() == item.getIdProducto())
+                {
+                    encontrado = true;
+                    item.setCantidad(cantidad + item.getCantidad());
+                    break;
+                }
+            }
+            if (!encontrado)
+            {
+                lstPD.add(pDetalle);
+            }
+        }else if (lstPedidos.size() > 0)
+        {
+            lstPD.add(pDetalle);
+        }
+
+        if (lstPedidos.size() > 0) {
             nuevoPedido = new Pedido();
             boolean aumentarUnProducto = false;
             //Saber si ya existe algun producto igual en los detalles
-            for (PedidoDetalle pDetalle: lstPedidos) {
-                if (pDetalle.getIdProducto() == Integer.parseInt(idProducto))
-                {
-                    cantidad = cantidad + pDetalle.getCantidad();
+            for (PedidoDetalle pDet : lstPedidos) {
+                if (pDet.getIdProducto() == prod.getIdProducto()) {
+                    cantidad = cantidad + pDet.getCantidad();
                     aumentarUnProducto = true;
                 }
             }
 
             PedidoDetalle pedidoDetalle = new PedidoDetalle();
-            if (aumentarUnProducto)
-            {
+            if (aumentarUnProducto) {
                 //Ya existe un producto igual en el datgrid, hay que aumentar
                 pedidoDetalle.setIdPedido(idPedido);
-                pedidoDetalle.setIdProducto(Integer.parseInt(idProducto));
+                pedidoDetalle.setIdProducto(prod.getIdProducto());
                 pedidoDetalle.setCantidad(cantidad);
                 pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, producto.getPrecio()));
                 ActualizarCompra(pedidoDetalle);
-            }
-            else
-            {
+            } else {
                 //No existe un producto igual en el datgrid, hay que crearlo
                 pedidoDetalle.setCocinando(true);
                 pedidoDetalle.setExtras("");
                 pedidoDetalle.setFecha(fecha);
                 pedidoDetalle.setHoraPedido(fecha);
                 //pedidoDetalle.IdCocinero = null;
-                pedidoDetalle.setIdProducto(Integer.parseInt(idProducto));
+                pedidoDetalle.setIdProducto(prod.getIdProducto());
                 pedidoDetalle.setIdPedido(idPedido);
                 pedidoDetalle.setCantidad(cantidad);
                 pedidoDetalle.setPrecio(producto.getPrecio());
@@ -462,9 +499,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             }
 
-        }
-        else
-        {
+        } else {
             //Creamos un nuevo pedido
             nuevoPedido = new Pedido();
             //No hay productos, se inicia el pedido
@@ -494,64 +529,141 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             ActualizarEstadoMesa(mesa);
 
             //Creamos el pedido
-            InsertarPedido(pedido, fecha, cantidad, idProducto);
-
-            ActualizarStockProductosIngredientes(idProducto, cant, producto, true);
+            InsertarPedido(pedido, fecha, cantidad, String.valueOf(prod.getIdProducto()));
         }
 
-
+        ActualizarStockProductosIngredientes(String.valueOf(prod.getIdProducto()), cant, producto, true);
     }
 
-    private void ActualizarStockProductosIngredientes(String idProducto, int cant, Producto producto, boolean b) {
-        //List<Ingredientes> ingredientes = BuscarIngredientesPorProducto(idProducto);
+    private void ActualizarStockProductosIngredientes(String idProducto, int cant, Producto producto, boolean aumentar) {
+        IngredienteService ingredienteService = new IngredienteService();
+        ingredienteService.buscarngredientesDeProducto(idProducto, new CallBackApi<Ingrediente>() {
+            @Override
+            public void onResponse(Ingrediente response) {
 
-        //Ingrediente ingrediente;
-        Producto prod;
+            }
 
-            /*if (aumentar)//Si seleccionamos un producto
-            {
-                if (ingredientes.Rows.Count > 0)
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
+            public void onResponseList(List<Ingrediente> response) {
+                List<Ingrediente> ingredientes = response;
+                Ingrediente ingrediente;
+                Producto prod;
+
+
+                if (aumentar)//Si seleccionamos un producto
                 {
-                    foreach (Ingrediente item : List<Ingrediente>)
-                    {
-                        ingrediente = new Ingrediente();
-                        ingrediente.IdIngrediente = Int32.Parse(item["idIngrediente"].ToString());
-                        ingrediente.Stock = Decimal.Parse(item["stock_ingrediente"].ToString()) - CalcularCantidad(cantidad, Decimal.Parse(item["cantidad"].ToString()));
-                        ingrediente.ActualizarStock();
+                    if (ingredientes.size() > 0) {
+                        for (Ingrediente item : ingredientes) {
+                            ingrediente = new Ingrediente();
+                            ingrediente.setIdIngrediente(item.getIdIngrediente());
+                            ingrediente.setStock_ingrediente(item.getStock_ingrediente() - CalcularCantidad(cant, item.getCantidad()));
+                            ActualizarStockIngrediente(ingrediente);
+                        }
+                    } else {
+                        //El producto no tiene ingredientes
+                        prod = new Producto();
+                        prod.setIdProducto(Integer.parseInt(idProducto));
+                        prod.setStock(producto.getStock()- cant);
+                        ActualizarStockProducto(prod);
+                    }
+                } else//Si disminuimos
+                {
+                    if (ingredientes.size() > 0) {
+                        for(Ingrediente item : ingredientes)
+                        {
+                            ingrediente = new Ingrediente();
+                            ingrediente.setIdIngrediente(item.getIdIngrediente());
+                            ingrediente.setStock_ingrediente(item.getStock_ingrediente() + CalcularCantidad(cant, item.getCantidad()));
+                            ActualizarStockIngrediente(ingrediente);
+                        }
+                    } else {
+                        //El producto no tiene ingredientes
+                        prod = new Producto();
+                        prod.setIdProducto(Integer.parseInt(idProducto));
+                        prod.setStock(producto.getStock() + cant);
+                        ActualizarStockProducto(prod);
                     }
                 }
-                else
-                {
-                    //El producto no tiene ingredientes
-                    producto = new Producto();
-                    producto.IdProducto = Int32.Parse(id);
-                    producto.Stock = Int32.Parse(productoNuevo.Rows[0]["stock"].ToString()) - cantidad;
-                    producto.ActualizarStock();
-                }
             }
-            else//Si disminuimos
-            {
-                if (ingredientes.Rows.Count > 0)
-                {
-                    foreach (DataRow item in ingredientes.Rows)
-                    {
-                        ingrediente = new Ingrediente();
-                        ingrediente.IdIngrediente = Int32.Parse(item["idIngrediente"].ToString());
-                        ingrediente.Stock = Decimal.Parse(item["stock_ingrediente"].ToString()) + CalcularCantidad(cantidad, Decimal.Parse(item["cantidad"].ToString()));
-                        ingrediente.ActualizarStock();
-                    }
-                }
-                else
-                {
-                    //El producto no tiene ingredientes
-                    producto = new Producto();
-                    producto.IdProducto = Int32.Parse(id);
-                    producto.Stock = Int32.Parse(productoNuevo.Rows[0]["stock"].ToString()) + cantidad;
-                    producto.ActualizarStock();
-                }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
             }
-        }*/
+        });
     }
+
+    private void ActualizarStockIngrediente(Ingrediente ingrediente) {
+        IngredienteService ingredienteService = new IngredienteService();
+        ingredienteService.ActualizarStockIngrediente(ingrediente, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta actualizar producto: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
+            }
+        });
+    }
+
+    private void ActualizarStockProducto(Producto prod) {
+        ProductoService productoService = new ProductoService();
+        productoService.ActualizarStockProducto(prod, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta actualizar producto: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + errorMessage.toString(), Toast.LENGTH_SHORT).show();
+
+            }
+        });
+    }
+
+    private int CalcularCantidad(int cant, int cantidad) {
+        return cant*cantidad;
+    }
+
 
     private void ActualizarCompra(PedidoDetalle pedidoDetalle) {
         PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
@@ -704,6 +816,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         pedidoDetalle.setIdProducto(Integer.parseInt(idProducto));
                         //Obtenemos el ultimo pedido y asignamos idpedio a pedidodetalle
                         pedidoDetalle.setIdPedido(idPedido);
+                        pDetalle.setIdPedido(idPedido);
+                        lstPD.add(pDetalle);
                         pedidoDetalle.setCantidad(cantidad);
                         pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, producto.getPrecio()));
                         pedidoDetalle.setGrupo("0");
@@ -807,5 +921,17 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         CargarPedidosEnMesa();
         ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
         cambiarMesa = false;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Enviar();
+        }
+        return super.onKeyDown(keyCode, event);
+
+    }
+    private void Enviar(){
+        enviarListaTask.enviarLista(lstPD);
     }
 }

@@ -1,7 +1,9 @@
 package com.example.apprestaurante.services;
 
+import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.clases.Producto;
 import com.example.apprestaurante.interfaces.CallBackApi;
+import com.example.apprestaurante.interfaces.PedidoApi;
 import com.example.apprestaurante.interfaces.ProductoApi;
 import com.example.apprestaurante.network.ApiClient;
 
@@ -38,6 +40,28 @@ public class ProductoService {
         } else {
             callback.onFailure("No ingreso una cantidad valida");
         }
+    }
+
+    public void ActualizarStockProducto(Producto producto, final CallBackApi<Boolean> callback) {
+
+        // Crea una instancia de la interfaz de Retrofit para realizar la inserción
+        ProductoApi productoApi = ApiClient.getClient().create(ProductoApi.class);
+
+        // Realiza la llamada para insertar el pedido
+        Call<Boolean> call = productoApi.actualizarStockProducto(producto);
+
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                callback.onResponseBool(response);
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                // Si hay un error en la conexión de red
+                callback.onFailure("Error en conexión de red: " + t.getMessage());
+            }
+        });
     }
 }
 
