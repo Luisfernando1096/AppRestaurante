@@ -442,8 +442,16 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         pDetalle.setIdProducto(prod.getIdProducto());
         pDetalle.setFecha(fecha);
         pDetalle.setSalon(salon);
-        pDetalle.setCliente(cliente);
-        pDetalle.setMesero(mesero);
+        if(cliente != null){
+            pDetalle.setCliente(cliente);
+        }else{
+            pDetalle.setCliente("");
+        }
+        if(mesero != null){
+            pDetalle.setMesero(mesero);
+        }else{
+            pDetalle.setMesero("");
+        }
 
         pDetalle.setNombre(prod.getNombre());
         Toast.makeText(this, "Nombre: " + prod.getNombre(), Toast.LENGTH_SHORT).show();

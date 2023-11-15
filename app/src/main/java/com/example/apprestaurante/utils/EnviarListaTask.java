@@ -45,6 +45,8 @@ public class EnviarListaTask {
         Gson gson = new Gson();
         String jsonData = gson.toJson(lista);
 
+        System.out.println("datos: " + jsonData);
+
         // Crear el cuerpo de la solicitud
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
 
