@@ -2,6 +2,7 @@ package com.example.apprestaurante;
 
 import static com.example.apprestaurante.ComandaGestion.lstPedidos;
 import static com.example.apprestaurante.ComandaGestion.lstPedidosEnMesa;
+import static com.example.apprestaurante.ComandaGestion.salon;
 
 import android.annotation.SuppressLint;
 
@@ -98,6 +99,7 @@ public class MesasSalones extends AppCompatActivity {
                 } else{
                     Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
                     intent.putExtra("idMesa", Integer.parseInt(tag.toString()) + 0);
+
                     startActivity(intent);
                 }
 
@@ -111,6 +113,7 @@ public class MesasSalones extends AppCompatActivity {
                 // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
                 BuscarMesaPorSalon(mesaClickListener, view.getTag().toString());
                 textMesas.setText("Mesas : " + ((Button) view).getText().toString());
+                salon = ((Button) view).getText().toString();
             }
         };
 

@@ -52,6 +52,8 @@ import retrofit2.Response;
 public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter.OnItemClickListener {
 
     int idMesa, idPedido = 0;
+    public static String salon;
+    String cliente, mesero, mesa;
     TextView tvTicket, textProductos, tvMesa;
     RecyclerView rcvPedidos;
     private LinearLayoutManager layoutManager;
@@ -340,6 +342,9 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         if (lstPedidos.size() > 0) {
                             PedidoDetalle pedido = lstPedidos.get(0);
                             idPedido = pedido.getIdPedido();
+
+                            ObtenerPedidoPorId(String.valueOf(idPedido));
+
                             tvTicket.setText("#Ticket: " + idPedido);
                             if (nuevoPedido != null) {
                                 nuevoPedido.setIdPedido(idPedido);
@@ -436,6 +441,9 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         pDetalle.setMesa(tvMesa.getText().toString());
         pDetalle.setIdProducto(prod.getIdProducto());
         pDetalle.setFecha(fecha);
+        pDetalle.setSalon(salon);
+        pDetalle.setCliente(cliente);
+        pDetalle.setMesero(mesero);
 
         pDetalle.setNombre(prod.getNombre());
         Toast.makeText(this, "Nombre: " + prod.getNombre(), Toast.LENGTH_SHORT).show();
@@ -804,6 +812,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             public void onResponse(Integer response) {
                 if(response.intValue() > 0){
                     int idPedido = response.intValue();
+                    ObtenerPedidoPorId(String.valueOf(idPedido));//Justo despues de agregar lo consultamos
                         // El pedido se insertó con éxito
                         //Agregamos detalles al pedido
                         PedidoDetalle pedidoDetalle = new PedidoDetalle();
@@ -933,5 +942,33 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
     private void Enviar(){
         enviarListaTask.enviarLista(lstPD);
+    }
+
+    private void ObtenerPedidoPorId(String id){
+        PedidoService pedidoService = new PedidoService();
+
+        pedidoService.obtenerPedidoPorId(id, new CallBackApi<Pedido>() {
+            @Override
+            public void onResponse(Pedido response) {
+                mesero = response.getNombre();
+                cliente = response.getNombres();
+                mesa = response.getMesa();
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
+            public void onResponseList(List<Pedido> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
+            }
+        });
     }
 }

@@ -77,7 +77,6 @@ public class PedidoService {
         });
     }
 
-
     public void ActualizarTotal(Pedido pedido, final CallBackApi<Boolean> callback) {
 
         // Crea una instancia de la interfaz de Retrofit para realizar la inserción
@@ -117,6 +116,27 @@ public class PedidoService {
             @Override
             public void onFailure(Call<Boolean> call, Throwable t) {
                 // Si hay un error en la conexión de red
+                callback.onFailure("Error en conexión de red: " + t.getMessage());
+            }
+        });
+    }
+
+    public void obtenerPedidoPorId(String id, final CallBackApi<Pedido> callback) {
+        Call<Pedido> call = pedidoApi.obtenerPedidoPorId(id);
+        call.enqueue(new Callback<Pedido>() {
+            @Override
+            public void onResponse(Call<Pedido> call, Response<Pedido> response) {
+                if (response.isSuccessful()) {
+                    Pedido pedido = response.body();
+                    callback.onResponse(pedido);
+                } else {
+                    // Aquí puedes manejar el caso en que la respuesta no sea exitosa
+                    callback.onFailure("Error en la respuesta del servidor: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Pedido> call, Throwable t) {
                 callback.onFailure("Error en conexión de red: " + t.getMessage());
             }
         });

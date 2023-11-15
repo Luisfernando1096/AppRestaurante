@@ -21,31 +21,35 @@ public class Pedido {
     double efectivo;
     double credito;
     double btc;
+    String nombre;
+    String nombres;
+    String mesa;
 
     public Pedido() {
     }
 
-    public Pedido(int idPedido, int idCliente, int idMesa, int idCuenta, int idMesero, boolean cancelado, String fecha, boolean listo, double total, double descuento, double iva, double propina, double totalPago, double saldo, int idTiraje, String nFactura, boolean anular, double efectivo, double credito, double btc) {
-        this.idPedido = idPedido;
-        this.idCliente = idCliente;
-        this.idMesa = idMesa;
-        this.idCuenta = idCuenta;
-        this.idMesero = idMesero;
-        this.cancelado = cancelado;
-        this.fecha = fecha;
-        this.listo = listo;
-        this.total = total;
-        this.descuento = descuento;
-        this.iva = iva;
-        this.propina = propina;
-        this.totalPago = totalPago;
-        this.saldo = saldo;
-        this.idTiraje = idTiraje;
-        this.nFactura = nFactura;
-        this.anular = anular;
-        this.efectivo = efectivo;
-        this.credito = credito;
-        this.btc = btc;
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getNombres() {
+        return nombres;
+    }
+
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
+    }
+
+    public String getMesa() {
+        return mesa;
+    }
+
+    public void setMesa(String mesa) {
+        this.mesa = mesa;
     }
 
     public int getIdPedido() {

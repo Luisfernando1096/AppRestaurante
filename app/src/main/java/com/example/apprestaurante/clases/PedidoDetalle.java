@@ -18,6 +18,33 @@ public class PedidoDetalle implements Cloneable{
     String usuario;
     String fecha;
     String mesa;
+    String cliente;
+    String salon;
+    String mesero;
+
+    public String getMesero() {
+        return mesero;
+    }
+
+    public void setMesero(String mesero) {
+        this.mesero = mesero;
+    }
+
+    public String getSalon() {
+        return salon;
+    }
+
+    public void setSalon(String salon) {
+        this.salon = salon;
+    }
+
+    public String getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(String cliente) {
+        this.cliente = cliente;
+    }
 
     public int getIdDetalle() {
         return idDetalle;
