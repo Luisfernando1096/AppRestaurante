@@ -986,7 +986,20 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             pDetalle.setFecha(formatoFecha(pDetalle.getFecha()));
         }
         enviarListaTask.enviarListaCompleta(lstPedidos);
-        lstPedidos.size();
+    }
+
+    // Método para convertir el formato de la fecha
+    private static String formatoFecha(String fechaString) {
+        DateFormat formatoOriginal = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+        DateFormat formatoNuevo = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+
+        try {
+            Date fecha = formatoOriginal.parse(fechaString);
+            return formatoNuevo.format(fecha);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null; // o manejar el error de alguna otra manera
+        }
     }
     private void ObtenerPedidoPorId(String id){
         PedidoService pedidoService = new PedidoService();
@@ -1015,19 +1028,5 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             }
         });
-    }
-
-    // Método para convertir el formato de la fecha
-    private static String formatoFecha(String fechaString) {
-        DateFormat formatoOriginal = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-        DateFormat formatoNuevo = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
-
-        try {
-            Date fecha = formatoOriginal.parse(fechaString);
-            return formatoNuevo.format(fecha);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null; // o manejar el error de alguna otra manera
-        }
     }
 }
