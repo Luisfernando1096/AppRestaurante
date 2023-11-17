@@ -9,5 +9,8 @@ public interface ApiService {
 
     @POST("notificar") // Ruta relativa al baseUrl
     Call<Void> enviarLista(@Body RequestBody body);
+
+    @POST("comandaCompleta") // Ruta relativa al baseUrl
+    Call<Void> enviarListaCompleta(@Body RequestBody body);
 }
 

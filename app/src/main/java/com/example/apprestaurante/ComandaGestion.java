@@ -206,6 +206,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         if (tag.equals("1")) {
             //Comanda
             Toast.makeText(this, "Click en comandas", Toast.LENGTH_SHORT).show();
+            EnviarListaCompleta();
         } else if (tag.equals("2")) {
             //Extra
             Intent intent = new Intent(ComandaGestion.this, DividirPedidos.class);
@@ -958,8 +959,34 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
     private void Enviar(){
         enviarListaTask.enviarLista(lstPD);
+        lstPD.size();
     }
-
+    private void EnviarListaCompleta(){
+        for (PedidoDetalle pDetalle : lstPedidos) {
+            if(cliente != null){
+                pDetalle.setCliente(cliente);
+            }else{
+                pDetalle.setCliente("");
+            }
+            if(mesero != null){
+                pDetalle.setMesero(mesero);
+            }else{
+                pDetalle.setMesero("");
+            }
+            if(salon != null){
+                pDetalle.setSalon(salon);
+            }else{
+                pDetalle.setSalon("");
+            }
+            if(mesa != null){
+                pDetalle.setMesa(mesa);
+            }else{
+                pDetalle.setMesa("");
+            }
+        }
+        enviarListaTask.enviarListaCompleta(lstPedidos);
+        lstPedidos.size();
+    }
     private void ObtenerPedidoPorId(String id){
         PedidoService pedidoService = new PedidoService();
 
