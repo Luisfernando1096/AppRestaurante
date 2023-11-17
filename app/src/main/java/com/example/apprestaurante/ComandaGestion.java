@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import static com.example.apprestaurante.MesasSalones.cambiarMesa;
+import static com.example.apprestaurante.MesasSalones.enviarListaTask;
 import static com.example.apprestaurante.MesasSalones.idMesaAnterior;
 import static com.example.apprestaurante.MesasSalones.idPedidoCambioMesa;
 
@@ -71,14 +72,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     PedidoDetalle pDetalle;
     public static List<PedidoDetalle> lstPedidos = new ArrayList<>();
     List<PedidoDetalle> lstPD = new ArrayList<>();
-    // Crear una instancia de EnviarListaTask y ejecutarla en segundo plano
-    EnviarListaTask enviarListaTask = new EnviarListaTask();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        progressDialog = new Load(this);
+        progressDialog = new Load(this, "Cargando...");
 
         setContentView(R.layout.activity_comanda_gestion);
         llFamilias = findViewById(R.id.llFamilias);
@@ -959,7 +958,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
     private void Enviar(){
         enviarListaTask.enviarLista(lstPD);
-        lstPD.size();
     }
     private void EnviarListaCompleta(){
         for (PedidoDetalle pDetalle : lstPedidos) {
@@ -985,7 +983,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
             pDetalle.setFecha(formatoFecha(pDetalle.getFecha()));
         }
-        enviarListaTask.enviarListaCompleta(lstPedidos);
+        EnviarListaTask enviarListaTask2 = new EnviarListaTask(ComandaGestion.this);
+        enviarListaTask2.enviarListaCompleta(lstPedidos);
     }
 
     // Método para convertir el formato de la fecha

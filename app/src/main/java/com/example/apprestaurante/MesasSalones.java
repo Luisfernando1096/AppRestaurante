@@ -37,6 +37,7 @@ import com.example.apprestaurante.interfaces.SalonApi;
 import com.example.apprestaurante.network.ApiClient;
 import com.example.apprestaurante.services.MesaService;
 import com.example.apprestaurante.services.PedidoService;
+import com.example.apprestaurante.utils.EnviarListaTask;
 import com.example.apprestaurante.utils.Load;
 
 import retrofit2.Call;
@@ -55,12 +56,17 @@ public class MesasSalones extends AppCompatActivity {
     public static int idPedidoCambioMesa = 0;
     public static int idMesaAnterior = 0;
 
+    // Crear una instancia de EnviarListaTask y ejecutarla en segundo plano
+    public static EnviarListaTask enviarListaTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mesas_salones);
 
-        progressDialog = new Load(this);
+        enviarListaTask = new EnviarListaTask(MesasSalones.this);
+        progressDialog = new Load(this, "Cargando...");
+
         llSalones = findViewById(R.id.llSalones);
         glMesas = findViewById(R.id.glMesas);
         textMesas = findViewById(R.id.textMesas);

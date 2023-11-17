@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        progressDialog = new Load(this);
+        progressDialog = new Load(this, "Por favor espere...");
 
         btnIngresar = findViewById(R.id.btnIngresar);
         edtPin = findViewById(R.id.edtPin);

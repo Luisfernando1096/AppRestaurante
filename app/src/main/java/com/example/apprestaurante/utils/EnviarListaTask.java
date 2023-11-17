@@ -1,4 +1,5 @@
 package com.example.apprestaurante.utils;
+import android.content.Context;
 import android.os.AsyncTask;
 import com.example.apprestaurante.ComandaGestion;
 import com.example.apprestaurante.clases.PedidoDetalle;
@@ -26,8 +27,17 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class EnviarListaTask {
+    private Load progressDialog;
+    Context context;
+    public EnviarListaTask(Context context) {
+        this.context = context;
+        progressDialog = new Load(context, "Imprimiendo ticket...");
+    }
 
     public void enviarLista(List<PedidoDetalle> lista) {
+        if(lista.size()>0){
+            progressDialog.show();
+        }
         // Crear instancia de Retrofit
         Retrofit retrofit = ApiClient.getEscucha();
 
@@ -54,10 +64,14 @@ public class EnviarListaTask {
                 } else {
                     // Manejar un código de respuesta no exitoso si es necesario
                 }
+                progressDialog.dismiss();
+                Toast.makeText(context, "Finalizado con exito", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(context, "No finalizo correctamente, verifique que el servidor este activo.", Toast.LENGTH_SHORT).show();
                 // Manejar el fallo en la comunicación con el servidor
                 t.printStackTrace();
             }
@@ -65,6 +79,7 @@ public class EnviarListaTask {
     }
 
     public void enviarListaCompleta(List<PedidoDetalle> lista) {
+        progressDialog.show();
         // Crear instancia de Retrofit
         Retrofit retrofit = ApiClient.getEscucha();
         // Crear la interfaz del servicio
@@ -86,9 +101,13 @@ public class EnviarListaTask {
                 } else {
                     // Manejar un código de respuesta no exitoso si es necesario
                 }
+                progressDialog.dismiss();
+                Toast.makeText(context, "Finalizado con exito", Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(context, "No finalizo correctamente, verifique que el servidor este activo.", Toast.LENGTH_SHORT).show();
                 // Manejar el fallo en la comunicación con el servidor
                 t.printStackTrace();
             }
