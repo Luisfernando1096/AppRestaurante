@@ -40,7 +40,9 @@ import com.example.apprestaurante.services.*;
 import com.example.apprestaurante.utils.EnviarListaTask;
 import com.example.apprestaurante.utils.Load;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -93,7 +95,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         Intent intent = getIntent();
         if (intent != null) {
             idMesa = intent.getIntExtra("idMesa", 0); // El segundo parámetro (0) es el valor predeterminado si no se encuentra "idMesa"
-            tvMesa.setText("Mesa: " + idMesa);
 
             View.OnClickListener accionClickListener = view -> {
                 // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
@@ -205,7 +206,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void ProgramarAcciones(String tag) {
         if (tag.equals("1")) {
             //Comanda
-            Toast.makeText(this, "Click en comandas", Toast.LENGTH_SHORT).show();
             EnviarListaCompleta();
         } else if (tag.equals("2")) {
             //Extra
@@ -983,6 +983,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }else{
                 pDetalle.setMesa("");
             }
+            pDetalle.setFecha(formatoFecha(pDetalle.getFecha()));
         }
         enviarListaTask.enviarListaCompleta(lstPedidos);
         lstPedidos.size();
@@ -996,6 +997,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 mesero = response.getNombre();
                 cliente = response.getNombres();
                 mesa = response.getMesa();
+                tvMesa.setText(mesa);
             }
 
             @Override
@@ -1013,5 +1015,19 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             }
         });
+    }
+
+    // Método para convertir el formato de la fecha
+    private static String formatoFecha(String fechaString) {
+        DateFormat formatoOriginal = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+        DateFormat formatoNuevo = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+
+        try {
+            Date fecha = formatoOriginal.parse(fechaString);
+            return formatoNuevo.format(fecha);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null; // o manejar el error de alguna otra manera
+        }
     }
 }
