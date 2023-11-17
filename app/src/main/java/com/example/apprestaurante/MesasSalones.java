@@ -37,6 +37,7 @@ import com.example.apprestaurante.interfaces.SalonApi;
 import com.example.apprestaurante.network.ApiClient;
 import com.example.apprestaurante.services.MesaService;
 import com.example.apprestaurante.services.PedidoService;
+import com.example.apprestaurante.utils.Load;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,6 +45,7 @@ import retrofit2.Response;
 
 public class MesasSalones extends AppCompatActivity {
 
+    Load progressDialog;
     LinearLayout llSalones;
     GridLayout glMesas;
     TextView textMesas;
@@ -58,6 +60,7 @@ public class MesasSalones extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mesas_salones);
 
+        progressDialog = new Load(this);
         llSalones = findViewById(R.id.llSalones);
         glMesas = findViewById(R.id.glMesas);
         textMesas = findViewById(R.id.textMesas);
@@ -102,7 +105,6 @@ public class MesasSalones extends AppCompatActivity {
 
                     startActivity(intent);
                 }
-
             }
         };
 
@@ -110,6 +112,8 @@ public class MesasSalones extends AppCompatActivity {
         View.OnClickListener salonClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Activamos load
+                progressDialog.show();
                 // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
                 BuscarMesaPorSalon(mesaClickListener, view.getTag().toString());
                 textMesas.setText("Mesas : " + ((Button) view).getText().toString());
@@ -241,6 +245,7 @@ public class MesasSalones extends AppCompatActivity {
                 } catch (Exception e) {
                     Toast.makeText(MesasSalones.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+                progressDialog.dismiss();
             }
 
             @Override

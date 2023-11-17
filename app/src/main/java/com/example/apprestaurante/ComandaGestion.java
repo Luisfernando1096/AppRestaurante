@@ -38,6 +38,7 @@ import com.example.apprestaurante.interfaces.ProductoApi;
 import com.example.apprestaurante.network.ApiClient;
 import com.example.apprestaurante.services.*;
 import com.example.apprestaurante.utils.EnviarListaTask;
+import com.example.apprestaurante.utils.Load;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -51,6 +52,7 @@ import retrofit2.Response;
 
 public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter.OnItemClickListener {
 
+    Load progressDialog;
     int idMesa, idPedido = 0;
     public static String salon;
     String cliente, mesero, mesa;
@@ -73,6 +75,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        progressDialog = new Load(this);
 
         setContentView(R.layout.activity_comanda_gestion);
         llFamilias = findViewById(R.id.llFamilias);
@@ -170,6 +174,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
 
     private void CargarPedidosEnMesa() {
+        progressDialog.show();
         PedidoService pedidoService = new PedidoService();
         pedidoService.obtenerPedidosEnMesa(String.valueOf(idMesa), new CallBackApi<Integer>() {
             @Override
@@ -330,6 +335,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
 
     private void ObtenerProductosEnMesa(String id, String idPed) {
+        progressDialog.show();
         Call<List<PedidoDetalle>> call = ApiClient.getClient().create(PedidoDetalleApi.class).productosEnMesa(id, idPed);
         call.enqueue(new Callback<List<PedidoDetalle>>() {
             @Override
@@ -357,12 +363,13 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                             }
                             CargarPedidos();
                         }
-
+                        progressDialog.dismiss();
                     } else {
                         System.out.println("Fallo el isSuccessful");
                     }
 
                 } catch (Exception e) {
+                    progressDialog.dismiss();
                     Toast.makeText(ComandaGestion.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -402,6 +409,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
 
     private void BuscarProductoPorId(String id, int cantidad) {
+        progressDialog.show();
         ProductoService productoService = new ProductoService();
         productoService.buscarProductoPorId(id, cantidad, new CallBackApi<Producto>() {
             @Override
