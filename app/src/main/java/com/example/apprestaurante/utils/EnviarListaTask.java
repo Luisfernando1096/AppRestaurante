@@ -2,6 +2,7 @@ package com.example.apprestaurante.utils;
 import android.os.AsyncTask;
 import com.example.apprestaurante.ComandaGestion;
 import com.example.apprestaurante.clases.PedidoDetalle;
+import com.example.apprestaurante.network.ApiClient;
 import com.example.apprestaurante.services.ApiService;
 import com.google.gson.Gson;
 import java.io.OutputStream;
@@ -28,10 +29,7 @@ public class EnviarListaTask {
 
     public void enviarLista(List<PedidoDetalle> lista) {
         // Crear instancia de Retrofit
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.233.52:4000/") // URL base de tu servicio
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        Retrofit retrofit = ApiClient.getEscucha();
 
         // Crear la interfaz del servicio
         ApiService apiService = retrofit.create(ApiService.class);
@@ -68,10 +66,7 @@ public class EnviarListaTask {
 
     public void enviarListaCompleta(List<PedidoDetalle> lista) {
         // Crear instancia de Retrofit
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.233.52:4000/") // URL base de tu servicio
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        Retrofit retrofit = ApiClient.getEscucha();
         // Crear la interfaz del servicio
         ApiService apiService = retrofit.create(ApiService.class);
         // Serializar la lista de objetos a JSON
