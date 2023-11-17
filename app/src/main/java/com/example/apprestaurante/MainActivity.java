@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     //Si hay error
                     Toast.makeText(MainActivity.this, "Error en conexion de red." + t.getMessage(), Toast.LENGTH_SHORT).show();
                     System.out.println("Error en conexion de red." + t.getMessage());
+                    progressDialog.dismiss();
                 }
             });
         }else{
