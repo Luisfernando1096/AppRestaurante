@@ -462,7 +462,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         }
 
         pDetalle.setNombre(prod.getNombre());
-        Toast.makeText(this, "Nombre: " + prod.getNombre(), Toast.LENGTH_SHORT).show();
         pDetalle.setGrupo(prod.getGrupoPrinter());
         Boolean encontrado = false;
 

@@ -71,7 +71,6 @@ public class EnviarListaTask {
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 progressDialog.dismiss();
-                Toast.makeText(context, "No finalizo correctamente, verifique que el servidor este activo.", Toast.LENGTH_SHORT).show();
                 // Manejar el fallo en la comunicación con el servidor
                 t.printStackTrace();
             }
@@ -107,7 +106,6 @@ public class EnviarListaTask {
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 progressDialog.dismiss();
-                Toast.makeText(context, "No finalizo correctamente, verifique que el servidor este activo.", Toast.LENGTH_SHORT).show();
                 // Manejar el fallo en la comunicación con el servidor
                 t.printStackTrace();
             }
