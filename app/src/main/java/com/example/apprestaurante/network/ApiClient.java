@@ -4,20 +4,30 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
+
     private static Retrofit retrofit;
     private static Retrofit retrofitEscucha;
-    public static Retrofit getClient(){
+    private final static String ipAddress = "192.168.219.52";
+
+    public static Retrofit getClient() {
+        String baseUrl = "http://" + ipAddress + ":8081/";
+
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.2.105:8081/")
+                .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
         return retrofit;
     }
-    public static Retrofit getEscucha(){
+
+    public static Retrofit getEscucha() {
+        String baseUrl = "http://" + ipAddress + ":4000/";
+
         retrofitEscucha = new Retrofit.Builder()
-                .baseUrl("http://192.168.2.105:4000/")
+                .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
         return retrofitEscucha;
     }
 }
