@@ -3,7 +3,7 @@
     <string name="textMesasSalones">Seleccion</string>
     <string name="textComandaGestion">Gestion de comandas</string>
     <string name="textSalones">Salones</string>
-        <string name="textFamilias">Familias</string>
+    <string name="textFamilias">Familias</string>
     <string name="textProductos">Productos</string>
     <string name="textDescripcion">ScrollBarr</string>
     <string name="textComandaGestionDiv">Divir pedido</string>
