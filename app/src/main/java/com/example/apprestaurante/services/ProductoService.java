@@ -19,7 +19,7 @@ public class ProductoService {
     }
 
     public void buscarProductoPorId(String id, int cantidad, final CallBackApi<Producto> callback) {
-        if (cantidad > 0) {
+        if (cantidad >= 0) {
             Call<Producto> call = productoApi.productoPorId(id);
             call.enqueue(new Callback<Producto>() {
                 @Override

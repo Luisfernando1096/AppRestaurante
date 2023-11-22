@@ -405,7 +405,82 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     @Override
     public void onItemClick(PedidoDetalle pedidoDetalle) {
         //Programar aqui cuando se quiere disminuir un pedido
-        Toast.makeText(this, "Esta es un prueba: " + pedidoDetalle.getNombre(), Toast.LENGTH_SHORT).show();
+        // Crear un objeto AlertDialog.Builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // Configurar el título y el mensaje
+        builder.setTitle("Eliminacion.");
+        builder.setMessage("Se disminuira el producto: \n" + pedidoDetalle.getNombre() + "\n ¿Desea continuar?");
+
+        // Configurar el botón positivo (o aceptar)
+        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // Acciones a realizar cuando se hace clic en Aceptar
+                pedidoDetalle.setCantidad(pedidoDetalle.getCantidad()-1);
+                pedidoDetalle.setSubTotal(CalcularSubTotal(pedidoDetalle.getCantidad(),pedidoDetalle.getPrecio()));
+
+                if(pedidoDetalle.getCantidad() != 0)
+                {
+                    ActualizarCompra(pedidoDetalle);
+                }
+                else
+                {
+                    //Se eliminara el producto
+                    EliminarPedidoDetalle(String.valueOf(pedidoDetalle.getIdDetalle()));
+
+                    if (lstPedidos.size() == 1)
+                    {
+                        Pedido pedido = new Pedido();
+                        pedido.setIdPedido(idPedido);
+                        //EliminarPedido(pedido);
+                        ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
+
+                    }
+                    else
+                    {
+                        ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
+                    }
+                }
+
+                CargarPedidosEnMesa();
+                if (lstPD.size() > 0)
+                {
+                    for (PedidoDetalle item : lstPD)
+                    {
+                        if (pedidoDetalle.getIdProducto() == item.getIdProducto())
+                        {
+                            item.setIdPedido(item.getIdPedido());
+                            item.setIdProducto(item.getIdProducto());
+                            item.setCantidad(item.getCantidad()-1);
+                            if (item.getCantidad() == 0)
+                            {
+                                lstPD.remove(item);
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                //Obtener el producto por el id
+                BuscarProductoPorId(String.valueOf(pedidoDetalle.getIdProducto()), 0);
+
+            }
+
+        });
+
+        // Configurar el botón negativo (o cancelar)
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // Acciones a realizar cuando se hace clic en Cancelar
+                // Puedes dejar este bloque vacío si no necesitas realizar ninguna acción específica
+            }
+        });
+
+        // Mostrar el AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     private void BuscarProductoPorId(String id, int cantidad) {
@@ -414,9 +489,14 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         productoService.buscarProductoPorId(id, cantidad, new CallBackApi<Producto>() {
             @Override
             public void onResponse(Producto response) {
-                // Procesa la respuesta del producto aquí
                 producto = response;
-                ProcesarComanda(cantidad, producto);
+                // Procesa la respuesta del producto aquí
+                if(cantidad>0){
+                    ProcesarComanda(cantidad, producto);
+                }else{
+                    ActualizarStockProductosIngredientes(String.valueOf(producto.getIdProducto()), 1, producto, false);
+                }
+
             }
 
             @Override
@@ -1018,6 +1098,42 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onResponseList(List<Pedido> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
+            }
+        });
+    }
+
+    private void EliminarPedidoDetalle(String id) {
+        PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
+        pedidoDetalleService.EliminarPedidoDetalle(id, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    Boolean eliminado = response.body();
+                    if (eliminado != null && eliminado) {
+                        // El pedido se insertó con éxito
+                    } else {
+                        // Hubo un error en la inserción del pedido
+                        //Toast.makeText(DividirPedidos.this, "Hubo un error al eliminar pedido detalle", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta al eliminar detallepedido: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
 
             }
 

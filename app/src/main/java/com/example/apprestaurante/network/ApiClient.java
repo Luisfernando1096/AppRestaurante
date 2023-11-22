@@ -7,7 +7,7 @@ public class ApiClient {
 
     private static Retrofit retrofit;
     private static Retrofit retrofitEscucha;
-    private final static String ipAddress = "192.168.219.52";
+    private final static String ipAddress = "192.168.2.109";
 
     public static Retrofit getClient() {
         String baseUrl = "http://" + ipAddress + ":8081/";
