@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.apprestaurante.adapters.PedidosAdapter;
+import com.example.apprestaurante.clases.Cliente;
 import com.example.apprestaurante.clases.Familia;
 import com.example.apprestaurante.clases.Ingrediente;
 import com.example.apprestaurante.clases.Mesa;
@@ -65,6 +66,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     LinearLayout llFamilias, llProductos, llAcciones;
     List<Familia> lstFamilias;
     public static List<Integer> lstPedidosEnMesa = null;
+    public static List<Cliente> lstClientes = null;
     public static List<Producto> lstProductos;
     Producto producto;
     Pedido nuevoPedido = null;
@@ -202,6 +204,67 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         });
     }
 
+    private void CargarClientes() {
+        ClienteService clienteService = new ClienteService();
+        clienteService.obtenerClientes(new CallBackApi<Cliente>() {
+            @Override
+            public void onResponse(Cliente response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
+            public void onResponseList(List<Cliente> response) {
+                lstClientes = response;
+                // Infla el diseño XML personalizado
+                View customLayout = getLayoutInflater().inflate(R.layout.item_dialog, null);
+
+                // Crea un AlertDialog con el diseño personalizado
+                AlertDialog.Builder builder = new AlertDialog.Builder(ComandaGestion.this);
+                builder.setView(customLayout);
+
+                // Declara una variable para almacenar el número seleccionado
+                final AlertDialog alertDialog = builder.create();
+
+                for (final Cliente client : lstClientes) {
+                    Button button = new Button(ComandaGestion.this);
+                    button.setText(client.getNombre());
+                    button.setTag(client.getIdCliente());
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            // Almacena el número entero seleccionado en la variable
+                            cliente = client.getNombre();
+
+                            //Guardar en la base de datos ActualizarCliente
+
+                            // Cierra el AlertDialog
+                            alertDialog.dismiss();
+                        }
+                    });
+                    ((LinearLayout) customLayout).addView(button);
+                }
+
+                builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+                alertDialog.show();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
+            }
+        });
+    }
+
     private void ProgramarAcciones(String tag) {
         if (tag.equals("1")) {
             //Comanda
@@ -223,7 +286,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             Toast.makeText(this, "Click en mesero", Toast.LENGTH_SHORT).show();
         } else if (tag.equals("5")) {
             //Cliente
-            Toast.makeText(this, "Click en cliente", Toast.LENGTH_SHORT).show();
+            CargarClientes();
         }
     }
 

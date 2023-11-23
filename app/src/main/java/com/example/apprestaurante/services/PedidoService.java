@@ -24,7 +24,6 @@ public class PedidoService {
 
     public PedidoService() {
         pedidoApi = ApiClient.getClient().create(PedidoApi.class);
-
     }
     public void InsertarPedido(Pedido pedido, final CallBackApi<Integer> callback) {
 

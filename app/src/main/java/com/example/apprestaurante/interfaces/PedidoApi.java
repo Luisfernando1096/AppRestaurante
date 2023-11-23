@@ -14,8 +14,6 @@ import retrofit2.http.Path;
 public interface PedidoApi {
     @POST("api/pedido/insertar")
     Call<Integer> insertarPedido(@Body Pedido pedido);
-    @GET("api/pedido/obtenerultimopedido")
-    Call<Pedido> obtenerUltimoPedido();
     @PUT("api/pedido/actualizartotal")
     Call<Boolean> actualizarTotal(@Body Pedido pedido);
     @PUT("api/pedido/actualizarmesa")
