@@ -1,5 +1,6 @@
 package com.example.apprestaurante;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -10,6 +11,7 @@ import static com.example.apprestaurante.MesasSalones.idMesaAnterior;
 import static com.example.apprestaurante.MesasSalones.idPedidoCambioMesa;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -192,16 +194,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         PedidoService pedidoService = new PedidoService();
         pedidoService.obtenerPedidosEnMesa(String.valueOf(idMesa), new CallBackApi<Integer>() {
             @Override
-            public void onResponse(Integer response) {
-
-            }
-
-            @Override
-            public void onResponseBool(Response<Boolean> response) {
-
-            }
-
-            @Override
             public void onResponseList(List<Integer> response) {
                 lstPedidosEnMesa = response;
                 if (lstPedidosEnMesa.size() > 1) {
@@ -214,6 +206,58 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             }
         });
+    }
+
+    private void CargarDialogoMeseros(){
+        // Infla el diseño XML personalizado
+        View customLayout = getLayoutInflater().inflate(R.layout.item_dialog, null);
+        // Crea un AlertDialog con el diseño personalizado
+        AlertDialog.Builder builder = new AlertDialog.Builder(ComandaGestion.this);
+        builder.setView(customLayout);
+        // Declara una variable para almacenar el número seleccionado
+        final AlertDialog alertDialog = builder.create();
+
+        // Obtén la referencia al ScrollView y LinearLayout dentro del AlertDialog
+        Button btnAgregar = customLayout.findViewById(R.id.btnAgregar);
+        btnAgregar.setVisibility(View.GONE);
+        LinearLayout linearLayoutScroll = customLayout.findViewById(R.id.llClientesScroll);
+
+        for (final Empleado empl : lstEmpleados) {
+            Button button = new Button(ComandaGestion.this);
+            button.setText( empl.getNombres());
+            button.setTag(empl.getIdEmpleado());
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // Almacena el número entero seleccionado en la variable
+                    String tag = String.valueOf(view.getTag());
+                    mesero = empl.getNombres();
+                    //Establecer nombre en textview
+                    tvMesero.setText("Mesero: " + mesero);
+                    //Crear el objeto para actualizar
+                    Pedido pedEmpleado = new Pedido();
+                    //Guardar en la base de datos ActualizarMesero
+                    if (pedEmpleado != null) {
+                        pedEmpleado.setIdPedido(idPedido);
+                        pedEmpleado.setIdMesa(idMesa);
+                        pedEmpleado.setIdMesero(Integer.parseInt(tag));
+                        ActualizarMesero(pedEmpleado, tag);
+                    }else{
+                        //Toast.makeText(ComandaGestion.this, "Error no entro", Toast.LENGTH_SHORT).show();
+                    }
+                    // Cierra el AlertDialog
+                    alertDialog.dismiss();
+                }
+            });
+            linearLayoutScroll.addView(button);
+        }
+        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+        alertDialog.show();
     }
 
     private void CargarDialogoClientes(){
@@ -232,7 +276,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         btnAgregar.setOnClickListener(v -> {
             alertDialog.dismiss();
             Intent intent = new Intent(ComandaGestion.this, AgregarCliente.class);
-            startActivity(intent);
+            startActivityForResult(intent, 1);//Para ejecutar algo justo despues de cerrar la activity
         });
         LinearLayout linearLayoutScroll = customLayout.findViewById(R.id.llClientesScroll);
 
@@ -283,56 +327,9 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         EmpleadoService empleadoService = new EmpleadoService();
         empleadoService.obtenerEmpleados(new CallBackApi<Empleado>() {
             @Override
-            public void onResponse(Empleado response) {
-            }
-            @Override
-            public void onResponseBool(Response<Boolean> response) {
-            }
-            @Override
             public void onResponseList(List<Empleado> response) {
                 lstEmpleados = response;
-                // Infla el diseño XML personalizado
-                View customLayout = getLayoutInflater().inflate(R.layout.item_dialog, null);
-                // Crea un AlertDialog con el diseño personalizado
-                AlertDialog.Builder builder = new AlertDialog.Builder(ComandaGestion.this);
-                builder.setView(customLayout);
-                // Declara una variable para almacenar el número seleccionado
-                final AlertDialog alertDialog = builder.create();
-                for (final Empleado empl : lstEmpleados) {
-                    Button button = new Button(ComandaGestion.this);
-                    button.setText( empl.getNombres());
-                    button.setTag(empl.getIdEmpleado());
-                    button.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            // Almacena el número entero seleccionado en la variable
-                            String tag = String.valueOf(view.getTag());
-                            mesero = empl.getNombres();
-                            Toast.makeText(ComandaGestion.this, "Mesero: " + empl.getNombres() + " Seleccionado", Toast.LENGTH_SHORT).show();
-
-                            Pedido pedEmpleado = new Pedido();
-                            //Guardar en la base de datos ActualizarCliente
-                            if (pedEmpleado != null) {
-                                pedEmpleado.setIdPedido(idPedido);
-                                pedEmpleado.setIdMesa(idMesa);
-                                pedEmpleado.setIdMesero(Integer.parseInt(tag));
-                                ActualizarMesero(pedEmpleado, tag);
-                            }else{
-                                //Toast.makeText(ComandaGestion.this, "Error no entro", Toast.LENGTH_SHORT).show();
-                            }
-                            // Cierra el AlertDialog
-                            alertDialog.dismiss();
-                        }
-                    });
-                    ((LinearLayout) customLayout).addView(button);
-                }
-                builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-                alertDialog.show();
+                CargarDialogoMeseros();
             }
             @Override
             public void onFailure(String errorMessage) {
@@ -344,9 +341,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         PedidoService pedidoService = new PedidoService();
         pedidoService.ActualizarMesero(pedido, new CallBackApi<Boolean>() {
             @Override
-            public void onResponse(Boolean response) {
-            }
-            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
                     //nuevoPedido = null;
@@ -354,9 +348,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
-            }
-            @Override
-            public void onResponseList(List<Boolean> response) {
             }
             @Override
             public void onFailure(String errorMessage) {
@@ -466,16 +457,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
         FamiliaService familiaService = new FamiliaService();
         familiaService.BuscarFamilias(new CallBackApi<Familia>() {
-            @Override
-            public void onResponse(Familia response) {
-
-            }
-
-            @Override
-            public void onResponseBool(Response<Boolean> response) {
-
-            }
-
             @Override
             public void onResponseList(List<Familia> response) {
                 lstFamilias = response;
@@ -660,17 +641,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 }
 
             }
-
-            @Override
-            public void onResponseBool(Response<Boolean> response) {
-
-            }
-
-            @Override
-            public void onResponseList(List<Producto> response) {
-
-            }
-
             @Override
             public void onFailure(String errorMessage) {
                 Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
@@ -804,16 +774,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         IngredienteService ingredienteService = new IngredienteService();
         ingredienteService.buscarngredientesDeProducto(idProducto, new CallBackApi<Ingrediente>() {
             @Override
-            public void onResponse(Ingrediente response) {
-
-            }
-
-            @Override
-            public void onResponseBool(Response<Boolean> response) {
-
-            }
-
-            @Override
             public void onResponseList(List<Ingrediente> response) {
                 List<Ingrediente> ingredientes = response;
                 Ingrediente ingrediente;
@@ -855,7 +815,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     }
                 }
             }
-
             @Override
             public void onFailure(String errorMessage) {
 
@@ -867,11 +826,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         IngredienteService ingredienteService = new IngredienteService();
         ingredienteService.ActualizarStockIngrediente(ingrediente, new CallBackApi<Boolean>() {
             @Override
-            public void onResponse(Boolean response) {
-
-            }
-
-            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
 
@@ -880,12 +834,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta actualizar producto: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
-
-            @Override
-            public void onResponseList(List<Boolean> response) {
-
-            }
-
             @Override
             public void onFailure(String errorMessage) {
 
@@ -896,11 +844,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void ActualizarStockProducto(Producto prod) {
         ProductoService productoService = new ProductoService();
         productoService.ActualizarStockProducto(prod, new CallBackApi<Boolean>() {
-            @Override
-            public void onResponse(Boolean response) {
-
-            }
-
             @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
@@ -928,12 +871,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void ActualizarCompra(PedidoDetalle pedidoDetalle) {
         PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
         pedidoDetalleService.ActualizarCompra(pedidoDetalle, new CallBackApi<Boolean>() {
-
-            @Override
-            public void onResponse(Boolean response) {
-
-            }
-
             @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
@@ -944,12 +881,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
-
-            @Override
-            public void onResponseList(List<Boolean> response) {
-
-            }
-
             @Override
             public void onFailure(String errorMessage) {
 
@@ -972,11 +903,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
 
             @Override
-            public void onResponseList(List<Boolean> response) {
-
-            }
-
-            @Override
             public void onFailure(String errorMessage) {
 
             }
@@ -986,11 +912,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void ActualizarTotalPedido() {
         PedidoService pedidoService = new PedidoService();
         pedidoService.ActualizarTotal(nuevoPedido, new CallBackApi<Boolean>() {
-            @Override
-            public void onResponse(Boolean response) {
-
-            }
-
             @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
@@ -1002,12 +923,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
-
-            @Override
-            public void onResponseList(List<Boolean> response) {
-
-            }
-
             @Override
             public void onFailure(String errorMessage) {
 
@@ -1019,11 +934,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         MesaService mesaService = new MesaService();
         mesaService.ActualizarEstadoMesa(mesa, new CallBackApi<Boolean>() {
             @Override
-            public void onResponse(Boolean response) {
-
-            }
-
-            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
 
@@ -1033,11 +943,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
-            }
-
-            @Override
-            public void onResponseList(List<Boolean> response) {
-
             }
             @Override
             public void onFailure(String errorMessage) {
@@ -1049,11 +954,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void InsertarPedidoDetalle(PedidoDetalle pedidoDetalle) {
         PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
         pedidoDetalleService.InsertarPedidoDetalle(pedidoDetalle, new CallBackApi<Boolean>() {
-            @Override
-            public void onResponse(Boolean response) {
-
-            }
-
             @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
@@ -1070,11 +970,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta al insertar detallepedido: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
-            }
-
-            @Override
-            public void onResponseList(List<Boolean> response) {
-
             }
             @Override
             public void onFailure(String errorMessage) {
@@ -1119,15 +1014,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 }
             }
 
-            @Override
-            public void onResponseBool(Response<Boolean> response) {
-
-            }
-
-            @Override
-            public void onResponseList(List<Integer> response) {
-
-            }
             @Override
             public void onFailure(String errorMessage) {
                 Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
@@ -1283,16 +1169,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
 
             @Override
-            public void onResponseBool(Response<Boolean> response) {
-
-            }
-
-            @Override
-            public void onResponseList(List<Pedido> response) {
-
-            }
-
-            @Override
             public void onFailure(String errorMessage) {
 
             }
@@ -1302,10 +1178,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void EliminarPedidoDetalle(String id) {
         PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
         pedidoDetalleService.EliminarPedidoDetalle(id, new CallBackApi<Boolean>() {
-            @Override
-            public void onResponse(Boolean response) {
-
-            }
 
             @Override
             public void onResponseBool(Response<Boolean> response) {
@@ -1324,11 +1196,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
 
             @Override
-            public void onResponseList(List<Boolean> response) {
-
-            }
-
-            @Override
             public void onFailure(String errorMessage) {
 
             }
@@ -1336,8 +1203,14 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        CargarClientes();
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) { // Verifica que el código de solicitud sea el mismo que el que usaste al llamar startActivityForResult
+            if (resultCode == Activity.RESULT_OK) {
+                // Aquí puedes ejecutar el método que deseas después de cerrar la Activity
+                // Este bloque de código se ejecutará después de cerrar AgregarCliente
+                CargarClientes();
+            }
+        }
     }
 }

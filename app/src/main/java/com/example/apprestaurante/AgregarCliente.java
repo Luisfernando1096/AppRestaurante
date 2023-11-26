@@ -1,5 +1,7 @@
 package com.example.apprestaurante;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -49,7 +51,6 @@ public class AgregarCliente extends AppCompatActivity {
                 cliente.setRegContable(edtregContable.getText().toString());
 
                 InsertarCliente(cliente);
-                finish();
             }
         });
     }
@@ -59,23 +60,15 @@ public class AgregarCliente extends AppCompatActivity {
         ClienteService clienteService = new ClienteService();
         clienteService.InsertarCliente(cliente, new CallBackApi<Boolean>() {
             @Override
-            public void onResponse(Boolean response) {
-
-            }
-
-            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if(response.body()){
                     progressDialog.dismiss();
                     Toast.makeText(AgregarCliente.this, "Cliente agregado con exito", Toast.LENGTH_SHORT).show();
+                    Intent resultIntent = new Intent();
+                    setResult(Activity.RESULT_OK, resultIntent);
+                    finish();
                 }
             }
-
-            @Override
-            public void onResponseList(List<Boolean> response) {
-
-            }
-
             @Override
             public void onFailure(String errorMessage) {
                 progressDialog.dismiss();
