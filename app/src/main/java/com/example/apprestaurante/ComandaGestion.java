@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,7 +61,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     int idMesa, idPedido = 0;
     public static String salon;
     String cliente, mesero, mesa;
-    TextView tvTicket, textProductos, tvMesa;
+    TextView tvTicket, textProductos, tvMesa, tvCliente, tvMesero;
     RecyclerView rcvPedidos;
     private LinearLayoutManager layoutManager;
     LinearLayout llFamilias, llProductos, llAcciones;
@@ -88,6 +89,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         rcvPedidos = findViewById(R.id.rcvPedidos);
         tvTicket = findViewById(R.id.tvTicket);
         tvMesa = findViewById(R.id.tvMesa);
+        tvCliente = findViewById(R.id.tvCliente);
+        tvMesero = findViewById(R.id.tvMesero);
         llAcciones = findViewById(R.id.llAcciones);
         btnCuentas = findViewById(R.id.btnCuentas);
         btnCuentas.setVisibility(View.GONE);
@@ -146,6 +149,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 // Declara una variable para almacenar el número seleccionado
                 final AlertDialog alertDialog = builder.create();
 
+                LinearLayout linearLayoutScroll = customLayout.findViewById(R.id.llClientesScroll);
+
+                // Obtén la referencia al ScrollView y LinearLayout dentro del AlertDialog
+                Button btnAgregar = customLayout.findViewById(R.id.btnAgregar);
+                btnAgregar.setVisibility(View.GONE);
+
                 for (final Integer integer : lstPedidosEnMesa) {
                     Button button = new Button(ComandaGestion.this);
                     button.setText(integer.toString());
@@ -160,7 +169,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                             alertDialog.dismiss();
                         }
                     });
-                    ((LinearLayout) customLayout).addView(button);
+                    linearLayoutScroll.addView(button);
                 }
 
                 builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -204,6 +213,49 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         });
     }
 
+    private void CargarDialogoClientes(){
+        // Infla el diseño XML personalizado
+        View customLayout = getLayoutInflater().inflate(R.layout.item_dialog, null);
+
+        // Crea un AlertDialog con el diseño personalizado
+        AlertDialog.Builder builder = new AlertDialog.Builder(ComandaGestion.this);
+        builder.setView(customLayout);
+
+        // Declara una variable para almacenar el número seleccionado
+        final AlertDialog alertDialog = builder.create();
+
+        // Obtén la referencia al ScrollView y LinearLayout dentro del AlertDialog
+        Button btnAgregar = customLayout.findViewById(R.id.btnAgregar);
+        btnAgregar.setOnClickListener(v -> {
+            alertDialog.dismiss();
+            Intent intent = new Intent(ComandaGestion.this, AgregarCliente.class);
+            startActivity(intent);
+        });
+        LinearLayout linearLayoutScroll = customLayout.findViewById(R.id.llClientesScroll);
+
+        for (final Cliente client : lstClientes) {
+            Button button = new Button(ComandaGestion.this);
+            button.setText(client.getNombre());
+            button.setTag(client.getIdCliente());
+            button.setOnClickListener(view -> {
+                // Almacena el número entero seleccionado en la variable
+                cliente = client.getNombre();
+
+                //Establecer nombre en textview
+                tvCliente.setText("Cliente: " + cliente);
+                //Guardar en la base de datos ActualizarCliente
+
+                // Cierra el AlertDialog
+                alertDialog.dismiss();
+            });
+
+            // Agrega el botón directamente al LinearLayout dentro del ScrollView
+            linearLayoutScroll.addView(button);
+        }
+
+        // Luego de agregar todos los botones, muestra el AlertDialog
+        alertDialog.show();
+    }
     private void CargarClientes() {
         ClienteService clienteService = new ClienteService();
         clienteService.obtenerClientes(new CallBackApi<Cliente>() {
@@ -220,42 +272,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             @Override
             public void onResponseList(List<Cliente> response) {
                 lstClientes = response;
-                // Infla el diseño XML personalizado
-                View customLayout = getLayoutInflater().inflate(R.layout.item_dialog, null);
-
-                // Crea un AlertDialog con el diseño personalizado
-                AlertDialog.Builder builder = new AlertDialog.Builder(ComandaGestion.this);
-                builder.setView(customLayout);
-
-                // Declara una variable para almacenar el número seleccionado
-                final AlertDialog alertDialog = builder.create();
-
-                for (final Cliente client : lstClientes) {
-                    Button button = new Button(ComandaGestion.this);
-                    button.setText(client.getNombre());
-                    button.setTag(client.getIdCliente());
-                    button.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            // Almacena el número entero seleccionado en la variable
-                            cliente = client.getNombre();
-
-                            //Guardar en la base de datos ActualizarCliente
-
-                            // Cierra el AlertDialog
-                            alertDialog.dismiss();
-                        }
-                    });
-                    ((LinearLayout) customLayout).addView(button);
-                }
-
-                builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-                alertDialog.show();
+                CargarDialogoClientes();
             }
 
             @Override
@@ -1027,8 +1044,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         return Double.parseDouble(df.format(total));
     }
 
-    public double CalcularSubTotal(int cantidad, double precio)
-    {
+    public double CalcularSubTotal(int cantidad, double precio) {
         DecimalFormat df = new DecimalFormat("#.00");
         double subTotal;
         subTotal = precio*cantidad;
@@ -1148,10 +1164,18 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         pedidoService.obtenerPedidoPorId(id, new CallBackApi<Pedido>() {
             @Override
             public void onResponse(Pedido response) {
-                mesero = response.getNombre();
-                cliente = response.getNombres();
+                cliente = response.getNombre();
+                mesero = response.getNombres();
                 mesa = response.getMesa();
                 tvMesa.setText(mesa);
+                if(mesero!=null){
+                    tvMesero.setText("Mesero: " + mesero);
+                }
+                if(cliente!=null){
+                    tvCliente.setText("Cliente: " + cliente);
+                }
+
+
             }
 
             @Override
@@ -1205,5 +1229,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             }
         });
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        CargarClientes();
     }
 }
