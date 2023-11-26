@@ -244,7 +244,10 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 //Establecer nombre en textview
                 tvCliente.setText("Cliente: " + cliente);
                 //Guardar en la base de datos ActualizarCliente
-
+                Pedido pedido = new Pedido();
+                pedido.setIdPedido(idPedido);
+                pedido.setIdCliente(client.getIdCliente());
+                ActualizarCliente(pedido);
                 // Cierra el AlertDialog
                 alertDialog.dismiss();
             });
@@ -259,16 +262,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void CargarClientes() {
         ClienteService clienteService = new ClienteService();
         clienteService.obtenerClientes(new CallBackApi<Cliente>() {
-            @Override
-            public void onResponse(Cliente response) {
-
-            }
-
-            @Override
-            public void onResponseBool(Response<Boolean> response) {
-
-            }
-
             @Override
             public void onResponseList(List<Cliente> response) {
                 lstClientes = response;
@@ -830,11 +823,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
 
             @Override
-            public void onResponseList(List<Boolean> response) {
-
-            }
-
-            @Override
             public void onFailure(String errorMessage) {
                 // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
                 Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + errorMessage.toString(), Toast.LENGTH_SHORT).show();
@@ -857,6 +845,28 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             }
 
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    //Toast.makeText(ComandaGestion.this, "Estado mesa actualizado", Toast.LENGTH_SHORT).show();
+                    ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + errorMessage.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void ActualizarCliente(Pedido pd){
+        PedidoService pedidoService = new PedidoService();
+        pedidoService.ActualizarCliente(pd, new CallBackApi<Boolean>() {
             @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
