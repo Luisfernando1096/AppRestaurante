@@ -10,13 +10,10 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
+import com.example.apprestaurante.services.*;
 import com.example.apprestaurante.clases.Cliente;
 import com.example.apprestaurante.interfaces.CallBackApi;
-import com.example.apprestaurante.services.ClienteService;
 import com.example.apprestaurante.utils.Load;
-
-import java.util.List;
 
 import retrofit2.Response;
 
