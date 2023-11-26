@@ -162,4 +162,24 @@ public class PedidoService {
         });
     }
 
+    public void ActualizarMesero(Pedido pedido, final CallBackApi<Boolean> callback) {
+
+        // Crea una instancia de la interfaz de Retrofit para realizar la inserción
+        PedidoApi pedidoApi = ApiClient.getClient().create(PedidoApi.class);
+
+        // Realiza la llamada para insertar el pedido
+        Call<Boolean> call = pedidoApi.actualizarmesero(pedido);
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                callback.onResponseBool(response);
+            }
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                // Si hay un error en la conexión de red
+                callback.onFailure("Error en conexión de red: " + t.getMessage());
+            }
+        });
+    }
+
 }

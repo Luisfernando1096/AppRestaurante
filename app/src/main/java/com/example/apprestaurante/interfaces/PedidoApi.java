@@ -24,4 +24,6 @@ public interface PedidoApi {
     Call<Pedido> obtenerPedidoPorId(@Path("id") String id);
     @PUT("api/pedido/actualizarcliente")
     Call<Boolean> actualizarCliente(@Body Pedido pedido);
+    @PUT("api/pedido/actualizarmesero")
+    Call<Boolean> actualizarmesero(@Body Pedido pedido);
 }
