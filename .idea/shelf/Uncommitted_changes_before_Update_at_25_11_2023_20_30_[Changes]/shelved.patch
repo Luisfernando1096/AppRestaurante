@@ -1,0 +1,57 @@
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_15_11_2023_16_19_[Changes]/shelved.patch
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_15_11_2023_16_19_[Changes]/shelved.patch b/.idea/shelf/Uncommitted_changes_before_Update_at_15_11_2023_16_19_[Changes]/shelved.patch
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_15_11_2023_16_19_[Changes]/shelved.patch	(revision 8673d0f5cd8df910afa96dd785567224e3fc3dfd)
++++ /dev/null	(revision 8673d0f5cd8df910afa96dd785567224e3fc3dfd)
+@@ -1,38 +0,0 @@
+-Index: app/src/main/java/com/example/apprestaurante/network/ApiClient.java
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>package com.example.apprestaurante.network;\r\n\r\nimport retrofit2.Retrofit;\r\nimport retrofit2.converter.gson.GsonConverterFactory;\r\n\r\npublic class ApiClient {\r\n    private static Retrofit retrofit;\r\n    public static Retrofit getClient(){\r\n        retrofit = new Retrofit.Builder()\r\n                .baseUrl(\"http://192.168.2.105:8081/\")\r\n                .addConverterFactory(GsonConverterFactory.create())\r\n                .build();\r\n        return retrofit;\r\n    }\r\n}\r\n
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/app/src/main/java/com/example/apprestaurante/network/ApiClient.java b/app/src/main/java/com/example/apprestaurante/network/ApiClient.java
+---- a/app/src/main/java/com/example/apprestaurante/network/ApiClient.java	(revision c46b1ccf52b457fcb701045ee9daea007eeae8dc)
+-+++ b/app/src/main/java/com/example/apprestaurante/network/ApiClient.java	(date 1699992709211)
+-@@ -7,7 +7,7 @@
+-     private static Retrofit retrofit;
+-     public static Retrofit getClient(){
+-         retrofit = new Retrofit.Builder()
+--                .baseUrl("http://192.168.2.105:8081/")
+-+                .baseUrl("http://192.168.233.52:8081/")
+-                 .addConverterFactory(GsonConverterFactory.create())
+-                 .build();
+-         return retrofit;
+-Index: app/src/main/java/com/example/apprestaurante/utils/EnviarListaTask.java
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>package com.example.apprestaurante.utils;\r\n\r\nimport android.os.AsyncTask;\r\n\r\nimport com.example.apprestaurante.ComandaGestion;\r\nimport com.example.apprestaurante.clases.PedidoDetalle;\r\nimport com.example.apprestaurante.services.ApiService;\r\nimport com.google.gson.Gson;\r\nimport java.io.OutputStream;\r\nimport java.net.HttpURLConnection;\r\nimport java.net.URL;\r\nimport java.util.List;\r\n\r\nimport android.os.AsyncTask;\r\nimport android.widget.Toast;\r\n\r\nimport com.google.gson.Gson;\r\nimport java.io.OutputStream;\r\nimport java.net.HttpURLConnection;\r\nimport java.net.URL;\r\nimport java.util.List;\r\n\r\nimport com.google.gson.Gson;\r\nimport okhttp3.MediaType;\r\nimport okhttp3.RequestBody;\r\nimport retrofit2.Call;\r\nimport retrofit2.Callback;\r\nimport retrofit2.Response;\r\nimport retrofit2.Retrofit;\r\nimport retrofit2.converter.gson.GsonConverterFactory;\r\n\r\npublic class EnviarListaTask {\r\n\r\n    public void enviarLista(List<PedidoDetalle> lista) {\r\n        // Crear instancia de Retrofit\r\n        Retrofit retrofit = new Retrofit.Builder()\r\n                .baseUrl(\"http://192.168.2.105:4000/\") // URL base de tu servicio\r\n                .addConverterFactory(GsonConverterFactory.create())\r\n                .build();\r\n\r\n        // Crear la interfaz del servicio\r\n        ApiService apiService = retrofit.create(ApiService.class);\r\n\r\n        // Serializar la lista de objetos a JSON\r\n        Gson gson = new Gson();\r\n        String jsonData = gson.toJson(lista);\r\n\r\n        // Crear el cuerpo de la solicitud\r\n        RequestBody requestBody = RequestBody.create(MediaType.parse(\"application/json\"), jsonData);\r\n\r\n        // Hacer la llamada a la API utilizando Retrofit\r\n        Call<Void> call = apiService.enviarLista(requestBody);\r\n        call.enqueue(new Callback<Void>() {\r\n            @Override\r\n            public void onResponse(Call<Void> call, Response<Void> response) {\r\n                if (response.isSuccessful()) {\r\n                    // Manejar la respuesta del servidor según sea necesario\r\n                    // Puedes leer el contenido de la respuesta aquí si es necesario\r\n                } else {\r\n                    // Manejar un código de respuesta no exitoso si es necesario\r\n                }\r\n            }\r\n\r\n            @Override\r\n            public void onFailure(Call<Void> call, Throwable t) {\r\n                // Manejar el fallo en la comunicación con el servidor\r\n                t.printStackTrace();\r\n            }\r\n        });\r\n    }\r\n}\r\n\r\n\r\n\r\n
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/app/src/main/java/com/example/apprestaurante/utils/EnviarListaTask.java b/app/src/main/java/com/example/apprestaurante/utils/EnviarListaTask.java
+---- a/app/src/main/java/com/example/apprestaurante/utils/EnviarListaTask.java	(revision c46b1ccf52b457fcb701045ee9daea007eeae8dc)
+-+++ b/app/src/main/java/com/example/apprestaurante/utils/EnviarListaTask.java	(date 1699992709236)
+-@@ -34,7 +34,7 @@
+-     public void enviarLista(List<PedidoDetalle> lista) {
+-         // Crear instancia de Retrofit
+-         Retrofit retrofit = new Retrofit.Builder()
+--                .baseUrl("http://192.168.2.105:4000/") // URL base de tu servicio
+-+                .baseUrl("http://192.168.233.52:4000/") // URL base de tu servicio
+-                 .addConverterFactory(GsonConverterFactory.create())
+-                 .build();
+- 
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_15_11_2023_16_19__Changes_.xml
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_15_11_2023_16_19__Changes_.xml b/.idea/shelf/Uncommitted_changes_before_Update_at_15_11_2023_16_19__Changes_.xml
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_15_11_2023_16_19__Changes_.xml	(revision 8673d0f5cd8df910afa96dd785567224e3fc3dfd)
++++ /dev/null	(revision 8673d0f5cd8df910afa96dd785567224e3fc3dfd)
+@@ -1,4 +0,0 @@
+-<changelist name="Uncommitted_changes_before_Update_at_15_11_2023_16_19_[Changes]" date="1700075984330" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_15_11_2023_16_19_[Changes]/shelved.patch" />
+-  <option name="DESCRIPTION" value="Uncommitted changes before Update at 15/11/2023 16:19 [Changes]" />
+-</changelist>
+\ No newline at end of file

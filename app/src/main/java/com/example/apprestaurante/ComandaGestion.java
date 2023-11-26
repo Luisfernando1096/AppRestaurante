@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.example.apprestaurante.adapters.PedidosAdapter;
 import com.example.apprestaurante.clases.Cliente;
+import com.example.apprestaurante.clases.Empleado;
 import com.example.apprestaurante.clases.Familia;
 import com.example.apprestaurante.clases.Ingrediente;
 import com.example.apprestaurante.clases.Mesa;
@@ -67,6 +68,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     List<Familia> lstFamilias;
     public static List<Integer> lstPedidosEnMesa = null;
     public static List<Cliente> lstClientes = null;
+    public static List<Empleado> lstEmpleados = null;
+
     public static List<Producto> lstProductos;
     Producto producto;
     Pedido nuevoPedido = null;
@@ -209,14 +212,10 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         clienteService.obtenerClientes(new CallBackApi<Cliente>() {
             @Override
             public void onResponse(Cliente response) {
-
             }
-
             @Override
             public void onResponseBool(Response<Boolean> response) {
-
             }
-
             @Override
             public void onResponseList(List<Cliente> response) {
                 lstClientes = response;
@@ -238,17 +237,26 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         @Override
                         public void onClick(View view) {
                             // Almacena el número entero seleccionado en la variable
+                            String tag = String.valueOf(view.getTag());
                             cliente = client.getNombre();
+                            Toast.makeText(ComandaGestion.this, "Cliente: " + client.getNombre() + " Seleccionado", Toast.LENGTH_SHORT).show();
 
+                            Pedido pedCliente = new Pedido();
                             //Guardar en la base de datos ActualizarCliente
-
+                            if (pedCliente != null) {
+                                pedCliente.setIdPedido(idPedido);
+                                pedCliente.setIdMesa(idMesa);
+                                pedCliente.setIdCliente(Integer.parseInt(tag));
+                                ActualizarCliente(pedCliente, tag);
+                            }else{
+                                //Toast.makeText(ComandaGestion.this, "Error no entro", Toast.LENGTH_SHORT).show();
+                            }
                             // Cierra el AlertDialog
                             alertDialog.dismiss();
                         }
                     });
                     ((LinearLayout) customLayout).addView(button);
                 }
-
                 builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -257,10 +265,117 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 });
                 alertDialog.show();
             }
-
             @Override
             public void onFailure(String errorMessage) {
+            }
+        });
+    }
 
+    private void ActualizarCliente(Pedido pedido, String tag) {
+        PedidoService pedidoService = new PedidoService();
+        pedidoService.ActualizarCliente(pedido, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+            }
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    //nuevoPedido = null;
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onResponseList(List<Boolean> response) {
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+            }
+        });
+    }
+
+    private void CargarEmpleados() {
+        EmpleadoService empleadoService = new EmpleadoService();
+        empleadoService.obtenerEmpleados(new CallBackApi<Empleado>() {
+            @Override
+            public void onResponse(Empleado response) {
+            }
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+            }
+            @Override
+            public void onResponseList(List<Empleado> response) {
+                lstEmpleados = response;
+                // Infla el diseño XML personalizado
+                View customLayout = getLayoutInflater().inflate(R.layout.item_dialog, null);
+                // Crea un AlertDialog con el diseño personalizado
+                AlertDialog.Builder builder = new AlertDialog.Builder(ComandaGestion.this);
+                builder.setView(customLayout);
+                // Declara una variable para almacenar el número seleccionado
+                final AlertDialog alertDialog = builder.create();
+                for (final Empleado empl : lstEmpleados) {
+                    Button button = new Button(ComandaGestion.this);
+                    button.setText( empl.getNombres());
+                    button.setTag(empl.getIdEmpleado());
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            // Almacena el número entero seleccionado en la variable
+                            String tag = String.valueOf(view.getTag());
+                            mesero = empl.getNombres();
+                            Toast.makeText(ComandaGestion.this, "Mesero: " + empl.getNombres() + " Seleccionado", Toast.LENGTH_SHORT).show();
+
+                            Pedido pedEmpleado = new Pedido();
+                            //Guardar en la base de datos ActualizarCliente
+                            if (pedEmpleado != null) {
+                                pedEmpleado.setIdPedido(idPedido);
+                                pedEmpleado.setIdMesa(idMesa);
+                                pedEmpleado.setIdMesero(Integer.parseInt(tag));
+                                ActualizarMesero(pedEmpleado, tag);
+                            }else{
+                                //Toast.makeText(ComandaGestion.this, "Error no entro", Toast.LENGTH_SHORT).show();
+                            }
+                            // Cierra el AlertDialog
+                            alertDialog.dismiss();
+                        }
+                    });
+                    ((LinearLayout) customLayout).addView(button);
+                }
+                builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+                alertDialog.show();
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+            }
+        });
+    }
+
+    private void ActualizarMesero(Pedido pedido, String tag) {
+        PedidoService pedidoService = new PedidoService();
+        pedidoService.ActualizarMesero(pedido, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+            }
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    //nuevoPedido = null;
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onResponseList(List<Boolean> response) {
+            }
+            @Override
+            public void onFailure(String errorMessage) {
             }
         });
     }
@@ -283,7 +398,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             finish();
         } else if (tag.equals("4")) {
             //Mesero
-            Toast.makeText(this, "Click en mesero", Toast.LENGTH_SHORT).show();
+            CargarEmpleados();
         } else if (tag.equals("5")) {
             //Cliente
             CargarClientes();
