@@ -730,6 +730,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 pedidoDetalle.setExtras("");
                 pedidoDetalle.setFecha(fecha);
                 pedidoDetalle.setHoraPedido(fecha);
+                pedidoDetalle.setHoraEntregado(fecha);
                 //pedidoDetalle.IdCocinero = null;
                 pedidoDetalle.setIdProducto(prod.getIdProducto());
                 pedidoDetalle.setIdPedido(idPedido);
@@ -992,7 +993,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             @Override
             public void onResponse(Integer response) {
                 if(response.intValue() > 0){
-                    idPedido = response.intValue();
+                    int idPedido = response.intValue();
                     ObtenerPedidoPorId(String.valueOf(idPedido));//Justo despues de agregar lo consultamos
                         // El pedido se insertó con éxito
                         //Agregamos detalles al pedido
@@ -1011,8 +1012,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         pedidoDetalle.setCantidad(cantidad);
                         pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, producto.getPrecio()));
                         pedidoDetalle.setGrupo("0");
-                        pedidoDetalle.setUsuario(null);
-                        //pedidoDetalle.Fecha = null;
+                        pedidoDetalle.setUsuario("1");
+                        //pedidoDetalle.setFecha(fecha);
 
                         InsertarPedidoDetalle(pedidoDetalle);
 
