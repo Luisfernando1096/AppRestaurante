@@ -1,10 +1,8 @@
 package com.example.apprestaurante.services;
 
 import com.example.apprestaurante.clases.Cliente;
-import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.interfaces.ClienteApi;
-import com.example.apprestaurante.interfaces.PedidoApi;
 import com.example.apprestaurante.network.ApiClient;
 
 import java.util.List;
