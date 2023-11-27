@@ -1,10 +1,5 @@
 package com.example.apprestaurante;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import static com.example.apprestaurante.MesasSalones.cambiarMesa;
 import static com.example.apprestaurante.MesasSalones.enviarListaTask;
 import static com.example.apprestaurante.MesasSalones.idMesaAnterior;
@@ -25,9 +20,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.apprestaurante.adapters.PedidosAdapter;
 import com.example.apprestaurante.clases.Cliente;
@@ -42,7 +42,14 @@ import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.interfaces.PedidoDetalleApi;
 import com.example.apprestaurante.interfaces.ProductoApi;
 import com.example.apprestaurante.network.ApiClient;
-import com.example.apprestaurante.services.*;
+import com.example.apprestaurante.services.ClienteService;
+import com.example.apprestaurante.services.EmpleadoService;
+import com.example.apprestaurante.services.FamiliaService;
+import com.example.apprestaurante.services.IngredienteService;
+import com.example.apprestaurante.services.MesaService;
+import com.example.apprestaurante.services.PedidoDetalleService;
+import com.example.apprestaurante.services.PedidoService;
+import com.example.apprestaurante.services.ProductoService;
 import com.example.apprestaurante.utils.EnviarListaTask;
 import com.example.apprestaurante.utils.Load;
 
@@ -505,6 +512,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
                             }
                             CargarPedidos();
+                            CargarPedidosEnMesa();
                         }
                         progressDialog.dismiss();
                     } else {
@@ -984,7 +992,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             @Override
             public void onResponse(Integer response) {
                 if(response.intValue() > 0){
-                    int idPedido = response.intValue();
+                    idPedido = response.intValue();
                     ObtenerPedidoPorId(String.valueOf(idPedido));//Justo despues de agregar lo consultamos
                         // El pedido se insertó con éxito
                         //Agregamos detalles al pedido
