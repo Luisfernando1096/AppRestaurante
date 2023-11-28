@@ -1072,9 +1072,33 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                                 btnProducto.setOnLongClickListener(productoLongClickListener);
 
                                 btnProducto.setTextSize(8);
+                                // Recuperar la imagen y asignarla directamente al botón
+                                ProductoService productoService = new ProductoService();
+                                productoService.recuperarImagen(producto.getFoto(), new ProductoService.OnImageLoadListener() {
+                                    @Override
+                                    public void onImageLoad(Bitmap bitmap) {
+                                        // Redimensionar el Bitmap al tamaño deseado
+                                        int width = 200; // Ancho en píxeles
+                                        int height = 200; // Alto en píxeles
+                                        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
 
-                                DarEstiloBoton(btnProducto, R.drawable.productos, 100, 100);
+                                        // Asignar el Bitmap como icono del botón
+                                        btnProducto.setCompoundDrawablesWithIntrinsicBounds(null, new BitmapDrawable(getResources(), resizedBitmap), null, null);
+                                    }
 
+                                    @Override
+                                    public void onImageLoadError(String errorMessage) {// Manejar el caso en el que la recuperación de la imagen falló
+                                        // Redimensionar la imagen por defecto al tamaño deseado
+                                        int defaultWidth = 200; // Ancho en píxeles
+                                        int defaultHeight = 200; // Alto en píxeles
+                                        Drawable defaultDrawable = getResources().getDrawable(R.drawable.productos);
+                                        // Ajustar el tamaño de la imagen por defecto
+                                        defaultDrawable.setBounds(0, 0, defaultWidth, defaultHeight);
+                                        // Asignar la imagen por defecto encima del texto en el botón
+                                        btnProducto.setCompoundDrawables(null, defaultDrawable, null, null);
+
+                                    }
+                                });
                                 llProductos.addView(btnProducto);
 
                             }

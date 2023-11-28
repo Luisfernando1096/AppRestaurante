@@ -4,6 +4,7 @@ import com.example.apprestaurante.clases.*;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -17,4 +18,6 @@ public interface ProductoApi {
     Call<Producto> productoPorId(@Path("id") String id);
     @PUT("api/producto/actualizarstock")
     Call<Boolean> actualizarStockProducto(@Body Producto producto);
+    @GET("api/Producto/mostrarimagen/{id}")
+    Call<ResponseBody> mostrarImagen(@Path("id") String id);
 }
