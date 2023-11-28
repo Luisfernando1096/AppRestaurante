@@ -1,12 +1,27 @@
 package com.example.apprestaurante.services;
-
-import com.example.apprestaurante.clases.Pedido;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
 import com.example.apprestaurante.clases.Producto;
 import com.example.apprestaurante.interfaces.CallBackApi;
-import com.example.apprestaurante.interfaces.PedidoApi;
 import com.example.apprestaurante.interfaces.ProductoApi;
 import com.example.apprestaurante.network.ApiClient;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -63,5 +78,67 @@ public class ProductoService {
             }
         });
     }
-}
+    /*public void mostrarImagen(String id, final ImageView imageView) {
+        Call<ResponseBody> call = productoApi.mostrarImagen(id);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Convertir el InputStream a un Bitmap
+                    InputStream inputStream = response.body().byteStream();
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
+                    // Mostrar la imagen en el ImageView
+                    imageView.setImageBitmap(bitmap);
+                } else {
+                    // Manejar el error
+                    Toast.makeText(imageView.getContext(), "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // Manejar el error de la llamada
+                Toast.makeText(imageView.getContext(), "Error en la llamada a la API", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }*/
+
+    public void recuperarImagen(String id, final OnImageLoadListener listener) {
+        Call<ResponseBody> call = productoApi.mostrarImagen(id);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        // Convertir el InputStream a un Bitmap
+                        InputStream inputStream = response.body().byteStream();
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+                        // Notificar al listener que la imagen se ha cargado correctamente
+                        listener.onImageLoad(bitmap);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        // Notificar al listener si hay un error
+                        listener.onImageLoadError("Error al cargar la imagen");
+                    }
+                } else {
+                    // Notificar al listener si hay un error
+                    listener.onImageLoadError("Error al cargar la imagen");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // Notificar al listener si hay un error de conexión
+                listener.onImageLoadError("Error en la llamada a la API");
+            }
+        });
+    }
+
+    // Interfaz para manejar la carga de la imagen
+    public interface OnImageLoadListener {
+        void onImageLoad(Bitmap bitmap);
+        void onImageLoadError(String errorMessage);
+    }
+}

@@ -5,6 +5,7 @@ public class Producto {
     String nombre;
     String descripcion;
     double precio;
+    String foto;
     double costo;
     int inventariable;
     int conIngrediente;
@@ -18,12 +19,13 @@ public class Producto {
     public Producto() {
     }
 
-    public Producto(int idProducto, String nombre, String descripcion, double precio, double costo, int inventariable, int conIngrediente, int stock, int stockMinimo, int activo, int idFamilia, String familia, String grupoPrinter) {
+    public Producto(int idProducto, String nombre, String descripcion, String foto, double precio, double costo, int inventariable, int conIngrediente, int stock, int stockMinimo, int activo, int idFamilia, String familia, String grupoPrinter) {
         this.idProducto = idProducto;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
         this.costo = costo;
+        this.foto = foto;
         this.inventariable = inventariable;
         this.conIngrediente = conIngrediente;
         this.stock = stock;
@@ -72,6 +74,13 @@ public class Producto {
 
     public void setCosto(double costo) {
         this.costo = costo;
+    }
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
     }
 
     public int getInventariable() {
