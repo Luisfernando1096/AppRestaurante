@@ -5,10 +5,6 @@ import static com.example.apprestaurante.ComandaGestion.lstPedidosEnMesa;
 import static com.example.apprestaurante.ComandaGestion.salon;
 
 import android.annotation.SuppressLint;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,21 +20,22 @@ import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.apprestaurante.clases.Mesa;
 import com.example.apprestaurante.clases.Pedido;
-import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.clases.Salon;
 import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.interfaces.MesaApi;
-import com.example.apprestaurante.interfaces.PedidoDetalleApi;
 import com.example.apprestaurante.interfaces.SalonApi;
 import com.example.apprestaurante.network.ApiClient;
 import com.example.apprestaurante.services.MesaService;
 import com.example.apprestaurante.services.PedidoService;
 import com.example.apprestaurante.utils.EnviarListaTask;
 import com.example.apprestaurante.utils.Load;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -76,19 +73,19 @@ public class MesasSalones extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
-                String tag = String.valueOf(view.getTag());
+                int[] aux = (int[]) (view.getTag());
 
                 if (cambiarMesa)
                 {
-                    if(Integer.parseInt(tag.toString()) != idMesaAnterior){
+                    if(aux[0] != idMesaAnterior){
                         Pedido pedido = new Pedido();
                         pedido.setIdPedido(idPedidoCambioMesa);
-                        pedido.setIdMesa(Integer.parseInt(tag.toString()));
+                        pedido.setIdMesa(aux[0]);
 
                         //Aqui el codigo para cambiar de mesa
                         Mesa mesa = new Mesa();
                         mesa.setDisponible(false);
-                        mesa.setIdMesa(Integer.parseInt(tag.toString()));
+                        mesa.setIdMesa(aux[0]);
                         ActualizarEstadoMesa(mesa);
                         if (lstPedidosEnMesa.size() == 1)
                         {
@@ -98,16 +95,16 @@ public class MesasSalones extends AppCompatActivity {
                             mesa2.setIdMesa(idMesaAnterior);
                             ActualizarEstadoMesa(mesa2);
                         }
-                        ActualizarMesa(pedido, tag.toString());
+                        ActualizarMesa(pedido, aux);
                     } else{
                         Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
-                        intent.putExtra("idMesa", Integer.parseInt(tag.toString()) + 0);
+                        intent.putExtra("idMesa", aux[0] + 0);
                         startActivity(intent);
                     }
 
                 } else{
                     Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
-                    intent.putExtra("idMesa", Integer.parseInt(tag.toString()) + 0);
+                    intent.putExtra("idMesa", aux[0] + 0);
 
                     startActivity(intent);
                 }
@@ -131,7 +128,7 @@ public class MesasSalones extends AppCompatActivity {
 
     }
 
-    private void ActualizarMesa(Pedido pedido, String tag) {
+    private void ActualizarMesa(Pedido pedido, int[] tag) {
         PedidoService pedidoService = new PedidoService();
         pedidoService.ActualizarMesa(pedido, new CallBackApi<Boolean>() {
             @Override
@@ -144,7 +141,8 @@ public class MesasSalones extends AppCompatActivity {
                 if (response.isSuccessful()) {
 
                     Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
-                    intent.putExtra("idMesa", Integer.parseInt(tag.toString()) + 0);
+
+                    intent.putExtra("idMesa", tag[0] + 0);
                     startActivity(intent);
 
                 } else {
@@ -195,13 +193,14 @@ public class MesasSalones extends AppCompatActivity {
 
                             for (Mesa mesa : lstMesas) {
                                 Button btnMesa = new Button(MesasSalones.this);
-                                btnMesa.setTag(mesa.getIdMesa());
+                                int[] idNum = {mesa.getIdMesa(), mesa.getNumero()};
+                                btnMesa.setTag(idNum);
                                 btnMesa.setText(mesa.getNombre());
 
                                 if (!mesa.getDisponible())
                                 {
                                     //Hacer que las mesas se puedan o no seleccionar
-                                    if (cambiarMesa && Integer.parseInt(btnMesa.getTag().toString()) != idMesaAnterior)
+                                    if (cambiarMesa && mesa.getIdMesa() != idMesaAnterior)
                                     {
                                         btnMesa.setEnabled(false);
                                         btnMesa.setBackgroundColor(Color.parseColor("#909CA9"));

@@ -1116,6 +1116,29 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            for (PedidoDetalle pDetalle : lstPD) {
+                if(cliente != null){
+                    pDetalle.setCliente(cliente);
+                }else{
+                    pDetalle.setCliente("");
+                }
+                if(mesero != null){
+                    pDetalle.setMesero(mesero);
+                }else{
+                    pDetalle.setMesero("");
+                }
+                if(salon != null){
+                    pDetalle.setSalon(salon);
+                }else{
+                    pDetalle.setSalon("");
+                }
+                if(mesa != null){
+                    pDetalle.setMesa(mesa);
+                }else{
+                    pDetalle.setMesa("");
+                }
+                pDetalle.setFecha(formatoFecha(pDetalle.getFecha()));
+            }
             Enviar();
         }
         return super.onKeyDown(keyCode, event);
