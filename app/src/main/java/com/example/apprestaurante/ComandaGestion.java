@@ -30,8 +30,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.apprestaurante.adapters.PedidosAdapter;
-import com.example.apprestaurante.clases.*;
-import com.example.apprestaurante.interfaces.*;
+import com.example.apprestaurante.clases.Cliente;
+import com.example.apprestaurante.clases.Empleado;
+import com.example.apprestaurante.clases.Familia;
+import com.example.apprestaurante.clases.Ingrediente;
+import com.example.apprestaurante.clases.Mesa;
+import com.example.apprestaurante.clases.Pedido;
+import com.example.apprestaurante.clases.PedidoDetalle;
+import com.example.apprestaurante.clases.Producto;
+import com.example.apprestaurante.interfaces.CallBackApi;
+import com.example.apprestaurante.interfaces.PedidoDetalleApi;
+import com.example.apprestaurante.interfaces.ProductoApi;
 import com.example.apprestaurante.network.ApiClient;
 import com.example.apprestaurante.services.*;
 import com.example.apprestaurante.utils.EnviarListaTask;
@@ -180,21 +189,41 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
     }
 
-    private void CargarPedidosEnMesa() {
+    private void CargarPedidosEnMesa(boolean eliminar) {
         progressDialog.show();
         PedidoService pedidoService = new PedidoService();
         pedidoService.obtenerPedidosEnMesa(String.valueOf(idMesa), new CallBackApi<Integer>() {
+            @Override
+            public void onResponse(Integer response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
             @Override
             public void onResponseList(List<Integer> response) {
                 lstPedidosEnMesa = response;
                 if (lstPedidosEnMesa.size() > 1) {
                     btnCuentas.setVisibility(View.VISIBLE);
                 }
+                if(lstPedidosEnMesa.size() == 0 && eliminar){
+                    //Vamos a eliminar el pedido y por lo tanto actualizar estado de mesa
+                    Mesa mesa = new Mesa();
+                    mesa.setIdMesa(idMesa);
+                    mesa.setDisponible(true);
+                    ActualizarEstadoMesa(mesa);
+                    idPedido = 0;
+                    tvTicket.setText("#Ticket: ");
+                }
+                progressDialog.dismiss();
             }
 
             @Override
             public void onFailure(String errorMessage) {
-
+                progressDialog.dismiss();
             }
         });
     }
@@ -232,7 +261,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         pedEmpleado.setIdPedido(idPedido);
                         pedEmpleado.setIdMesa(idMesa);
                         pedEmpleado.setIdMesero(Integer.parseInt(tag));
-                        ActualizarMesero(pedEmpleado, tag);
+                        ActualizarMesero(pedEmpleado);
                     }else{
                         //Toast.makeText(ComandaGestion.this, "Error no entro", Toast.LENGTH_SHORT).show();
                     }
@@ -302,6 +331,16 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         ClienteService clienteService = new ClienteService();
         clienteService.obtenerClientes(new CallBackApi<Cliente>() {
             @Override
+            public void onResponse(Cliente response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
             public void onResponseList(List<Cliente> response) {
                 lstClientes = response;
                 CargarDialogoClientes();
@@ -318,6 +357,16 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         EmpleadoService empleadoService = new EmpleadoService();
         empleadoService.obtenerEmpleados(new CallBackApi<Empleado>() {
             @Override
+            public void onResponse(Empleado response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
             public void onResponseList(List<Empleado> response) {
                 lstEmpleados = response;
                 CargarDialogoMeseros();
@@ -328,9 +377,14 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         });
     }
 
-    private void ActualizarMesero(Pedido pedido, String tag) {
+    private void ActualizarMesero(Pedido pedido) {
         PedidoService pedidoService = new PedidoService();
         pedidoService.ActualizarMesero(pedido, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
             @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
@@ -340,6 +394,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
             @Override
             public void onFailure(String errorMessage) {
             }
@@ -449,6 +509,16 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         FamiliaService familiaService = new FamiliaService();
         familiaService.BuscarFamilias(new CallBackApi<Familia>() {
             @Override
+            public void onResponse(Familia response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
             public void onResponseList(List<Familia> response) {
                 lstFamilias = response;
                 for (Familia familia : lstFamilias) {
@@ -495,13 +565,14 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                                 ActualizarTotalPedido();
 
                             }
-                            CargarPedidos();
-                            CargarPedidosEnMesa();
+                            CargarPedidosEnMesa(false);
                         }
+                        CargarPedidos();
                         progressDialog.dismiss();
                     } else {
                         System.out.println("Fallo el isSuccessful");
                     }
+
 
                 } catch (Exception e) {
                     progressDialog.dismiss();
@@ -519,15 +590,14 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
 
     private void CargarPedidos() {
-        if (lstPedidos.size() > 0) {
-            // Configurando adaptador
-            PedidosAdapter pedidosAdapter = new PedidosAdapter(this, lstPedidos, ComandaGestion.this);
-            layoutManager = new LinearLayoutManager(this);
-            rcvPedidos = findViewById(R.id.rcvPedidos);
-            rcvPedidos.setAdapter(pedidosAdapter);
-            rcvPedidos.setLayoutManager(layoutManager);
-            rcvPedidos.setHasFixedSize(true);
-        }
+        // Configurando adaptador
+        PedidosAdapter pedidosAdapter = new PedidosAdapter(this, lstPedidos, ComandaGestion.this);
+        layoutManager = new LinearLayoutManager(this);
+        rcvPedidos = findViewById(R.id.rcvPedidos);
+        rcvPedidos.setAdapter(pedidosAdapter);
+        rcvPedidos.setLayoutManager(layoutManager);
+        rcvPedidos.setHasFixedSize(true);
+
         View.OnClickListener accionClickListener = view -> {
             // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
             String tag = String.valueOf(view.getTag());
@@ -563,22 +633,10 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 {
                     //Se eliminara el producto
                     EliminarPedidoDetalle(String.valueOf(pedidoDetalle.getIdDetalle()));
-
-                    if (lstPedidos.size() == 1)
-                    {
-                        Pedido pedido = new Pedido();
-                        pedido.setIdPedido(idPedido);
-                        //EliminarPedido(pedido);
-                        ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
-
-                    }
-                    else
-                    {
-                        ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
-                    }
                 }
 
-                CargarPedidosEnMesa();
+                CargarPedidosEnMesa(false);
+
                 if (lstPD.size() > 0)
                 {
                     for (PedidoDetalle item : lstPD)
@@ -618,6 +676,34 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         alertDialog.show();
     }
 
+    private void EliminarPedido(int idPed) {
+        PedidoService pedidoService = new PedidoService();
+
+        pedidoService.EliminarPedido(String.valueOf(idPed), new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if(response.isSuccessful()){
+                    CargarPedidosEnMesa(true);
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
+            }
+        });
+    }
+
     private void BuscarProductoPorId(String id, int cantidad) {
         progressDialog.show();
         ProductoService productoService = new ProductoService();
@@ -633,6 +719,17 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 }
 
             }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
+            public void onResponseList(List<Producto> response) {
+
+            }
+
             @Override
             public void onFailure(String errorMessage) {
                 Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
@@ -767,6 +864,16 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         IngredienteService ingredienteService = new IngredienteService();
         ingredienteService.buscarngredientesDeProducto(idProducto, new CallBackApi<Ingrediente>() {
             @Override
+            public void onResponse(Ingrediente response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
             public void onResponseList(List<Ingrediente> response) {
                 List<Ingrediente> ingredientes = response;
                 Ingrediente ingrediente;
@@ -819,6 +926,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         IngredienteService ingredienteService = new IngredienteService();
         ingredienteService.ActualizarStockIngrediente(ingrediente, new CallBackApi<Boolean>() {
             @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
 
@@ -827,6 +939,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta actualizar producto: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
             @Override
             public void onFailure(String errorMessage) {
 
@@ -838,6 +956,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         ProductoService productoService = new ProductoService();
         productoService.ActualizarStockProducto(prod, new CallBackApi<Boolean>() {
             @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
 
@@ -845,6 +968,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta actualizar producto: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
             }
 
             @Override
@@ -865,6 +993,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
         pedidoDetalleService.ActualizarCompra(pedidoDetalle, new CallBackApi<Boolean>() {
             @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
                     //Toast.makeText(ComandaGestion.this, "Estado mesa actualizado", Toast.LENGTH_SHORT).show();
@@ -874,6 +1007,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
             @Override
             public void onFailure(String errorMessage) {
 
@@ -885,6 +1024,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         PedidoService pedidoService = new PedidoService();
         pedidoService.ActualizarCliente(pd, new CallBackApi<Boolean>() {
             @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
                     //Toast.makeText(ComandaGestion.this, "Estado mesa actualizado", Toast.LENGTH_SHORT).show();
@@ -893,6 +1037,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
             }
 
             @Override
@@ -906,6 +1055,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         PedidoService pedidoService = new PedidoService();
         pedidoService.ActualizarTotal(nuevoPedido, new CallBackApi<Boolean>() {
             @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
                     nuevoPedido = null;
@@ -916,6 +1070,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
             @Override
             public void onFailure(String errorMessage) {
 
@@ -927,6 +1087,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         MesaService mesaService = new MesaService();
         mesaService.ActualizarEstadoMesa(mesa, new CallBackApi<Boolean>() {
             @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
 
@@ -937,6 +1102,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
             @Override
             public void onFailure(String errorMessage) {
                 Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
@@ -947,6 +1118,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void InsertarPedidoDetalle(PedidoDetalle pedidoDetalle) {
         PedidoDetalleService pedidoDetalleService = new PedidoDetalleService();
         pedidoDetalleService.InsertarPedidoDetalle(pedidoDetalle, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
             @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
@@ -964,6 +1140,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta al insertar detallepedido: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
             }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
             @Override
             public void onFailure(String errorMessage) {
                 Toast.makeText(ComandaGestion.this, "Error al insertar detalle pedido: " + errorMessage, Toast.LENGTH_SHORT).show();
@@ -1005,6 +1187,16 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     // Hubo un error en la inserción del pedido
                     Toast.makeText(ComandaGestion.this, "Hubo un error al insertar pedido", Toast.LENGTH_SHORT).show();
                 }
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
+            public void onResponseList(List<Integer> response) {
+
             }
 
             @Override
@@ -1108,7 +1300,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     @Override
     protected void onResume() {
         super.onResume();
-        CargarPedidosEnMesa();
+        CargarPedidosEnMesa(false);
         ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
         cambiarMesa = false;
     }
@@ -1209,6 +1401,16 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
 
             @Override
+            public void onResponseBool(Response<Boolean> response) {
+
+            }
+
+            @Override
+            public void onResponseList(List<Pedido> response) {
+
+            }
+
+            @Override
             public void onFailure(String errorMessage) {
 
             }
@@ -1220,19 +1422,48 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         pedidoDetalleService.EliminarPedidoDetalle(id, new CallBackApi<Boolean>() {
 
             @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
                     Boolean eliminado = response.body();
                     if (eliminado != null && eliminado) {
-                        // El pedido se insertó con éxito
+                        // El pedido se elimino con éxito
                     } else {
-                        // Hubo un error en la inserción del pedido
+                        // Hubo un error en la eliminacion del pedido
                         //Toast.makeText(DividirPedidos.this, "Hubo un error al eliminar pedido detalle", Toast.LENGTH_SHORT).show();
                     }
+                    ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
                 } else {
                     // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
                     Toast.makeText(ComandaGestion.this, "Error en la respuesta al eliminar detallepedido: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
+                if (lstPedidos.size() == 1)
+                {
+                    if(lstPedidosEnMesa != null){
+                        for (Integer item: lstPedidosEnMesa) {
+                            if(item.equals(idPedido)){
+                                lstPedidosEnMesa.remove(item);
+                                break;
+                            }
+                        }
+                        if(lstPedidosEnMesa.size() == 1){
+                            btnCuentas.setVisibility(View.GONE);
+                            ObtenerProductosEnMesa(String.valueOf(idMesa), lstPedidosEnMesa.get(0).toString());
+                        }else if(lstPedidosEnMesa.size() > 1){
+                            ObtenerProductosEnMesa(String.valueOf(idMesa), lstPedidosEnMesa.get(0).toString());
+                        }
+                        EliminarPedido(idPedido);
+                    }
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
             }
 
             @Override

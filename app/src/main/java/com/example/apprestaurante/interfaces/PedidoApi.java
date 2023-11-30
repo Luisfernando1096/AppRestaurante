@@ -5,11 +5,7 @@ import com.example.apprestaurante.clases.Pedido;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.PUT;
-import retrofit2.http.Path;
+import retrofit2.http.*;
 
 public interface PedidoApi {
     @POST("api/pedido/insertar")
@@ -26,4 +22,6 @@ public interface PedidoApi {
     Call<Boolean> actualizarCliente(@Body Pedido pedido);
     @PUT("api/pedido/actualizarmesero")
     Call<Boolean> actualizarmesero(@Body Pedido pedido);
+    @DELETE("api/pedido/eliminarpedido/{id}")
+    Call<Boolean> eliminarPedido(@Path("id") String id);
 }

@@ -15,6 +15,8 @@ import com.example.apprestaurante.clases.Cliente;
 import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.utils.Load;
 
+import java.util.List;
+
 import retrofit2.Response;
 
 public class AgregarCliente extends AppCompatActivity {
@@ -57,6 +59,11 @@ public class AgregarCliente extends AppCompatActivity {
         ClienteService clienteService = new ClienteService();
         clienteService.InsertarCliente(cliente, new CallBackApi<Boolean>() {
             @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
             public void onResponseBool(Response<Boolean> response) {
                 if(response.body()){
                     progressDialog.dismiss();
@@ -66,6 +73,12 @@ public class AgregarCliente extends AppCompatActivity {
                     finish();
                 }
             }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
             @Override
             public void onFailure(String errorMessage) {
                 progressDialog.dismiss();

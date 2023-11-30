@@ -1,14 +1,7 @@
 package com.example.apprestaurante.services;
 
-import android.widget.Toast;
-
-import com.example.apprestaurante.ComandaGestion;
-import com.example.apprestaurante.clases.Familia;
-import com.example.apprestaurante.clases.Mesa;
 import com.example.apprestaurante.clases.Pedido;
-import com.example.apprestaurante.clases.Producto;
 import com.example.apprestaurante.interfaces.CallBackApi;
-import com.example.apprestaurante.interfaces.FamiliaApi;
 import com.example.apprestaurante.interfaces.PedidoApi;
 import com.example.apprestaurante.network.ApiClient;
 
@@ -77,10 +70,6 @@ public class PedidoService {
     }
 
     public void ActualizarTotal(Pedido pedido, final CallBackApi<Boolean> callback) {
-
-        // Crea una instancia de la interfaz de Retrofit para realizar la inserción
-        PedidoApi pedidoApi = ApiClient.getClient().create(PedidoApi.class);
-
         // Realiza la llamada para insertar el pedido
         Call<Boolean> call = pedidoApi.actualizarTotal(pedido);
 
@@ -99,10 +88,6 @@ public class PedidoService {
     }
 
     public void ActualizarMesa(Pedido pedido, final CallBackApi<Boolean> callback) {
-
-        // Crea una instancia de la interfaz de Retrofit para realizar la inserción
-        PedidoApi pedidoApi = ApiClient.getClient().create(PedidoApi.class);
-
         // Realiza la llamada para insertar el pedido
         Call<Boolean> call = pedidoApi.actualizarMesa(pedido);
 
@@ -142,9 +127,6 @@ public class PedidoService {
     }
 
     public void ActualizarCliente(Pedido pedido, final CallBackApi<Boolean> callback){
-        // Crea una instancia de la interfaz de Retrofit para realizar la inserción
-        PedidoApi pedidoApi = ApiClient.getClient().create(PedidoApi.class);
-
         // Realiza la llamada para insertar el pedido
         Call<Boolean> call = pedidoApi.actualizarCliente(pedido);
 
@@ -163,16 +145,36 @@ public class PedidoService {
     }
 
     public void ActualizarMesero(Pedido pedido, final CallBackApi<Boolean> callback) {
-
-        // Crea una instancia de la interfaz de Retrofit para realizar la inserción
-        PedidoApi pedidoApi = ApiClient.getClient().create(PedidoApi.class);
-
         // Realiza la llamada para insertar el pedido
         Call<Boolean> call = pedidoApi.actualizarmesero(pedido);
         call.enqueue(new Callback<Boolean>() {
             @Override
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {
                 callback.onResponseBool(response);
+            }
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                // Si hay un error en la conexión de red
+                callback.onFailure("Error en conexión de red: " + t.getMessage());
+            }
+        });
+    }
+
+    public void EliminarPedido(String id, final CallBackApi<Boolean> callback) {
+
+        // Crea una instancia de la interfaz de Retrofit para realizar la inserción
+        PedidoApi pedidoApi = ApiClient.getClient().create(PedidoApi.class);
+
+        // Realiza la llamada para insertar el pedido
+        Call<Boolean> call = pedidoApi.eliminarPedido(id);
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    callback.onResponseBool(response);
+                } else {
+                    callback.onFailure("Error en la respuesta al insertar pedido.");
+                }
             }
             @Override
             public void onFailure(Call<Boolean> call, Throwable t) {
