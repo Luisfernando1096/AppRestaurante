@@ -21,6 +21,15 @@ public class PedidoDetalle implements Cloneable{
     String cliente;
     String salon;
     String mesero;
+    String foto;
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
 
     public String getMesero() {
         return mesero;

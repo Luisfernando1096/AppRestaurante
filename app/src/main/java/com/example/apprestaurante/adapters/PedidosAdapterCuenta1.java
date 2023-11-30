@@ -1,22 +1,31 @@
 package com.example.apprestaurante.adapters;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.apprestaurante.R;
 import com.example.apprestaurante.clases.PedidoDetalle;
+import com.example.apprestaurante.services.ProductoService;
 import com.example.apprestaurante.viewHolders.ViewHolderPedidoCuenta1;
+
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class PedidosAdapterCuenta1  extends RecyclerView.Adapter<ViewHolderPedidoCuenta1>{
     private List<PedidoDetalle> datos;
     private OnItemClickListener onItemClickListener; //Se agrego
     private OnItemLongClickListener onItemLongClickListener;
-    public PedidosAdapterCuenta1(List<PedidoDetalle> datos) {
+    private Context context;
+    public PedidosAdapterCuenta1(Context context, List<PedidoDetalle> datos) {
+        this.context = context;
         this.datos = datos;
     }
 
@@ -32,7 +41,41 @@ public class PedidosAdapterCuenta1  extends RecyclerView.Adapter<ViewHolderPedid
     @Override
     public void onBindViewHolder(@NonNull ViewHolderPedidoCuenta1 holder, int position) {
         final PedidoDetalle pedidoDetalleItem = datos.get(position);
-        System.out.println("Cantidad : " + datos.get(position).getCantidad());
+
+        // Crear un ImageView
+        ImageView imageView = holder.getIvImagen();
+
+        // Recuperar la imagen y asignarla directamente al botón
+        ProductoService productoService = new ProductoService();
+        productoService.recuperarImagen(datos.get(position).getFoto() + "", new ProductoService.OnImageLoadListener() {
+            @Override
+            public void onImageLoad(Bitmap bitmap) {
+                // Redimensionar el Bitmap al tamaño deseado
+                int width = 200; // Ancho en píxeles
+                int height = 200; // Alto en píxeles
+                Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+
+                // Asignar el Bitmap como fuente del ImageView
+                imageView.setImageBitmap(resizedBitmap);
+
+                // Ajustar la escala del ImageView según el tamaño del Bitmap
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            }
+
+            @Override
+            public void onImageLoadError(String errorMessage) {// Manejar el caso en el que la recuperación de la imagen falló
+                // Redimensionar la imagen por defecto al tamaño deseado
+                int defaultWidth = 200; // Ancho en píxeles
+                int defaultHeight = 200; // Alto en píxeles
+                Drawable defaultDrawable = context.getResources().getDrawable(R.drawable.productos);
+                // Ajustar el tamaño de la imagen por defecto
+                defaultDrawable.setBounds(0, 0, defaultWidth, defaultHeight);
+                // Asignar la imagen por defecto encima del texto en el botón
+                imageView.setImageDrawable(defaultDrawable);
+
+            }
+        });
+
         holder.getTvCantidad().setText(datos.get(position).getCantidad() + "");
         holder.getTvProducto().setText(datos.get(position).getNombre() + "");
         DecimalFormat df = new DecimalFormat("#.00");

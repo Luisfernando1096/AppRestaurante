@@ -521,7 +521,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void CargarPedidos() {
         if (lstPedidos.size() > 0) {
             // Configurando adaptador
-            PedidosAdapter pedidosAdapter = new PedidosAdapter(lstPedidos, ComandaGestion.this);
+            PedidosAdapter pedidosAdapter = new PedidosAdapter(this, lstPedidos, ComandaGestion.this);
             layoutManager = new LinearLayoutManager(this);
             rcvPedidos = findViewById(R.id.rcvPedidos);
             rcvPedidos.setAdapter(pedidosAdapter);

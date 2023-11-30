@@ -2,21 +2,20 @@ package com.example.apprestaurante;
 
 import static com.example.apprestaurante.ComandaGestion.lstPedidos;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.apprestaurante.adapters.PedidosAdapterCuenta1;
 import com.example.apprestaurante.adapters.PedidosAdapterCuenta2;
@@ -28,10 +27,8 @@ import com.example.apprestaurante.services.PedidoService;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import retrofit2.Response;
@@ -342,7 +339,7 @@ public class DividirPedidos extends AppCompatActivity {
         if(lstPedidos.size() > 0){
             // Configurando adaptador
             lstPedidosActual = new ArrayList<>(lstPedidos);
-            PedidosAdapterCuenta1 pedidosAdapter = new PedidosAdapterCuenta1(lstPedidosActual);
+            PedidosAdapterCuenta1 pedidosAdapter = new PedidosAdapterCuenta1(this, lstPedidosActual);
             layoutManagerActual = new LinearLayoutManager(this);
             rcvPedidosActual = findViewById(R.id.rcvPedidos1);
             rcvPedidosActual.setAdapter(pedidosAdapter);
@@ -502,6 +499,7 @@ public class DividirPedidos extends AppCompatActivity {
                                             copiaPedidoDetalle.setGrupo(pedidoDetalle.getGrupo());
                                             copiaPedidoDetalle.setUsuario(pedidoDetalle.getUsuario());
                                             copiaPedidoDetalle.setFecha(pedidoDetalle.getFecha());
+                                            copiaPedidoDetalle.setFoto(pedidoDetalle.getFoto());
 
                                             // Agrega el elemento modificado al RecyclerView2
                                             lstPedidoGuardadosR1.add(copiaPedidoDetalle);
@@ -532,7 +530,7 @@ public class DividirPedidos extends AppCompatActivity {
         if (lstPedidoGuardadosR1.size() > 0) {
             // Configurar el adaptador para la lista de pedidos guardados en R1
             lstPedidosSiguiente = new ArrayList<>(lstPedidoGuardadosR1);
-            PedidosAdapterCuenta2 pedidosAdapter = new PedidosAdapterCuenta2(lstPedidosSiguiente);
+            PedidosAdapterCuenta2 pedidosAdapter = new PedidosAdapterCuenta2(this, lstPedidosSiguiente);
             layoutManagerSiguiente = new LinearLayoutManager(this);
             rcvPedidosSiguiente = findViewById(R.id.rcvPedidos2);
             rcvPedidosSiguiente.setAdapter(pedidosAdapter);
