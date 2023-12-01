@@ -168,8 +168,9 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         public void onClick(View view) {
                             // Almacena el número entero seleccionado en la variable
                             idPedido = integer;
+                            cliente = null;
+                            mesero = null;
                             ObtenerProductosEnMesa(String.valueOf(idMesa), String.valueOf(idPedido));
-                            tvTicket.setText("#Ticket: " + idPedido);
                             // Cierra el AlertDialog
                             alertDialog.dismiss();
                         }
@@ -217,6 +218,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     ActualizarEstadoMesa(mesa);
                     idPedido = 0;
                     tvTicket.setText("#Ticket: ");
+                    tvMesero.setText("Mesero: ");
+                    tvCliente.setText("Cliente: ");
                 }
                 progressDialog.dismiss();
             }
@@ -1392,9 +1395,13 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 tvMesa.setText(mesa);
                 if(mesero!=null){
                     tvMesero.setText("Mesero: " + mesero);
+                }else{
+                    tvMesero.setText("Mesero: ");
                 }
                 if(cliente!=null){
                     tvCliente.setText("Cliente: " + cliente);
+                }else{
+                    tvCliente.setText("Cliente: ");
                 }
 
 

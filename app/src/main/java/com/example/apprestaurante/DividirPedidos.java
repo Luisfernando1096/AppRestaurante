@@ -126,7 +126,6 @@ public class DividirPedidos extends AppCompatActivity {
 
                     if (eliminar)
                     {
-                        Toast.makeText(this, "Eliminara: " + siguiente.getIdDetalle(), Toast.LENGTH_SHORT).show();
                         EliminarPedidoDetalle(String.valueOf(siguiente.getIdDetalle()));
                     }
                     //Vamos a actualizar el total del pedido
