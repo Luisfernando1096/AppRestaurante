@@ -258,10 +258,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     Pedido pedEmpleado = new Pedido();
                     //Guardar en la base de datos ActualizarMesero
                     if (pedEmpleado != null) {
-                        pedEmpleado.setIdPedido(idPedido);
-                        pedEmpleado.setIdMesa(idMesa);
-                        pedEmpleado.setIdMesero(Integer.parseInt(tag));
-                        ActualizarMesero(pedEmpleado);
+                        for (int id: lstPedidosEnMesa) {
+                            pedEmpleado.setIdPedido(id);
+                            pedEmpleado.setIdMesa(idMesa);
+                            pedEmpleado.setIdMesero(Integer.parseInt(tag));
+                            ActualizarMesero(pedEmpleado);
+                        }
                     }else{
                         //Toast.makeText(ComandaGestion.this, "Error no entro", Toast.LENGTH_SHORT).show();
                     }
@@ -311,10 +313,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 //Establecer nombre en textview
                 tvCliente.setText("Cliente: " + cliente);
                 //Guardar en la base de datos ActualizarCliente
-                Pedido pedido = new Pedido();
-                pedido.setIdPedido(idPedido);
-                pedido.setIdCliente(client.getIdCliente());
-                ActualizarCliente(pedido);
+                for (int id:lstPedidosEnMesa) {
+                    Pedido pedido = new Pedido();
+                    pedido.setIdPedido(id);
+                    pedido.setIdCliente(client.getIdCliente());
+                    ActualizarCliente(pedido);
+                }
                 // Cierra el AlertDialog
                 alertDialog.dismiss();
             });
