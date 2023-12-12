@@ -431,13 +431,38 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         } else if (tag.equals("5")) {
             //Cliente
             CargarClientes();
+        }else if (tag.equals("6")) {
+            //Total
+            VerTotal();
         }
+    }
+
+    private void VerTotal() {
+        // Crear el AlertDialog
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle("El total de la comanda es: ");
+
+        // Crear un EditText en el AlertDialog
+        final TextView output = new TextView(this);
+        DecimalFormat df = new DecimalFormat("#.00");
+
+        output.setTextSize(40);
+        output.setGravity(View.TEXT_ALIGNMENT_CENTER);
+        output.setText("$" + df.format(CalcularTotal()));
+        alertDialogBuilder.setView(output);
+
+        alertDialogBuilder.setPositiveButton("Aceptar", (dialog, which) -> {
+
+        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     private void CrearBotones(View.OnClickListener accionClickListener) {
         llAcciones.removeAllViews();
-        String[] valores = {"comanda", "Extras", "Cambiar mesa", "Mesero", "Cliente"};
-        int[] imagen = {R.drawable.comanda, R.drawable.extras, R.drawable.cambio_mesa, R.drawable.mesero, R.drawable.cliente};
+        String[] valores = {"comanda", "Extras", "Cambiar mesa", "Mesero", "Cliente", "Total comanda"};
+        int[] imagen = {R.drawable.comanda, R.drawable.extras, R.drawable.cambio_mesa, R.drawable.mesero, R.drawable.cliente, R.drawable.total};
         int tamano = lstPedidos.size();
         for (int i = 0; i < valores.length; i++) {
             Button btnAccion = new Button(ComandaGestion.this);
