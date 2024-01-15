@@ -157,6 +157,7 @@ public class MesasSalones extends AppCompatActivity {
             }
             @Override
             public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
                 Toast.makeText(MesasSalones.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -256,6 +257,7 @@ public class MesasSalones extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<Mesa>> call, Throwable t) {
                 // Si hay un error
+                progressDialog.dismiss();
                 Toast.makeText(MesasSalones.this, "Error en conexión de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 System.out.println("Error en conexión de red: " + t.getMessage());
             }
@@ -299,6 +301,7 @@ public class MesasSalones extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<Salon>> call, Throwable t) {
                 // Si hay un error
+                progressDialog.dismiss();
                 Toast.makeText(MesasSalones.this, "Error en conexión de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 System.out.println("Error en conexión de red: " + t.getMessage());
             }
@@ -332,6 +335,7 @@ public class MesasSalones extends AppCompatActivity {
             }
             @Override
             public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
                 Toast.makeText(MesasSalones.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });

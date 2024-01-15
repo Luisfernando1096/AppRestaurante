@@ -1,5 +1,6 @@
 package com.example.apprestaurante;
 
+import static com.example.apprestaurante.MainActivity.usuario;
 import static com.example.apprestaurante.MesasSalones.cambiarMesa;
 import static com.example.apprestaurante.MesasSalones.enviarListaTask;
 import static com.example.apprestaurante.MesasSalones.idMesaAnterior;
@@ -351,7 +352,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
-
+                progressDialog.dismiss();
             }
         });
     }
@@ -376,6 +377,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
             @Override
             public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
             }
         });
     }
@@ -405,6 +407,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
             }
         });
     }
@@ -521,6 +524,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
                 BuscarProductoPorId(tag, number);
             } catch (NumberFormatException e) {
+                progressDialog.dismiss();
                 Toast.makeText(this, "No ingreso ningun valor o valor no valido.", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
@@ -560,6 +564,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
                 Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -611,6 +616,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             @Override
             public void onFailure(Call<List<PedidoDetalle>> call, Throwable t) {
                 // Si hay un error
+                progressDialog.dismiss();
                 Toast.makeText(ComandaGestion.this, "Error en conexión de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 System.out.println("Error en conexión de red: " + t.getMessage());
             }
@@ -727,7 +733,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
-
+                progressDialog.dismiss();
             }
         });
     }
@@ -760,6 +766,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
                 Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -945,7 +952,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
             @Override
             public void onFailure(String errorMessage) {
-
+                progressDialog.dismiss();
             }
         });
     }
@@ -975,7 +982,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
-
+                progressDialog.dismiss();
             }
         });
     }
@@ -1005,6 +1012,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
                 // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
                 Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + errorMessage.toString(), Toast.LENGTH_SHORT).show();
 
@@ -1043,7 +1051,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
-
+                progressDialog.dismiss();
             }
         });
     }
@@ -1074,7 +1082,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
-
+                progressDialog.dismiss();
             }
         });
     }
@@ -1106,7 +1114,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
-
+                progressDialog.dismiss();
             }
         });
     }
@@ -1138,6 +1146,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
                 Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -1176,6 +1185,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
                 Toast.makeText(ComandaGestion.this, "Error al insertar detalle pedido: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -1188,6 +1198,17 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             public void onResponse(Integer response) {
                 if(response.intValue() > 0){
                     int idPedido = response.intValue();
+                    //Vamos a actualizar el pedido dependiendo si inicio sesion un mesero
+                    Pedido pedEmpleado = new Pedido();
+                    //Guardar en la base de datos ActualizarMesero
+                    if (usuario.getIdRol() == 2) {
+                        pedEmpleado.setIdPedido(idPedido);
+                        pedEmpleado.setIdMesa(idMesa);
+                        pedEmpleado.setIdMesero(usuario.getIdUsuario());
+                        ActualizarMesero(pedEmpleado);
+                    }else{
+                        //Toast.makeText(ComandaGestion.this, "Error no entro", Toast.LENGTH_SHORT).show();
+                    }
                     ObtenerPedidoPorId(String.valueOf(idPedido));//Justo despues de agregar lo consultamos
                         // El pedido se insertó con éxito
                         //Agregamos detalles al pedido
@@ -1229,6 +1250,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
                 Toast.makeText(ComandaGestion.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -1312,6 +1334,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     }
 
                 } catch (Exception e) {
+                    progressDialog.dismiss();
                     Toast.makeText(ComandaGestion.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -1319,6 +1342,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             @Override
             public void onFailure(Call<List<Producto>> call, Throwable t) {
                 // Si hay un error
+                progressDialog.dismiss();
                 Toast.makeText(ComandaGestion.this, "Error en conexión de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 System.out.println("Error en conexión de red: " + t.getMessage());
             }
@@ -1444,7 +1468,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
-
+                progressDialog.dismiss();
             }
         });
     }
@@ -1500,7 +1524,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
             @Override
             public void onFailure(String errorMessage) {
-
+                progressDialog.dismiss();
             }
         });
     }

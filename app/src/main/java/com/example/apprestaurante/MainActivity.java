@@ -1,5 +1,7 @@
 package com.example.apprestaurante;
-import androidx.appcompat.app.AppCompatActivity;
+
+import static com.example.apprestaurante.MesasSalones.cambiarMesa;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,18 +11,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.apprestaurante.clases.Usuario;
 import com.example.apprestaurante.interfaces.UsuarioApi;
 import com.example.apprestaurante.network.ApiClient;
 import com.example.apprestaurante.utils.Load;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.example.apprestaurante.MesasSalones.cambiarMesa;
-
 public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
+    public static Usuario usuario;
     public String direccionIP = "";
     Load progressDialog;
     Button btnIngresar;
@@ -76,9 +81,9 @@ public class MainActivity extends AppCompatActivity {
                         //Si hay respuesta
                         try {
                             if (response.isSuccessful()) {
-                                Usuario usuario = response.body();
+                                usuario = response.body();
                                 if(usuario != null){
-                                    if(usuario.getIdUsuario() == 1 || usuario.getIdUsuario() == 3){
+                                    if(usuario.getIdRol() == 1 || usuario.getIdRol() == 2){
                                         startActivity(new Intent(MainActivity.this, MesasSalones.class));
                                     } else{
                                         Toast.makeText(MainActivity.this, "Solo puede acceder un mesero o administrador.", Toast.LENGTH_SHORT).show();
