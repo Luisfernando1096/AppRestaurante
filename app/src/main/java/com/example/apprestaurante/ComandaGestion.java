@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.apprestaurante.adapters.PedidosAdapter;
 import com.example.apprestaurante.clases.Cliente;
+import com.example.apprestaurante.clases.Configuracion;
 import com.example.apprestaurante.clases.Empleado;
 import com.example.apprestaurante.clases.Familia;
 import com.example.apprestaurante.clases.Ingrediente;
@@ -72,6 +73,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     public static List<Integer> lstPedidosEnMesa = null;
     public static List<Cliente> lstClientes = null;
     public static List<Empleado> lstEmpleados = null;
+    public static List<Configuracion> lstConfiguracion = null;
 
     public static List<Producto> lstProductos;
     Producto producto;
@@ -381,6 +383,25 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         });
     }
 
+    private void CargarConfiguracion() {
+        ConfiguracionService configuracionService = new ConfiguracionService();
+        configuracionService.obetnerConfiguracion(new CallBackApi<Configuracion>() {
+            @Override
+            public void onResponse(Configuracion response) {}
+            @Override
+            public void onResponseBool(Response<Boolean> response) {}
+            @Override
+            public void onResponseList(List<Configuracion> response) {
+                lstConfiguracion = response;
+                VerTotal();
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
+            }
+        });
+    }
+
     private void ActualizarMesero(Pedido pedido) {
         PedidoService pedidoService = new PedidoService();
         pedidoService.ActualizarMesero(pedido, new CallBackApi<Boolean>() {
@@ -435,7 +456,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             CargarClientes();
         }else if (tag.equals("6")) {
             //Total
-            VerTotal();
+            CargarConfiguracion();
         }
     }
 
@@ -448,9 +469,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         final TextView output = new TextView(this);
         DecimalFormat df = new DecimalFormat("#.00");
 
+        double total = CalcularTotal();
+        double propina = CalcularPorcentaje(total);
+
         output.setTextSize(40);
         output.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        output.setText("$" + df.format(CalcularTotal()));
+        output.setText("$" + df.format(CalcularTotal() + propina));
         alertDialogBuilder.setView(output);
 
         alertDialogBuilder.setPositiveButton("Aceptar", (dialog, which) -> {
@@ -459,6 +483,19 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    private double CalcularPorcentaje(double total) {
+        double porcentaje = 0;
+        if (lstConfiguracion != null && !lstConfiguracion.isEmpty()) {
+            Configuracion config = lstConfiguracion.get(0);
+            if (config.getIncluirPropina() == 1) {
+                porcentaje = ((config.getPropina() / 100) * total);
+            }else{
+                porcentaje = 0;
+            }
+        }
+        return porcentaje;
     }
 
     private void CrearBotones(View.OnClickListener accionClickListener) {
