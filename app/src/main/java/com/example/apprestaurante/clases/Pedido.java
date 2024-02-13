@@ -4,7 +4,6 @@ public class Pedido {
     int idPedido;
     int idCliente;
     int idMesa;
-    int idCuenta;
     int idMesero;
     boolean cancelado;
     String fecha;
@@ -74,14 +73,6 @@ public class Pedido {
 
     public void setIdMesa(int idMesa) {
         this.idMesa = idMesa;
-    }
-
-    public int getIdCuenta() {
-        return idCuenta;
-    }
-
-    public void setIdCuenta(int idCuenta) {
-        this.idCuenta = idCuenta;
     }
 
     public int getIdMesero() {
