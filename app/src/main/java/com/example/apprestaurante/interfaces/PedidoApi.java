@@ -16,6 +16,8 @@ public interface PedidoApi {
     Call<Boolean> actualizarMesa(@Body Pedido pedido);
     @GET("api/pedido/pedidosenmesa/{id}")
     Call<List<Integer>> obtenerPedidosEnMesa(@Path("id") String id);
+    @GET("api/pedido/pedidos/{id}")
+    Call<List<Integer>> obtenerPedidosVacios(@Path("id") String id);
     @GET("api/pedido/pedidoporid/{id}")
     Call<Pedido> obtenerPedidoPorId(@Path("id") String id);
     @PUT("api/pedido/actualizarcliente")

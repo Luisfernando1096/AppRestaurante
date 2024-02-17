@@ -3,6 +3,7 @@ package com.example.apprestaurante;
 import static com.example.apprestaurante.ComandaGestion.lstPedidos;
 import static com.example.apprestaurante.ComandaGestion.lstPedidosEnMesa;
 import static com.example.apprestaurante.ComandaGestion.salon;
+import static com.example.apprestaurante.AgregarPedidos.PermisoBorra;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -52,6 +53,9 @@ public class MesasSalones extends AppCompatActivity {
     public static boolean cambiarMesa = false;
     public static int idPedidoCambioMesa = 0;
     public static int idMesaAnterior = 0;
+    int[] aux;
+    int idMesa = 0;
+    public static List<Integer> lstPedidosVacios = null;
 
     // Crear una instancia de EnviarListaTask y ejecutarla en segundo plano
     public static EnviarListaTask enviarListaTask;
@@ -73,44 +77,11 @@ public class MesasSalones extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Aquí obtienes la etiqueta (Tag) del botón que se ha presionado.
-                int[] aux = (int[]) (view.getTag());
-
-                if (cambiarMesa)
-                {
-                    if(aux[0] != idMesaAnterior){
-                        Pedido pedido = new Pedido();
-                        pedido.setIdPedido(idPedidoCambioMesa);
-                        pedido.setIdMesa(aux[0]);
-
-                        //Aqui el codigo para cambiar de mesa
-                        Mesa mesa = new Mesa();
-                        mesa.setDisponible(false);
-                        mesa.setIdMesa(aux[0]);
-                        ActualizarEstadoMesa(mesa);
-                        if (lstPedidosEnMesa.size() == 1)
-                        {
-                            //Hacer disponible la mesa anterior
-                            Mesa mesa2 = new Mesa();
-                            mesa2.setDisponible(true);
-                            mesa2.setIdMesa(idMesaAnterior);
-                            ActualizarEstadoMesa(mesa2);
-                        }
-                        ActualizarMesa(pedido, aux);
-                    } else{
-                        Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
-                        intent.putExtra("idMesa", aux[0] + 0);
-                        startActivity(intent);
-                    }
-
-                } else{
-                    Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
-                    intent.putExtra("idMesa", aux[0] + 0);
-
-                    startActivity(intent);
-                }
+                aux = (int[]) (view.getTag());
+                idMesa = aux[0] + 0;
+                VerficaPedidos();
             }
         };
-
         // Define un OnClickListener común para los botones de salones
         View.OnClickListener salonClickListener = new View.OnClickListener() {
             @Override
@@ -123,28 +94,86 @@ public class MesasSalones extends AppCompatActivity {
                 salon = ((Button) view).getText().toString();
             }
         };
-
         BuscarSalones(salonClickListener);
+    }
+    private void CambiarMesa(){
+        if (cambiarMesa)
+        {
+            if(aux[0] != idMesaAnterior){
+                Pedido pedido = new Pedido();
+                pedido.setIdPedido(idPedidoCambioMesa);
+                pedido.setIdMesa(aux[0]);
 
+                //Aqui el codigo para cambiar de mesa
+                Mesa mesa = new Mesa();
+                mesa.setDisponible(false);
+                mesa.setIdMesa(aux[0]);
+                ActualizarEstadoMesa(mesa);
+                if (lstPedidosEnMesa.size() == 1)
+                {
+                    //Hacer disponible la mesa anterior
+                    Mesa mesa2 = new Mesa();
+                    mesa2.setDisponible(true);
+                    mesa2.setIdMesa(idMesaAnterior);
+                    ActualizarEstadoMesa(mesa2);
+                }
+                ActualizarMesa(pedido, aux);
+            } else{
+                Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
+                intent.putExtra("idMesa", aux[0] + 0);
+                startActivity(intent);
+            }
+
+        } else{
+            Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
+            intent.putExtra("idMesa", aux[0] + 0);
+
+            startActivity(intent);
+        }
+    }
+    private void VerficaPedidos() {
+        PedidoService pedidoService = new PedidoService();
+        pedidoService.obtenerPedidosVacios(String.valueOf(idMesa), new CallBackApi<Integer>() {
+            @Override
+            public void onResponse(Integer response) {}
+            @Override
+            public void onResponseBool(Response<Boolean> response) {}
+            @Override
+            public void onResponseList(List<Integer> response) {
+                lstPedidosVacios = response;
+                PermisoBorra = false;
+                if (lstPedidosVacios.size() == 0){
+                    if (cambiarMesa){
+                        CambiarMesa();
+                    }else {
+                        Intent intent = new Intent(MesasSalones.this, AgregarPedidos.class);
+                        intent.putExtra("idMesa", idMesa);
+                        startActivity(intent);
+                    }
+                }else{
+                    Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
+                    intent.putExtra("idMesa", idMesa);
+                    startActivity(intent);
+                }
+            }
+            @Override
+            public void onFailure(String errorMessage) {
+                progressDialog.dismiss();
+            }
+        });
     }
 
     private void ActualizarMesa(Pedido pedido, int[] tag) {
         PedidoService pedidoService = new PedidoService();
         pedidoService.ActualizarMesa(pedido, new CallBackApi<Boolean>() {
             @Override
-            public void onResponse(Boolean response) {
-
-            }
-
+            public void onResponse(Boolean response) {}
             @Override
             public void onResponseBool(Response<Boolean> response) {
                 if (response.isSuccessful()) {
-
                     Intent intent = new Intent(MesasSalones.this, ComandaGestion.class);
-
                     intent.putExtra("idMesa", tag[0] + 0);
                     startActivity(intent);
-
                 } else {
                     // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
                     Toast.makeText(MesasSalones.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
@@ -169,29 +198,23 @@ public class MesasSalones extends AppCompatActivity {
         if(lstPedidos != null){
             lstPedidos.clear();
         }
-
         if(lstMesas != null){
             lstMesas.clear();
             glMesas.removeAllViews();
         }
-
     }
 
     private void BuscarMesaPorSalon(View.OnClickListener mesaClickListener, String idSalon) {
-
         Call<List<Mesa>> call = ApiClient.getClient().create(MesaApi.class).mesasPorSalon(idSalon);
         call.enqueue(new Callback<List<Mesa>>() {
             @Override
             public void onResponse(Call<List<Mesa>> call, Response<List<Mesa>> response) {
                 // Si hay respuesta
                 try {
-
                     if (response.isSuccessful()) {
                         glMesas.removeAllViews();
                         lstMesas = response.body();
-
                         if (lstMesas != null) {
-
                             for (Mesa mesa : lstMesas) {
                                 Button btnMesa = new Button(MesasSalones.this);
                                 int[] idNum = {mesa.getIdMesa(), mesa.getNumero()};

@@ -69,6 +69,26 @@ public class PedidoService {
         });
     }
 
+    public void obtenerPedidosVacios(String id, final CallBackApi<Integer> callback) {
+        Call<List<Integer>> call = pedidoApi.obtenerPedidosVacios(id);
+        call.enqueue(new Callback<List<Integer>>() {
+            @Override
+            public void onResponse(Call<List<Integer>> call, Response<List<Integer>> response) {
+                if (response.isSuccessful()) {
+                    List<Integer> pedidos = response.body();
+                    callback.onResponseList(pedidos);
+                } else {
+                    // Aquí puedes manejar el caso en que la respuesta no sea exitosa
+                    callback.onFailure("Error en la respuesta del servidor: " + response.code());
+                }
+            }
+            @Override
+            public void onFailure(Call<List<Integer>> call, Throwable t) {
+                callback.onFailure("Error en conexión de red: " + t.getMessage());
+            }
+        });
+    }
+
     public void ActualizarTotal(Pedido pedido, final CallBackApi<Boolean> callback) {
         // Realiza la llamada para insertar el pedido
         Call<Boolean> call = pedidoApi.actualizarTotal(pedido);
@@ -183,5 +203,4 @@ public class PedidoService {
             }
         });
     }
-
 }

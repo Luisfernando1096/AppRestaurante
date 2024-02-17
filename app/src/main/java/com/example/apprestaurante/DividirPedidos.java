@@ -1,6 +1,7 @@
 package com.example.apprestaurante;
 
 import static com.example.apprestaurante.ComandaGestion.lstPedidos;
+import static com.example.apprestaurante.ComandaGestion.Permiso;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -34,7 +35,7 @@ import java.util.List;
 import retrofit2.Response;
 
 public class DividirPedidos extends AppCompatActivity {
-
+    public static Boolean cargarLista = false;
     RecyclerView rcvPedidosActual, rcvPedidosSiguiente;
     private LinearLayoutManager layoutManagerActual, layoutManagerSiguiente;
     List<PedidoDetalle> lstPedidosActual;
@@ -207,6 +208,7 @@ public class DividirPedidos extends AppCompatActivity {
                     pedido.setIdPedido(idPedido);
                     pedido.setTotal(total);
                     ActualizarTotalPedido(pedido);
+                    cargarLista = Permiso;
                     finish();
                 }else {
                     // Hubo un error en la inserción del pedido
