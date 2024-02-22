@@ -60,20 +60,29 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
         android:contentDescription="@string/textDescripcion">
 
-        <GridLayout
-            android:id="@+id/glMesas"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:columnCount="3"
-            android:orientation="horizontal"
-            android:layout_marginLeft="15dp">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
-    </GridLayout>
-</ScrollView>
+            <GridLayout
+                android:id="@+id/glMesas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:columnCount="3"
+                android:layout_gravity="center">
+
+            </GridLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 
 
-    </LinearLayout>
+
+
+</LinearLayout>
