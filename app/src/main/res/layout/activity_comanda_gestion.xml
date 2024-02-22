@@ -11,30 +11,30 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="end">
-        <Button
-            android:id="@+id/btnEstilo"
-            android:layout_width="wrap_content"
-            android:layout_height="45sp"
-            android:text="Cuentas"
-            android:textAlignment="textStart"
-            android:textSize="15sp"/>
 
-        <TextView
-            android:id="@+id/tvMesasSalones"
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="fill_parent"
             android:layout_height="45sp"
-            android:padding="5dp"
-            android:text="@string/textComandaGestion"
-            android:textAlignment="center"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-        <Button
-            android:id="@+id/btnCuentas"
-            android:layout_width="wrap_content"
-            android:layout_height="45sp"
-            android:text="Cuentas"
-            android:textAlignment="textStart"
-            android:textSize="15sp"/>
+            android:background="?attr/colorButtonNormal"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme" >
+            <Button
+                android:id="@+id/btnEstilo"
+                android:layout_width="wrap_content"
+                android:layout_height="45sp"
+                android:text="Cuentas"
+                android:textAlignment="textStart"
+                android:textSize="10sp"/>
+            <Button
+                android:id="@+id/btnCuentas"
+                android:layout_width="wrap_content"
+                android:layout_height="45sp"
+                android:layout_marginLeft="3dp"
+                android:text="Cuentas"
+                android:textAlignment="center"
+                android:textSize="10sp"/>
+        </androidx.appcompat.widget.Toolbar>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

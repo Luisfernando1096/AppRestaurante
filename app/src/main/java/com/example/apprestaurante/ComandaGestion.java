@@ -1,15 +1,15 @@
 package com.example.apprestaurante;
 
+import static com.example.apprestaurante.AgregarPedidos.Formulario;
+import static com.example.apprestaurante.AgregarPedidos.PermisoBorra;
+import static com.example.apprestaurante.AgregarPedidos.PermisoLista;
+import static com.example.apprestaurante.AgregarPedidos.cuentaUnica;
+import static com.example.apprestaurante.DividirPedidos.cargarLista;
 import static com.example.apprestaurante.MainActivity.usuario;
 import static com.example.apprestaurante.MesasSalones.cambiarMesa;
 import static com.example.apprestaurante.MesasSalones.enviarListaTask;
 import static com.example.apprestaurante.MesasSalones.idMesaAnterior;
 import static com.example.apprestaurante.MesasSalones.idPedidoCambioMesa;
-import static com.example.apprestaurante.AgregarPedidos.Formulario;
-import static com.example.apprestaurante.AgregarPedidos.cuentaUnica;
-import static com.example.apprestaurante.AgregarPedidos.PermisoLista;
-import static com.example.apprestaurante.DividirPedidos.cargarLista;
-import static com.example.apprestaurante.AgregarPedidos.PermisoBorra;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,9 +33,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,7 +55,15 @@ import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.interfaces.PedidoDetalleApi;
 import com.example.apprestaurante.interfaces.ProductoApi;
 import com.example.apprestaurante.network.ApiClient;
-import com.example.apprestaurante.services.*;
+import com.example.apprestaurante.services.ClienteService;
+import com.example.apprestaurante.services.ConfiguracionService;
+import com.example.apprestaurante.services.EmpleadoService;
+import com.example.apprestaurante.services.FamiliaService;
+import com.example.apprestaurante.services.IngredienteService;
+import com.example.apprestaurante.services.MesaService;
+import com.example.apprestaurante.services.PedidoDetalleService;
+import com.example.apprestaurante.services.PedidoService;
+import com.example.apprestaurante.services.ProductoService;
 import com.example.apprestaurante.utils.EnviarListaTask;
 import com.example.apprestaurante.utils.Load;
 
@@ -101,6 +112,9 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         progressDialog = new Load(this, "Cargando...");
 
         setContentView(R.layout.activity_comanda_gestion);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         llFamilias = findViewById(R.id.llFamilias);
         llProductos = findViewById(R.id.llProductos);
         textProductos = findViewById(R.id.textProductos);
@@ -244,9 +258,15 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         });
     }
 
-    private void setBackgroundWithColor(Button button, Drawable background) {
-        button.setBackground(background);
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == android.R.id.home){
+            EnviarListaParcial();
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
+
     private void CargarPedidoPorId(String id){
         PedidoService pedidoService = new PedidoService();
         pedidoService.obtenerPedidoPorId(id, new CallBackApi<Pedido>() {
@@ -1735,54 +1755,58 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-
-            String fechaFormateada = "";
-            try {
-                // Verificar la versión de Android
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    // Obtener la fecha y hora actual
-                    LocalDateTime fechaHoraActual = LocalDateTime.now();
-
-                    // Definir el formato deseado
-                    DateTimeFormatter formato = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-
-                    // Formatear la fecha y hora actual
-                    fechaFormateada = fechaHoraActual.format(formato);
-
-                } else {
-                    System.out.println("La versión de Android no es compatible con las clases java.time.");
-                }
-            } catch (Exception e) {
-                System.out.println("Error al obtener la fecha y hora actual: " + e.getMessage());
-            }
-
-            for (PedidoDetalle pDetalle : lstPD) {
-                if(cliente != null){
-                    pDetalle.setCliente(cliente);
-                }else{
-                    pDetalle.setCliente("");
-                }
-                if(mesero != null){
-                    pDetalle.setMesero(mesero);
-                }else{
-                    pDetalle.setMesero("");
-                }
-                if(salon != null){
-                    pDetalle.setSalon(salon);
-                }else{
-                    pDetalle.setSalon("");
-                }
-                if(mesa != null){
-                    pDetalle.setMesa(mesa);
-                }else{
-                    pDetalle.setMesa("");
-                }
-                pDetalle.setFecha(formatoFecha(fechaFormateada));
-            }
-            Enviar();
+            EnviarListaParcial();
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    private void EnviarListaParcial() {
+        String fechaFormateada = "";
+        try {
+            // Verificar la versión de Android
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // Obtener la fecha y hora actual
+                LocalDateTime fechaHoraActual = LocalDateTime.now();
+
+                // Definir el formato deseado
+                DateTimeFormatter formato = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+
+                // Formatear la fecha y hora actual
+                fechaFormateada = fechaHoraActual.format(formato);
+
+            } else {
+                System.out.println("La versión de Android no es compatible con las clases java.time.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error al obtener la fecha y hora actual: " + e.getMessage());
+        }
+
+        for (PedidoDetalle pDetalle : lstPD) {
+            if(cliente != null){
+                pDetalle.setCliente(cliente);
+            }else{
+                pDetalle.setCliente("");
+            }
+            if(mesero != null){
+                pDetalle.setMesero(mesero);
+            }else{
+                pDetalle.setMesero("");
+            }
+            if(salon != null){
+                pDetalle.setSalon(salon);
+            }else{
+                pDetalle.setSalon("");
+            }
+            if(mesa != null){
+                pDetalle.setMesa(mesa);
+            }else{
+                pDetalle.setMesa("");
+            }
+            pDetalle.setFecha(formatoFecha(fechaFormateada));
+        }
+        Enviar();
+    }
+
     private void Enviar(){
         enviarListaTask.enviarLista(lstPD);
         BorrarPedidosVacios();

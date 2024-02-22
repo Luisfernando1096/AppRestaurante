@@ -1,11 +1,17 @@
 package com.example.apprestaurante;
-import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,7 +22,12 @@ public class ConfigurarIP extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_configurar_ip);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         sharedPreferences = getSharedPreferences("miPreferences", Context.MODE_PRIVATE);
 
@@ -26,6 +37,15 @@ public class ConfigurarIP extends AppCompatActivity {
         btnGuardar = findViewById(R.id.btnGuardar);
         btnGuardar.setOnClickListener(v -> guardarDireccionIP());
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == android.R.id.home){
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private void cargarDireccionIP() {
         String direccionIP = sharedPreferences.getString("claveIP", "");

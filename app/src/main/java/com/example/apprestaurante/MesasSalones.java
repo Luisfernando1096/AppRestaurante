@@ -15,6 +15,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -22,7 +23,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.apprestaurante.clases.Mesa;
 import com.example.apprestaurante.clases.Pedido;
@@ -65,6 +68,10 @@ public class MesasSalones extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mesas_salones);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         enviarListaTask = new EnviarListaTask(MesasSalones.this);
         progressDialog = new Load(this, "Cargando...");
 
@@ -96,6 +103,15 @@ public class MesasSalones extends AppCompatActivity {
         };
         BuscarSalones(salonClickListener);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == android.R.id.home){
+            showConfirmationDialog();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void CambiarMesa(){
         if (cambiarMesa)
         {

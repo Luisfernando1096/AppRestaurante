@@ -5,6 +5,14 @@
     android:layout_height="match_parent"
     android:layout_margin="16dp">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="fill_parent"
+        android:layout_height="45sp"
+        android:background="?attr/colorButtonNormal"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme" />
+
     <TextView
         android:padding="10dp"
         android:id="@+id/tvMesasSalones"
@@ -58,7 +66,7 @@
         <GridLayout
             android:id="@+id/glMesas"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:columnCount="3"
             android:orientation="horizontal"
             android:layout_marginLeft="15dp">
