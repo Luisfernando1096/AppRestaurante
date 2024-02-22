@@ -130,6 +130,9 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         btnEstilo.setVisibility(View.GONE);
         Drawable background = btnEstilo.getBackground();
 
+        //Cargar la configuracion
+        CargarConfiguracion();
+
         //Obteniendo idMesa
         Intent intent = getIntent();
         if (intent != null) {
@@ -591,7 +594,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             @Override
             public void onResponseList(List<Configuracion> response) {
                 lstConfiguracion = response;
-                VerTotal();
             }
             @Override
             public void onFailure(String errorMessage) {
@@ -654,8 +656,39 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             CargarClientes();
         }else if (tag.equals("6")) {
             //Total
-            CargarConfiguracion();
+            VerTotal();
+        }else if (tag.equals("7")) {
+            //Imprimir Total
+            ImprimirTotal();
         }
+    }
+
+    private void ImprimirTotal() {
+        for (PedidoDetalle pDetalle : lstPedidos) {
+            pDetalle.setFecha(formatoFecha(pDetalle.getFecha()));
+            if(cliente != null){
+                pDetalle.setCliente(cliente);
+            }else{
+                pDetalle.setCliente("");
+            }
+            if(mesero != null){
+                pDetalle.setMesero(mesero);
+            }else{
+                pDetalle.setMesero("");
+            }
+            if(salon != null){
+                pDetalle.setSalon(salon);
+            }else{
+                pDetalle.setSalon("");
+            }
+            if(mesa != null){
+                pDetalle.setMesa(mesa);
+            }else{
+                pDetalle.setMesa("");
+            }
+        }
+        EnviarListaTask enviarListaTask2 = new EnviarListaTask(ComandaGestion.this);
+        enviarListaTask2.enviarTotalPedido(lstPedidos);
     }
 
     private void VerTotal() {
@@ -685,6 +718,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
     private double CalcularPorcentaje(double total) {
         double porcentaje = 0;
+        DecimalFormat df = new DecimalFormat("#.00");
         if (lstConfiguracion != null && !lstConfiguracion.isEmpty()) {
             Configuracion config = lstConfiguracion.get(0);
             if (config.getIncluirPropina() == 1) {
@@ -693,13 +727,13 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 porcentaje = 0;
             }
         }
-        return porcentaje;
+        return Double.parseDouble(df.format(porcentaje));
     }
 
     private void CrearBotones(View.OnClickListener accionClickListener) {
         llAcciones.removeAllViews();
-        String[] valores = {"comanda", "Extras", "Cambiar mesa", "Mesero", "Cliente", "Total comanda"};
-        int[] imagen = {R.drawable.comanda, R.drawable.extras, R.drawable.cambio_mesa, R.drawable.mesero, R.drawable.cliente, R.drawable.total};
+        String[] valores = {"comanda", "Extras", "Cambiar mesa", "Mesero", "Cliente", "Total comanda", "Imprimir Total"};
+        int[] imagen = {R.drawable.comanda, R.drawable.extras, R.drawable.cambio_mesa, R.drawable.mesero, R.drawable.cliente, R.drawable.total, R.drawable.total};
         int tamano = lstPedidos.size();
         for (int i = 0; i < valores.length; i++) {
             Button btnAccion = new Button(ComandaGestion.this);

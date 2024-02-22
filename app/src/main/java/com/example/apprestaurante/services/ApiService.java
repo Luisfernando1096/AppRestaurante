@@ -12,5 +12,8 @@ public interface ApiService {
 
     @POST("comandaCompleta") // Ruta relativa al baseUrl
     Call<Void> enviarListaCompleta(@Body RequestBody body);
+
+    @POST("datosPrecuenta") // Ruta relativa al baseUrl
+    Call<Void> enviarInformacion(@Body RequestBody body);
 }
 
