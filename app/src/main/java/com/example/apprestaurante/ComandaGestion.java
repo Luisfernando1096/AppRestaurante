@@ -1194,6 +1194,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             //Creamos el pedido
             Pedido pedido = new Pedido();
             pedido.setIdMesa(idMesa);
+            pedido.setIdCliente(10);
             pedido.setCancelado(false);
             pedido.setFecha(fechaFormateada);
             pedido.setListo(false);

@@ -2,9 +2,6 @@ package com.example.apprestaurante;
 
 import static com.example.apprestaurante.MainActivity.usuario;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -15,9 +12,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.apprestaurante.clases.Mesa;
 import com.example.apprestaurante.clases.Pedido;
-import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.services.MesaService;
 import com.example.apprestaurante.services.PedidoService;
@@ -112,6 +111,7 @@ public class AgregarPedidos extends AppCompatActivity {
                             nuevoPedido = new Pedido();
                             Pedido pedido = new Pedido();
                             pedido.setIdMesa(idMesa);
+                            pedido.setIdCliente(10);
                             pedido.setCancelado(false);
                             pedido.setFecha(fechaFormateada);
                             pedido.setListo(false);
