@@ -50,6 +50,7 @@ import com.example.apprestaurante.clases.Ingrediente;
 import com.example.apprestaurante.clases.Mesa;
 import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.clases.PedidoDetalle;
+import com.example.apprestaurante.clases.PedidoDetalleLog;
 import com.example.apprestaurante.clases.Producto;
 import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.interfaces.PedidoDetalleApi;
@@ -61,6 +62,7 @@ import com.example.apprestaurante.services.EmpleadoService;
 import com.example.apprestaurante.services.FamiliaService;
 import com.example.apprestaurante.services.IngredienteService;
 import com.example.apprestaurante.services.MesaService;
+import com.example.apprestaurante.services.PedidoDetalleLogService;
 import com.example.apprestaurante.services.PedidoDetalleService;
 import com.example.apprestaurante.services.PedidoService;
 import com.example.apprestaurante.services.ProductoService;
@@ -70,6 +72,7 @@ import com.example.apprestaurante.utils.Load;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,7 +83,7 @@ import retrofit2.Response;
 public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter.OnItemClickListener {
 
     Load progressDialog;
-    int idMesa, idPedido = 0;
+    public static int idMesa, idPedido = 0;
     int idPedido2 = 0;
     public  static Boolean Permiso = false;
     Boolean estado = false;
@@ -965,6 +968,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                //Vamos a ver si guardar en la base de datos
+                GuardarEliminacion(pedidoDetalle);
                 // Acciones a realizar cuando se hace clic en Aceptar
                 pedidoDetalle.setCantidad(pedidoDetalle.getCantidad()-1);
                 pedidoDetalle.setSubTotal(CalcularSubTotal(pedidoDetalle.getCantidad(),pedidoDetalle.getPrecio()));
@@ -1018,6 +1023,191 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         // Mostrar el AlertDialog
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    private void GuardarEliminacion(PedidoDetalle pedidoDetalle) {
+        Boolean guardar = true;
+        if(lstPD.size() > 0){
+            //Vamos a verificar si hay igual alguno
+            for (PedidoDetalle item : lstPD) {
+                if(pedidoDetalle.getIdProducto() == item.getIdProducto()){
+                    //No debo insertar o modificar
+                    guardar = false;
+                    break;
+                }
+            }
+        }
+
+        if(guardar){
+            //Debo insertar o modificar
+            ObtenerPedidoEliminado(pedidoDetalle);
+        }
+    }
+
+    private void ObtenerPedidoEliminado(PedidoDetalle pD) {
+        PedidoDetalleLogService logService = new PedidoDetalleLogService();
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            logService.pedidoEliminado(String.valueOf(pD.getIdDetalle()), new CallBackApi<PedidoDetalleLog>() {
+                @Override
+                public void onResponse(PedidoDetalleLog response) {
+                    PedidoDetalleLog detalleLog = response;
+
+                    String fechaFormateada = "";
+                    try {
+                        // Verificar la versión de Android
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            // Obtener la fecha y hora actual
+                            LocalDateTime fechaHoraActual = LocalDateTime.now();
+
+                            // Definir el formato deseado
+                            DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+                            // Formatear la fecha y hora actual
+                            fechaFormateada = fechaHoraActual.format(formato);
+
+                        } else {
+                            System.out.println("La versión de Android no es compatible con las clases java.time.");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Error al obtener la fecha y hora actual: " + e.getMessage());
+                    }
+
+                    if(detalleLog != null){
+
+                        //Vamos actualizar
+                        PedidoDetalleLog logDetalle = new PedidoDetalleLog();
+                        logDetalle.setIdDeleted(detalleLog.getIdDeleted());
+                        logDetalle.setCantidad(detalleLog.getCantidad() + 1);
+                        logDetalle.setUsuarioDelete(usuario.getIdUsuario());
+                        logDetalle.setFechaDelete(fechaFormateada);
+                        logDetalle.setSubTotal(detalleLog.getPrecio() * (detalleLog.getCantidad() + 1));
+
+                        ActualizarDetalleLog(logDetalle);
+                    }else{
+                        //Vamos a insertar
+                        PedidoDetalleLog logDetalle = new PedidoDetalleLog();
+                        logDetalle.setCantidad(1);
+                        logDetalle.setUsuarioDelete(usuario.getIdUsuario());
+                        logDetalle.setFechaDelete(fechaFormateada);
+                        logDetalle.setPrecio(pD.getPrecio());
+                        logDetalle.setSubTotal(pD.getPrecio());
+                        logDetalle.setIdDetalle(pD.getIdDetalle());
+                        logDetalle.setIdProducto(pD.getIdProducto());
+                        logDetalle.setIdPedido(pD.getIdPedido());
+                        String fechaPedido = null;
+                        try {
+                            // Verificar si la versión de Android es compatible con java.time
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                // Obtener la cadena de fecha y hora del pedido de algún objeto pD
+                                String horaPedidoStr = pD.getHoraPedido();
+
+                                // Definir el formato deseado
+                                DateTimeFormatter formato = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+
+                                // Intentar analizar la cadena de fecha y hora con el formato deseado
+                                LocalDateTime horaPedido = LocalDateTime.parse(horaPedidoStr, formato);
+
+                                // Formatear la fecha y hora del pedido
+                                formato = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                fechaPedido = horaPedido.format(formato);
+                            } else {
+                                System.out.println("La versión de Android no es compatible con las clases java.time.");
+                            }
+                        } catch (DateTimeParseException e) {
+                            System.out.println("Error al obtener o formatear la fecha y hora del pedido: " + e.getMessage());
+                        } catch (Exception e) {
+                            System.out.println("Error general al obtener o formatear la fecha y hora del pedido: " + e.getMessage());
+                        }
+
+                        // Establecer la fecha y hora formateadas en logDetalle
+                        logDetalle.setHoraEntregado(fechaPedido);
+                        logDetalle.setHoraPedido(fechaPedido);
+                        logDetalle.setCocinando(pD.getCocinando());
+                        logDetalle.setExtras(pD.getExtras());
+
+                        InsertarDetalleLog(logDetalle);
+                    }
+                }
+
+                @Override
+                public void onResponseBool(Response<Boolean> response) {
+
+                }
+
+                @Override
+                public void onResponseList(List<PedidoDetalleLog> response) {
+
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    Toast.makeText(ComandaGestion.this, "Ocurrio un errror" + errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void InsertarDetalleLog(PedidoDetalleLog detalleLog) {
+        PedidoDetalleLogService logService = new PedidoDetalleLogService();
+        logService.InsertarPedidoDetalle(detalleLog, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    //nuevoPedido = null;
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                    System.out.println(response.message());
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(ComandaGestion.this, "Ocurrio un errror" + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void ActualizarDetalleLog(PedidoDetalleLog logDetalle) {
+        PedidoDetalleLogService logService = new PedidoDetalleLogService();
+        logService.ActualizarPedidoDetalleLog(logDetalle, new CallBackApi<Boolean>() {
+            @Override
+            public void onResponse(Boolean response) {
+
+            }
+
+            @Override
+            public void onResponseBool(Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    //nuevoPedido = null;
+                } else {
+                    // La respuesta no fue exitosa, puedes manejar el error aquí si es necesario
+                    Toast.makeText(ComandaGestion.this, "Error en la respuesta: " + response.message(), Toast.LENGTH_SHORT).show();
+                    System.out.println(response.message());
+                }
+            }
+
+            @Override
+            public void onResponseList(List<Boolean> response) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(ComandaGestion.this, "Ocurrio un errror" + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void EliminarPedido(int idPed) {
@@ -1103,8 +1293,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 // Formatear la fecha y hora actual
                 fechaFormateada = fechaHoraActual.format(formato);
 
-                // Imprimir la fecha formateada
-                System.out.println("Fecha actual: " + fechaFormateada);
             } else {
                 System.out.println("La versión de Android no es compatible con las clases java.time.");
             }

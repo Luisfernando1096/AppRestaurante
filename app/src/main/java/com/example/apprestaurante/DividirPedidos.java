@@ -159,6 +159,7 @@ public class DividirPedidos extends AppCompatActivity {
             //Creamos un nuevo pedido y despues los detalles
             Pedido pedido = new Pedido();
             pedido.setIdMesa(idMesa);
+            pedido.setIdCliente(10);
             pedido.setCancelado(false);
             pedido.setFecha(fechaFormateada);
             pedido.setListo(false);
