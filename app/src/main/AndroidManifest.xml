@@ -19,9 +19,6 @@
             android:name=".AgregarPedidos"
             android:exported="false" />
         <activity
-            android:name=".MostrarImagen"
-            android:exported="false" />
-        <activity
             android:name=".AgregarCliente"
             android:exported="false" />
         <activity

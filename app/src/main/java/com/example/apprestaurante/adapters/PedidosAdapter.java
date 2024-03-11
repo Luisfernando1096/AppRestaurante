@@ -23,6 +23,7 @@ public class PedidosAdapter extends RecyclerView.Adapter<ViewHolderPedidos>{
     private List<PedidoDetalle> datos;
     private Context context;
     private OnItemClickListener onItemClickListener;
+    private PedidosAdapter.OnItemLongClickListener onItemLongClickListener;
 
     public PedidosAdapter(Context context, List<PedidoDetalle> datos, OnItemClickListener itemClickListener) {
         this.context = context;
@@ -90,6 +91,15 @@ public class PedidosAdapter extends RecyclerView.Adapter<ViewHolderPedidos>{
                 }
             }
         });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(onItemLongClickListener != null){
+                    onItemLongClickListener.onItemLongClick(pedidoDetalleItem);
+                }
+                return true;
+            }
+        });
     }
 
     @Override
@@ -99,5 +109,12 @@ public class PedidosAdapter extends RecyclerView.Adapter<ViewHolderPedidos>{
 
     public interface OnItemClickListener {
         void onItemClick(PedidoDetalle pedidoDetalle);
+    }
+    public interface OnItemLongClickListener {
+        void onItemLongClick(PedidoDetalle pedidoDetalle);
+    }
+
+    public void setOnItemLongClickListener(PedidosAdapter.OnItemLongClickListener listener) {
+        this.onItemLongClickListener = listener;
     }
 }

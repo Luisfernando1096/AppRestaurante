@@ -85,7 +85,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     Load progressDialog;
     public static int idMesa, idPedido = 0;
     int idPedido2 = 0;
-    public  static Boolean Permiso = false;
+    public static Boolean Permiso = false;
     Boolean estado = false;
     public static String salon;
     String cliente, mesero, mesa;
@@ -140,7 +140,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         Intent intent = getIntent();
         if (intent != null) {
             idMesa = intent.getIntExtra("idMesa", 0); // El segundo parámetro (0) es el valor predeterminado si no se encuentra "idMesa"
-            if (Formulario){
+            if (Formulario) {
                 Permiso = PermisoLista;
                 idPedido2 = intent.getIntExtra("idPedido", 0); // El segundo parámetro (0) es el valor predeterminado si no se encuentra "idMesa"
                 ActualizarEncabezado(idPedido2);
@@ -191,13 +191,13 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 // Obtén la referencia al ScrollView y LinearLayout dentro del AlertDialog
                 Button btnAgregar = customLayout.findViewById(R.id.btnAgregar);
                 btnAgregar.setVisibility(View.GONE);
-                if (estado){
+                if (estado) {
                     for (final Integer integer : lstPedidosVacios) {
                         Button button = new Button(ComandaGestion.this);
                         button.setText(integer.toString());
                         String texto = button.getText().toString();
                         int id = Integer.parseInt(texto);
-                        if (id == idPedido2){
+                        if (id == idPedido2) {
                             button.setBackground(background);
                             button.setTextColor(Color.BLACK);
                         }
@@ -210,11 +210,11 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                                     int id = lstPedidosVacios.get(0);
                                     int can = rcvPedidos.getAdapter().getItemCount();
                                     String nombre = "#Ticket: " + id;
-                                    Log.d("nombre de tvTicket: ", textoString + " Ticket de lista: " + nombre );
+                                    Log.d("nombre de tvTicket: ", textoString + " Ticket de lista: " + nombre);
 
-                                    if (can  == 0 && textoString.equals(nombre)) {
+                                    if (can == 0 && textoString.equals(nombre)) {
                                         Toast.makeText(getApplicationContext(), "No se puede cambiar de cuenta, porque esta vacia", Toast.LENGTH_SHORT).show();
-                                    }else{
+                                    } else {
                                         // Almacena el número entero seleccionado en la variable
                                         idPedido2 = integer;
                                         cliente = null;
@@ -227,13 +227,13 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         });
                         linearLayoutScroll.addView(button);
                     }
-                }else{
+                } else {
                     for (final Integer integer : lstPedidosEnMesa) {
                         Button button = new Button(ComandaGestion.this);
                         button.setText(integer.toString());
                         String texto = button.getText().toString();
                         int id = Integer.parseInt(texto);
-                        if (id == idPedido2){
+                        if (id == idPedido2) {
                             button.setBackground(background);
                             button.setTextColor(Color.BLACK);
                         }
@@ -266,14 +266,14 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             EnviarListaParcial();
             finish();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void CargarPedidoPorId(String id){
+    private void CargarPedidoPorId(String id) {
         PedidoService pedidoService = new PedidoService();
         pedidoService.obtenerPedidoPorId(id, new CallBackApi<Pedido>() {
             @Override
@@ -283,53 +283,60 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 mesa = response.getMesa();
                 tvTicket.setText("#Ticket: " + id);
                 tvMesa.setText(mesa);
-                if(mesero!=null){
+                if (mesero != null) {
                     tvMesero.setText("Mesero: " + mesero);
-                }else{
+                } else {
                     tvMesero.setText("Mesero: ");
                 }
-                if(cliente!=null){
+                if (cliente != null) {
                     tvCliente.setText("Cliente: " + cliente);
-                }else{
+                } else {
                     tvCliente.setText("Cliente: ");
                 }
                 ObtenerProductosEnMesa2(String.valueOf(idMesa), String.valueOf(id));
             }
+
             @Override
             public void onResponseBool(Response<Boolean> response) {
             }
+
             @Override
             public void onResponseList(List<Pedido> response) {
             }
+
             @Override
             public void onFailure(String errorMessage) {
                 progressDialog.dismiss();
             }
         });
     }
-    private void ActualizarEncabezado(int idP)
-    {
-        tvTicket.setText("#Ticket: " +idP);
+
+    private void ActualizarEncabezado(int idP) {
+        tvTicket.setText("#Ticket: " + idP);
         CargarPedidosVacios(false);
     }
 
-    private void CargarPedidosVacios(Boolean eliminar){
+    private void CargarPedidosVacios(Boolean eliminar) {
         PedidoService pedidoService = new PedidoService();
         pedidoService.obtenerPedidosVacios(String.valueOf(idMesa), new CallBackApi<Integer>() {
             @Override
-            public void onResponse(Integer response) {}
+            public void onResponse(Integer response) {
+            }
+
             @Override
-            public void onResponseBool(Response<Boolean> response) {}
+            public void onResponseBool(Response<Boolean> response) {
+            }
+
             @Override
             public void onResponseList(List<Integer> response) {
                 lstPedidosVacios = response;
-                if (lstPedidosVacios.size()  > 0){
+                if (lstPedidosVacios.size() > 0) {
                     btnCuentas.setVisibility(View.VISIBLE);
                     estado = true;
                     cargarLista = false;
                 }
-                if (eliminar){
-                    if(lstPedidosVacios.size() == 0){
+                if (eliminar) {
+                    if (lstPedidosVacios.size() == 0) {
                         //Vamos a eliminar el pedido y por lo tanto actualizar estado de mesa
                         Mesa mesa = new Mesa();
                         mesa.setIdMesa(idMesa);
@@ -340,8 +347,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         tvMesero.setText("Mesero: ");
                         tvCliente.setText("Cliente: ");
                         finish();
-                    }else{
-                        for (int idNuevo: lstPedidosVacios) {
+                    } else {
+                        for (int idNuevo : lstPedidosVacios) {
                             idPedido2 = idNuevo;
                             ActualizarEncabezado(idPedido2);
                         }
@@ -350,53 +357,65 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 }
                 progressDialog.dismiss();
             }
+
             @Override
             public void onFailure(String errorMessage) {
             }
         });
     }
 
-    private void ActualizarVista(){
+    private void ActualizarVista() {
         PedidoService pedidoService = new PedidoService();
         pedidoService.obtenerPedidosVacios(String.valueOf(idMesa), new CallBackApi<Integer>() {
             @Override
-            public void onResponse(Integer response) {}
+            public void onResponse(Integer response) {
+            }
+
             @Override
-            public void onResponseBool(Response<Boolean> response) {}
+            public void onResponseBool(Response<Boolean> response) {
+            }
+
             @Override
             public void onResponseList(List<Integer> response) {
                 lstPedidosVacios = response;
-                if (lstPedidosVacios.size()  == 1){
+                if (lstPedidosVacios.size() == 1) {
                     btnCuentas.setVisibility(View.GONE);
                 }
             }
+
             @Override
             public void onFailure(String errorMessage) {
             }
         });
     }
-    private void BorrarPedidosVacios(){
+
+    private void BorrarPedidosVacios() {
         PedidoService pedidoService = new PedidoService();
         pedidoService.obtenerPedidosVacios(String.valueOf(idMesa), new CallBackApi<Integer>() {
             @Override
-            public void onResponse(Integer response) {}
+            public void onResponse(Integer response) {
+            }
+
             @Override
-            public void onResponseBool(Response<Boolean> response) {}
+            public void onResponseBool(Response<Boolean> response) {
+            }
+
             @Override
             public void onResponseList(List<Integer> response) {
                 lstPedidosVacios = response;
-                if (lstPedidosVacios.size()  > 0){
-                    for (int idPedid : lstPedidosVacios)
-                    {
+                if (lstPedidosVacios.size() > 0) {
+                    for (int idPedid : lstPedidosVacios) {
                         EliminarPedido(idPedid);
                     }
                 }
             }
+
             @Override
             public void onFailure(String errorMessage) {
             }
         });
     }
+
     private void CargarPedidosEnMesa(boolean eliminar) {
         progressDialog.show();
         PedidoService pedidoService = new PedidoService();
@@ -404,17 +423,19 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             @Override
             public void onResponse(Integer response) {
             }
+
             @Override
             public void onResponseBool(Response<Boolean> response) {
             }
+
             @Override
             public void onResponseList(List<Integer> response) {
                 lstPedidosEnMesa = response;
                 if (lstPedidosEnMesa.size() > 1) {
                     btnCuentas.setVisibility(View.VISIBLE);
                 }
-                if (eliminar){
-                    if(lstPedidosEnMesa.size() == 0 ){
+                if (eliminar) {
+                    if (lstPedidosEnMesa.size() == 0) {
                         //Vamos a eliminar el pedido y por lo tanto actualizar estado de mesa
                         Mesa mesa = new Mesa();
                         mesa.setIdMesa(idMesa);
@@ -437,7 +458,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         });
     }
 
-    private void CargarDialogoMeseros(){
+    private void CargarDialogoMeseros() {
         // Infla el diseño XML personalizado
         View customLayout = getLayoutInflater().inflate(R.layout.item_dialog, null);
         // Crea un AlertDialog con el diseño personalizado
@@ -453,7 +474,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
         for (final Empleado empl : lstEmpleados) {
             Button button = new Button(ComandaGestion.this);
-            button.setText( empl.getNombres());
+            button.setText(empl.getNombres());
             button.setTag(empl.getIdEmpleado());
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -471,7 +492,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         pedEmpleado.setIdMesa(idMesa);
                         pedEmpleado.setIdMesero(Integer.parseInt(tag));
                         ActualizarMesero(pedEmpleado);
-                    }else{
+                    } else {
                         //Toast.makeText(ComandaGestion.this, "Error no entro", Toast.LENGTH_SHORT).show();
                     }
                     // Cierra el AlertDialog
@@ -489,7 +510,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         alertDialog.show();
     }
 
-    private void CargarDialogoClientes(){
+    private void CargarDialogoClientes() {
         // Infla el diseño XML personalizado
         View customLayout = getLayoutInflater().inflate(R.layout.item_dialog, null);
 
@@ -580,6 +601,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 lstEmpleados = response;
                 CargarDialogoMeseros();
             }
+
             @Override
             public void onFailure(String errorMessage) {
                 progressDialog.dismiss();
@@ -591,13 +613,18 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         ConfiguracionService configuracionService = new ConfiguracionService();
         configuracionService.obetnerConfiguracion(new CallBackApi<Configuracion>() {
             @Override
-            public void onResponse(Configuracion response) {}
+            public void onResponse(Configuracion response) {
+            }
+
             @Override
-            public void onResponseBool(Response<Boolean> response) {}
+            public void onResponseBool(Response<Boolean> response) {
+            }
+
             @Override
             public void onResponseList(List<Configuracion> response) {
                 lstConfiguracion = response;
             }
+
             @Override
             public void onFailure(String errorMessage) {
                 progressDialog.dismiss();
@@ -656,11 +683,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             CargarEmpleados();
         } else if (tag.equals("5")) {
             //Cliente
-            CargarClientes();
-        }else if (tag.equals("6")) {
+            Toast.makeText(this, "Esta en mantenimiento!", Toast.LENGTH_SHORT).show();
+            //CargarClientes();
+        } else if (tag.equals("6")) {
             //Total
             VerTotal();
-        }else if (tag.equals("7")) {
+        } else if (tag.equals("7")) {
             //Imprimir Total
             ImprimirTotal();
         }
@@ -669,24 +697,24 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     private void ImprimirTotal() {
         for (PedidoDetalle pDetalle : lstPedidos) {
             pDetalle.setFecha(formatoFecha(pDetalle.getFecha()));
-            if(cliente != null){
+            if (cliente != null) {
                 pDetalle.setCliente(cliente);
-            }else{
+            } else {
                 pDetalle.setCliente("");
             }
-            if(mesero != null){
+            if (mesero != null) {
                 pDetalle.setMesero(mesero);
-            }else{
+            } else {
                 pDetalle.setMesero("");
             }
-            if(salon != null){
+            if (salon != null) {
                 pDetalle.setSalon(salon);
-            }else{
+            } else {
                 pDetalle.setSalon("");
             }
-            if(mesa != null){
+            if (mesa != null) {
                 pDetalle.setMesa(mesa);
-            }else{
+            } else {
                 pDetalle.setMesa("");
             }
         }
@@ -726,7 +754,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             Configuracion config = lstConfiguracion.get(0);
             if (config.getIncluirPropina() == 1) {
                 porcentaje = ((config.getPropina() / 100) * total);
-            }else{
+            } else {
                 porcentaje = 0;
             }
         }
@@ -840,6 +868,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
         });
     }
+
     private void ObtenerProductosEnMesa2(String id, String idPed) {
         progressDialog.show();
         Call<List<PedidoDetalle>> call = ApiClient.getClient().create(PedidoDetalleApi.class).productosEnMesa(id, idPed);
@@ -886,6 +915,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             }
         });
     }
+
     private void ObtenerProductosEnMesa(String id, String idPed) {
         progressDialog.show();
         Call<List<PedidoDetalle>> call = ApiClient.getClient().create(PedidoDetalleApi.class).productosEnMesa(id, idPed);
@@ -951,8 +981,82 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             ProgramarAcciones(tag);
         };
 
+        PedidosAdapter pedidosAdapter1 = (PedidosAdapter) rcvPedidos.getAdapter();
+        pedidosAdapter1.setOnItemLongClickListener(new PedidosAdapter.OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(PedidoDetalle pedidoDetalle) {
+                CrearAlertaDialogoCambioPrecio(pedidoDetalle);
+                //f.lblPrecio.Text = Double.Parse(dgvDatos.CurrentRow.Cells["precio"].Value.ToString()).ToString("0.00");
+                //f.lblProducto.Text = dgvDatos.CurrentRow.Cells["nombre"].Value.ToString();
+                //f.ShowDialog();
+            }
+        });
         CrearBotones(accionClickListener);
     }
+
+    private void CrearAlertaDialogoCambioPrecio(PedidoDetalle pedidoDetalle) {
+        // Crear el AlertDialog
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ComandaGestion.this);
+        alertDialogBuilder.setTitle("Cambio de precio");
+
+        // Crear un contenedor para las vistas
+        LinearLayout layout = new LinearLayout(ComandaGestion.this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        // Crear vistas
+        final TextView tvNombre = new TextView(ComandaGestion.this);
+        final TextView tvPrecioAnterior = new TextView(ComandaGestion.this);
+        final EditText input = new EditText(ComandaGestion.this);
+
+        // Configurar vistas
+        tvNombre.setText(pedidoDetalle.getNombre().toString());
+        tvPrecioAnterior.setText("Precio anterior : " + pedidoDetalle.getPrecio());
+        input.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
+
+        // Agregar vistas al contenedor
+        layout.addView(tvNombre);
+        layout.addView(tvPrecioAnterior);
+        layout.addView(input);
+
+        // Establecer el contenedor como la vista del diálogo
+        alertDialogBuilder.setView(layout);
+
+        // Configurar botones
+        alertDialogBuilder.setPositiveButton("Aceptar", (dialog, which) -> {
+            // Lógica para procesar el valor ingresado
+            try {
+                Double number = Double.parseDouble(input.getText().toString());
+                // Hacer algo con el número ingresado
+                // Puedes usar 'number' aquí como lo necesites
+                int idDetalle = pedidoDetalle.getIdDetalle();
+                int cantidad = pedidoDetalle.getCantidad();
+                int idProducto = pedidoDetalle.getIdProducto();
+                int idPedido = pedidoDetalle.getIdPedido();
+                double precioNuevo = number;
+                double subTotal = cantidad*precioNuevo;
+
+                PedidoDetalle pd = new PedidoDetalle();
+                pd.setIdDetalle(idDetalle);
+                pd.setCantidad(cantidad);
+                pd.setPrecio(precioNuevo);
+                pd.setSubTotal(subTotal) ;
+                pd.setIdPedido(idPedido);
+                pd.setIdProducto(idProducto);
+
+                ActualizarCompra(pd);
+            } catch (NumberFormatException e) {
+                progressDialog.dismiss();
+                Toast.makeText(this, "No ingreso ningun valor o valor no valido.", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        });
+
+        alertDialogBuilder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
 
     @Override
     public void onItemClick(PedidoDetalle pedidoDetalle) {
@@ -1341,10 +1445,12 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         if (lstPedidos.size() > 0) {
             nuevoPedido = new Pedido();
             boolean aumentarUnProducto = false;
+            Double precio = 0.00;
             //Saber si ya existe algun producto igual en los detalles
             for (PedidoDetalle pDet : lstPedidos) {
                 if (pDet.getIdProducto() == prod.getIdProducto()) {
                     cantidad = cantidad + pDet.getCantidad();
+                    precio = pDet.getPrecio();
                     aumentarUnProducto = true;
                 }
             }
@@ -1355,7 +1461,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 pedidoDetalle.setIdPedido(idPedido);
                 pedidoDetalle.setIdProducto(prod.getIdProducto());
                 pedidoDetalle.setCantidad(cantidad);
-                pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, producto.getPrecio()));
+                pedidoDetalle.setSubTotal(CalcularSubTotal(cantidad, precio));
                 ActualizarCompra(pedidoDetalle);
             } else {
                 //No existe un producto igual en el datgrid, hay que crearlo
