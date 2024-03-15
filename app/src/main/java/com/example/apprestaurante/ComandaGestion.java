@@ -1503,6 +1503,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
             pedido.setEfectivo(0);
             pedido.setCredito(0);
             pedido.setBtc(0);
+            pedido.setExento(0.0);
 
             //Actualizar estado de la mesa
             Mesa mesa = new Mesa();

@@ -174,6 +174,7 @@ public class DividirPedidos extends AppCompatActivity {
             pedido.setEfectivo(0);
             pedido.setCredito(0);
             pedido.setBtc(0);
+            pedido.setExento(0.0);
 
             InsertarPedido(pedido, fechaFormateada);
         }

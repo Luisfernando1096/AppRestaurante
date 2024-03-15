@@ -23,6 +23,15 @@ public class Pedido {
     String nombre;
     String nombres;
     String mesa;
+    Double exento;
+
+    public Double getExento() {
+        return exento;
+    }
+
+    public void setExento(Double exento) {
+        this.exento = exento;
+    }
 
     public Pedido() {
     }
