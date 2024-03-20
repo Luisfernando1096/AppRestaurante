@@ -52,9 +52,11 @@ import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.clases.PedidoDetalleLog;
 import com.example.apprestaurante.clases.Producto;
+import com.example.apprestaurante.clases.Usuario;
 import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.interfaces.PedidoDetalleApi;
 import com.example.apprestaurante.interfaces.ProductoApi;
+import com.example.apprestaurante.interfaces.UsuarioApi;
 import com.example.apprestaurante.network.ApiClient;
 import com.example.apprestaurante.services.ClienteService;
 import com.example.apprestaurante.services.ConfiguracionService;
@@ -75,6 +77,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -747,6 +750,61 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         alertDialog.show();
     }
 
+    private void TienePermiso(PedidoDetalle pedidoDetalle) {
+
+        if (lstConfiguracion != null && !lstConfiguracion.isEmpty()) {
+            Configuracion config = lstConfiguracion.get(0);
+            if (config.getAutorizarDescProp() == 1) {
+                //Necesita autorizacion
+                CrearAlertaDialogoDeAcceso(pedidoDetalle);
+            } else {
+                //No necesita autorizacion
+                ContinuarEliinacion(pedidoDetalle);
+            }
+        }
+    }
+
+    private void ContinuarEliinacion(PedidoDetalle pedidoDetalle) {
+        //Vamos a ver si guardar en la base de datos
+        GuardarEliminacion(pedidoDetalle);
+        // Acciones a realizar cuando se hace clic en Aceptar
+        pedidoDetalle.setCantidad(pedidoDetalle.getCantidad()-1);
+        pedidoDetalle.setSubTotal(CalcularSubTotal(pedidoDetalle.getCantidad(),pedidoDetalle.getPrecio()));
+
+        if(pedidoDetalle.getCantidad() != 0)
+        {
+            ActualizarCompra(pedidoDetalle);
+        }
+        else
+        {
+            //Se eliminara el producto
+            EliminarPedidoDetalle(String.valueOf(pedidoDetalle.getIdDetalle()));
+        }
+
+        CargarPedidosEnMesa(false);
+
+        if (lstPD.size() > 0)
+        {
+            for (PedidoDetalle item : lstPD)
+            {
+                if (pedidoDetalle.getIdProducto() == item.getIdProducto())
+                {
+                    item.setIdPedido(item.getIdPedido());
+                    item.setIdProducto(item.getIdProducto());
+                    item.setCantidad(item.getCantidad()-1);
+                    if (item.getCantidad() == 0)
+                    {
+                        lstPD.remove(item);
+                    }
+                    break;
+                }
+            }
+        }
+
+        //Obtener el producto por el id
+        BuscarProductoPorId(String.valueOf(pedidoDetalle.getIdProducto()), 0);
+    }
+
     private double CalcularPorcentaje(double total) {
         double porcentaje = 0;
         DecimalFormat df = new DecimalFormat("#.00");
@@ -833,6 +891,77 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    private Boolean CrearAlertaDialogoDeAcceso(PedidoDetalle pedidoDetalle) {
+        AtomicReference<Boolean> conPermiso = new AtomicReference<>(false);
+        // Crear el AlertDialog
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ComandaGestion.this);
+        alertDialogBuilder.setTitle("Digite el pin de un administrador: ");
+
+        // Crear un EditText en el AlertDialog
+        final EditText input = new EditText(ComandaGestion.this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        alertDialogBuilder.setView(input);
+
+        alertDialogBuilder.setPositiveButton("Aceptar", (dialog, which) -> {
+            try {
+                int number = Integer.parseInt(input.getText().toString());
+                // Hacer algo con el número ingresado
+                conPermiso.set(ComprobarPin(String.valueOf(number), pedidoDetalle));
+
+            } catch (NumberFormatException e) {
+                progressDialog.dismiss();
+                Toast.makeText(this, "No ingreso ningun valor o valor no valido.", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        });
+
+        alertDialogBuilder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+
+        return conPermiso.get();
+    }
+
+    private Boolean ComprobarPin(String pin, PedidoDetalle pedidoDetalle) {
+        final Boolean[] conPermiso = {false};
+        progressDialog.show();
+        Call<Usuario> call = ApiClient.getClient().create(UsuarioApi.class).ObtenerDatosUsuario(pin);
+        call.enqueue(new Callback<Usuario>() {
+            @Override
+            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                //Si hay respuesta
+                try {
+                    if (response.isSuccessful()) {
+                        usuario = response.body();
+                        if(usuario != null){
+                            if(usuario.getIdRol() == 1){
+                                //Continuar la eliminacion
+                                ContinuarEliinacion(pedidoDetalle);
+                            }else{
+                                Toast.makeText(ComandaGestion.this, "No tiene permiso para realizar esta accion.", Toast.LENGTH_SHORT).show();
+                            }
+                        }else{
+                            Toast.makeText(ComandaGestion.this, "No tiene permiso para realizar esta accion.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(ComandaGestion.this, "Error en conexion: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Call<Usuario> call, Throwable t) {
+                //Si hay error
+                Toast.makeText(ComandaGestion.this, "Error en conexion de red." + t.getMessage(), Toast.LENGTH_SHORT).show();
+                System.out.println("Error en conexion de red." + t.getMessage());
+                progressDialog.dismiss();
+            }
+        });
+        return conPermiso[0];
     }
 
     private void BuscarFamilias(View.OnClickListener familiaClickListener) {
@@ -1072,45 +1201,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                //Vamos a ver si guardar en la base de datos
-                GuardarEliminacion(pedidoDetalle);
-                // Acciones a realizar cuando se hace clic en Aceptar
-                pedidoDetalle.setCantidad(pedidoDetalle.getCantidad()-1);
-                pedidoDetalle.setSubTotal(CalcularSubTotal(pedidoDetalle.getCantidad(),pedidoDetalle.getPrecio()));
-
-                if(pedidoDetalle.getCantidad() != 0)
-                {
-                    ActualizarCompra(pedidoDetalle);
-                }
-                else
-                {
-                    //Se eliminara el producto
-                    EliminarPedidoDetalle(String.valueOf(pedidoDetalle.getIdDetalle()));
-                }
-
-                CargarPedidosEnMesa(false);
-
-                if (lstPD.size() > 0)
-                {
-                    for (PedidoDetalle item : lstPD)
-                    {
-                        if (pedidoDetalle.getIdProducto() == item.getIdProducto())
-                        {
-                            item.setIdPedido(item.getIdPedido());
-                            item.setIdProducto(item.getIdProducto());
-                            item.setCantidad(item.getCantidad()-1);
-                            if (item.getCantidad() == 0)
-                            {
-                                lstPD.remove(item);
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                //Obtener el producto por el id
-                BuscarProductoPorId(String.valueOf(pedidoDetalle.getIdProducto()), 0);
-
+                TienePermiso(pedidoDetalle);
             }
 
         });
