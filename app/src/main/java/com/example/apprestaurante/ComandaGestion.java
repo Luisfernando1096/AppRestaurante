@@ -86,7 +86,7 @@ import retrofit2.Response;
 public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter.OnItemClickListener {
 
     Load progressDialog;
-    public static int idMesa, idPedido = 0;
+    public int idMesa, idPedido = 0;
     int idPedido2 = 0;
     public static Boolean Permiso = false;
     Boolean estado = false;
