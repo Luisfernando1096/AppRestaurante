@@ -79,11 +79,7 @@ public class PedidosAdapter extends RecyclerView.Adapter<ViewHolderPedidos>{
 
         holder.getTvCantidad().setText(datos.get(position).getCantidad() + "");
         holder.getTvProducto().setText(datos.get(position).getNombre() + "");
-
-        DecimalFormat df = new DecimalFormat("#.00");
-
-        holder.getTvSubTotal().setText(df.format(datos.get(position).getSubTotal()) + "");
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.getBtnDisminuir().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(onItemClickListener != null){
@@ -91,6 +87,11 @@ public class PedidosAdapter extends RecyclerView.Adapter<ViewHolderPedidos>{
                 }
             }
         });
+
+        DecimalFormat df = new DecimalFormat("#.00");
+
+        holder.getTvSubTotal().setText(df.format(datos.get(position).getSubTotal()) + "");
+
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {

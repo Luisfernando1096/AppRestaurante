@@ -1,6 +1,7 @@
 package com.example.apprestaurante.viewHolders;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,6 +16,7 @@ public class ViewHolderPedidos extends RecyclerView.ViewHolder{
     private TextView tvCantidad;
     private TextView tvProducto;
     private TextView tvSubTotal;
+    private Button btnDisminuir;
 
     public ImageView getIvImagen() {
         return ivImagen;
@@ -30,6 +32,9 @@ public class ViewHolderPedidos extends RecyclerView.ViewHolder{
     public TextView getTvSubTotal() {
         return tvSubTotal;
     }
+    public Button getBtnDisminuir(){
+        return btnDisminuir;
+    }
 
     public ViewHolderPedidos(@NonNull View itemView) {
         super(itemView);
@@ -37,5 +42,6 @@ public class ViewHolderPedidos extends RecyclerView.ViewHolder{
         this.tvProducto = itemView.findViewById(R.id.tvProducto);
         this.tvSubTotal = itemView.findViewById(R.id.tvSubTotal);
         this.ivImagen = itemView.findViewById(R.id.ivFoto);
+        this.btnDisminuir = itemView.findViewById(R.id.btnDisminuir);
     }
 }

@@ -811,7 +811,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         if (lstConfiguracion != null && !lstConfiguracion.isEmpty()) {
             Configuracion config = lstConfiguracion.get(0);
             if (config.getIncluirPropina() == 1) {
-                porcentaje = ((config.getPropina() / 100) * total);
+                porcentaje = (total * (1 + (config.getPropina() / 100))) - total;
             } else {
                 porcentaje = 0;
             }
