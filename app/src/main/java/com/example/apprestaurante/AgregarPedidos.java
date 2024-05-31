@@ -22,9 +22,12 @@ import com.example.apprestaurante.services.MesaService;
 import com.example.apprestaurante.services.PedidoService;
 import com.example.apprestaurante.utils.Load;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Response;
 
@@ -96,7 +99,15 @@ public class AgregarPedidos extends AppCompatActivity {
                         LocalDateTime fechaHoraActual = LocalDateTime.now();
                         DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                         fechaFormateada = fechaHoraActual.format(formato);
+                    }else{
+                        // Usar SimpleDateFormat para versiones anteriores
+                        SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
+                        // Obtener la fecha y hora actual
+                        Date fechaHoraActual = new Date();
+
+                        // Formatear la fecha y hora actual
+                        fechaFormateada = formato.format(fechaHoraActual);
                     }
                 } catch (Exception e) {
                     System.out.println("Error al obtener la fecha y hora actual: " + e.getMessage());

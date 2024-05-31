@@ -1,6 +1,6 @@
 package com.example.apprestaurante.interfaces;
 
-import com.example.apprestaurante.clases.*;
+import com.example.apprestaurante.clases.Producto;
 
 import java.util.List;
 

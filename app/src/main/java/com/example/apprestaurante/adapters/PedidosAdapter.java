@@ -3,6 +3,7 @@ package com.example.apprestaurante.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.icu.math.BigDecimal;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,7 @@ import com.example.apprestaurante.clases.PedidoDetalle;
 import com.example.apprestaurante.services.ProductoService;
 import com.example.apprestaurante.viewHolders.ViewHolderPedidos;
 
-import java.text.DecimalFormat;
+import java.math.RoundingMode;
 import java.util.List;
 
 public class PedidosAdapter extends RecyclerView.Adapter<ViewHolderPedidos>{
@@ -88,9 +89,7 @@ public class PedidosAdapter extends RecyclerView.Adapter<ViewHolderPedidos>{
             }
         });
 
-        DecimalFormat df = new DecimalFormat("#.00");
-
-        holder.getTvSubTotal().setText(df.format(datos.get(position).getSubTotal()) + "");
+        holder.getTvSubTotal().setText(redondear(datos.get(position).getSubTotal(), 2) + "");
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -101,6 +100,14 @@ public class PedidosAdapter extends RecyclerView.Adapter<ViewHolderPedidos>{
                 return true;
             }
         });
+    }
+
+    private double redondear(double valor, int numeroDecimales) {
+        if (numeroDecimales < 0) throw new IllegalArgumentException("El número de decimales no puede ser negativo");
+
+        BigDecimal bd = new BigDecimal(Double.toString(valor));
+        bd = bd.setScale(numeroDecimales, RoundingMode.HALF_UP.ordinal());
+        return bd.doubleValue();
     }
 
     @Override

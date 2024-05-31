@@ -1,7 +1,6 @@
 package com.example.apprestaurante.services;
 
 import com.example.apprestaurante.clases.Mesa;
-import com.example.apprestaurante.clases.Pedido;
 import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.interfaces.MesaApi;
 import com.example.apprestaurante.interfaces.PedidoApi;

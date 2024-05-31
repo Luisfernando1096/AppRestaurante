@@ -1,9 +1,10 @@
 package com.example.apprestaurante;
 
-import static com.example.apprestaurante.ComandaGestion.lstPedidos;
 import static com.example.apprestaurante.ComandaGestion.Permiso;
+import static com.example.apprestaurante.ComandaGestion.lstPedidos;
 
 import android.content.DialogInterface;
+import android.icu.math.BigDecimal;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
@@ -29,7 +30,7 @@ import com.example.apprestaurante.interfaces.CallBackApi;
 import com.example.apprestaurante.services.PedidoDetalleService;
 import com.example.apprestaurante.services.PedidoService;
 
-import java.text.DecimalFormat;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -759,14 +760,21 @@ public class DividirPedidos extends AppCompatActivity {
 
     private double CalcularTotal(List<PedidoDetalle> lst) {
         double total = 0;
-        DecimalFormat df = new DecimalFormat("#.00");
         if (lst != null)
         {
             for (PedidoDetalle pDetalle: lst) {
                 total += pDetalle.getSubTotal();
             }
         }
-        return Double.parseDouble(df.format(total));
+        return redondear(total, 2);
+    }
+
+    private double redondear(double valor, int numeroDecimales) {
+        if (numeroDecimales < 0) throw new IllegalArgumentException("El número de decimales no puede ser negativo");
+
+        BigDecimal bd = new BigDecimal(Double.toString(valor));
+        bd = bd.setScale(numeroDecimales, RoundingMode.HALF_UP.ordinal());
+        return bd.doubleValue();
     }
 
     @Override

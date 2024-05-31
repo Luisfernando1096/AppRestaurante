@@ -1,9 +1,9 @@
 package com.example.apprestaurante;
 
+import static com.example.apprestaurante.AgregarPedidos.PermisoBorra;
 import static com.example.apprestaurante.ComandaGestion.lstPedidos;
 import static com.example.apprestaurante.ComandaGestion.lstPedidosEnMesa;
 import static com.example.apprestaurante.ComandaGestion.salon;
-import static com.example.apprestaurante.AgregarPedidos.PermisoBorra;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;

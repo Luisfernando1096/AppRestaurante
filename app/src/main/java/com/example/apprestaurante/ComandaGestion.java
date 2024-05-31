@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.icu.math.BigDecimal;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
@@ -71,12 +72,15 @@ import com.example.apprestaurante.services.ProductoService;
 import com.example.apprestaurante.utils.EnviarListaTask;
 import com.example.apprestaurante.utils.Load;
 
-import java.text.DecimalFormat;
+import java.math.RoundingMode;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 import retrofit2.Call;
@@ -732,14 +736,13 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
         // Crear un EditText en el AlertDialog
         final TextView output = new TextView(this);
-        DecimalFormat df = new DecimalFormat("#.00");
 
         double total = CalcularTotal();
         double propina = CalcularPorcentaje(total);
 
         output.setTextSize(40);
         output.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        output.setText("$" + df.format(CalcularTotal() + propina));
+        output.setText("$" + redondear((CalcularTotal() + propina), 2));
         alertDialogBuilder.setView(output);
 
         alertDialogBuilder.setPositiveButton("Aceptar", (dialog, which) -> {
@@ -807,7 +810,6 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
     private double CalcularPorcentaje(double total) {
         double porcentaje = 0;
-        DecimalFormat df = new DecimalFormat("#.00");
         if (lstConfiguracion != null && !lstConfiguracion.isEmpty()) {
             Configuracion config = lstConfiguracion.get(0);
             if (config.getIncluirPropina() == 1) {
@@ -816,7 +818,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 porcentaje = 0;
             }
         }
-        return Double.parseDouble(df.format(porcentaje));
+        return redondear(porcentaje, 2);
     }
 
     private void CrearBotones(View.OnClickListener accionClickListener) {
@@ -1262,7 +1264,14 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                             fechaFormateada = fechaHoraActual.format(formato);
 
                         } else {
-                            System.out.println("La versión de Android no es compatible con las clases java.time.");
+                            // Usar SimpleDateFormat para versiones anteriores
+                            SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+                            // Obtener la fecha y hora actual
+                            Date fechaHoraActual = new Date();
+
+                            // Formatear la fecha y hora actual
+                            fechaFormateada = formato.format(fechaHoraActual);
                         }
                     } catch (Exception e) {
                         System.out.println("Error al obtener la fecha y hora actual: " + e.getMessage());
@@ -1290,34 +1299,9 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         logDetalle.setIdDetalle(pD.getIdDetalle());
                         logDetalle.setIdProducto(pD.getIdProducto());
                         logDetalle.setIdPedido(pD.getIdPedido());
-                        String fechaPedido = null;
-                        try {
-                            // Verificar si la versión de Android es compatible con java.time
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                // Obtener la cadena de fecha y hora del pedido de algún objeto pD
-                                String horaPedidoStr = pD.getHoraPedido();
-
-                                // Definir el formato deseado
-                                DateTimeFormatter formato = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-
-                                // Intentar analizar la cadena de fecha y hora con el formato deseado
-                                LocalDateTime horaPedido = LocalDateTime.parse(horaPedidoStr, formato);
-
-                                // Formatear la fecha y hora del pedido
-                                formato = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                                fechaPedido = horaPedido.format(formato);
-                            } else {
-                                System.out.println("La versión de Android no es compatible con las clases java.time.");
-                            }
-                        } catch (DateTimeParseException e) {
-                            System.out.println("Error al obtener o formatear la fecha y hora del pedido: " + e.getMessage());
-                        } catch (Exception e) {
-                            System.out.println("Error general al obtener o formatear la fecha y hora del pedido: " + e.getMessage());
-                        }
-
                         // Establecer la fecha y hora formateadas en logDetalle
-                        logDetalle.setHoraEntregado(fechaPedido);
-                        logDetalle.setHoraPedido(fechaPedido);
+                        logDetalle.setHoraEntregado(obtenerFechaPedido(pD));
+                        logDetalle.setHoraPedido(obtenerFechaPedido(pD));
                         logDetalle.setCocinando(pD.getCocinando());
                         logDetalle.setExtras(pD.getExtras());
 
@@ -1343,6 +1327,32 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         }
     }
 
+    public String obtenerFechaPedido(PedidoDetalle pD) {
+        String fechaPedido = "";
+        String horaPedidoStr = pD.getHoraPedido();
+
+        // Verificar si la versión de Android es compatible con java.time
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Usar java.time para versiones compatibles
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+            LocalDateTime horaPedido = LocalDateTime.parse(horaPedidoStr, formato);
+            formato = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            fechaPedido = horaPedido.format(formato);
+        } else {
+            // Usar SimpleDateFormat para versiones anteriores
+            SimpleDateFormat formatoEntrada = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            SimpleDateFormat formatoSalida = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            try {
+                Date horaPedido = formatoEntrada.parse(horaPedidoStr);
+                fechaPedido = formatoSalida.format(horaPedido);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                System.out.println("Error al analizar la fecha y hora: " + horaPedidoStr);
+            }
+        }
+
+        return fechaPedido;
+    }
     private void InsertarDetalleLog(PedidoDetalleLog detalleLog) {
         PedidoDetalleLogService logService = new PedidoDetalleLogService();
         logService.InsertarPedidoDetalle(detalleLog, new CallBackApi<Boolean>() {
@@ -1489,7 +1499,14 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 fechaFormateada = fechaHoraActual.format(formato);
 
             } else {
-                System.out.println("La versión de Android no es compatible con las clases java.time.");
+                // Usar SimpleDateFormat para versiones anteriores
+                SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+                // Obtener la fecha y hora actual
+                Date fechaHoraActual = new Date();
+
+                // Formatear la fecha y hora actual
+                fechaFormateada = formato.format(fechaHoraActual);
             }
         } catch (Exception e) {
             System.out.println("Error al obtener la fecha y hora actual: " + e.getMessage());
@@ -1619,6 +1636,15 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 LocalDateTime fechaHoraActual = LocalDateTime.now();
                 DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 fechaFormateada = fechaHoraActual.format(formato);
+            }else{
+                // Usar SimpleDateFormat para versiones anteriores
+                SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+                // Obtener la fecha y hora actual
+                Date fechaHoraActual = new Date();
+
+                // Formatear la fecha y hora actual
+                fechaFormateada = formato.format(fechaHoraActual);
             }
         } catch (Exception e) {
             System.out.println("Error al obtener la fecha y hora actual: " + e.getMessage());
@@ -2074,22 +2100,28 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
     private double CalcularTotal() {
         double total = 0;
-        DecimalFormat df = new DecimalFormat("#.00");
         if (lstPedidos != null)
         {
             for (PedidoDetalle pDetalle: lstPedidos) {
                 total += pDetalle.getSubTotal();
             }
         }
-        return Double.parseDouble(df.format(total));
+        return redondear(total, 2);
     }
 
     public double CalcularSubTotal(int cantidad, double precio)
     {
-        DecimalFormat df = new DecimalFormat("#.00");
         double subTotal;
         subTotal = precio*cantidad;
-        return Double.parseDouble(df.format(subTotal));
+        return redondear(subTotal, 2);
+    }
+
+    private double redondear(double valor, int numeroDecimales) {
+        if (numeroDecimales < 0) throw new IllegalArgumentException("El número de decimales no puede ser negativo");
+
+        BigDecimal bd = new BigDecimal(Double.toString(valor));
+        bd = bd.setScale(numeroDecimales, RoundingMode.HALF_UP.ordinal());
+        return bd.doubleValue();
     }
 
     private void BuscarProductoPorFamilia(View.OnClickListener productoClickListener, String idFamilia, View.OnLongClickListener productoLongClickListener) {
@@ -2182,55 +2214,66 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     }
 
     private void EnviarListaParcial() {
-        String fechaFormateada = "";
-        try {
-            // Verificar la versión de Android
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // Obtener la fecha y hora actual
-                LocalDateTime fechaHoraActual = LocalDateTime.now();
+        if(lstPD.size() > 0) {
 
-                // Definir el formato deseado
-                DateTimeFormatter formato = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
 
-                // Formatear la fecha y hora actual
-                fechaFormateada = fechaHoraActual.format(formato);
+            String fechaFormateada = "";
+            try {
+                // Verificar la versión de Android
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    // Obtener la fecha y hora actual
+                    LocalDateTime fechaHoraActual = LocalDateTime.now();
 
-            } else {
-                System.out.println("La versión de Android no es compatible con las clases java.time.");
+                    // Definir el formato deseado
+                    DateTimeFormatter formato = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+
+                    // Formatear la fecha y hora actual
+                    fechaFormateada = fechaHoraActual.format(formato);
+
+                } else {
+                    // Usar SimpleDateFormat para versiones anteriores
+                    SimpleDateFormat formato = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.getDefault());
+
+                    // Obtener la fecha y hora actual
+                    Date fechaHoraActual = new Date();
+
+                    // Formatear la fecha y hora actual
+                    fechaFormateada = formato.format(fechaHoraActual);
+                }
+            } catch (Exception e) {
+                System.out.println("Error al obtener la fecha y hora actual: " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.out.println("Error al obtener la fecha y hora actual: " + e.getMessage());
+
+            for (PedidoDetalle pDetalle : lstPD) {
+                if (cliente != null) {
+                    pDetalle.setCliente(cliente);
+                } else {
+                    pDetalle.setCliente("");
+                }
+                if (mesero != null) {
+                    pDetalle.setMesero(mesero);
+                } else {
+                    pDetalle.setMesero("");
+                }
+                if (salon != null) {
+                    pDetalle.setSalon(salon);
+                } else {
+                    pDetalle.setSalon("");
+                }
+                if (mesa != null) {
+                    pDetalle.setMesa(mesa);
+                } else {
+                    pDetalle.setMesa("");
+                }
+                pDetalle.setFecha(formatoFecha(fechaFormateada));
+            }
+            Enviar();
         }
-
-        for (PedidoDetalle pDetalle : lstPD) {
-            if(cliente != null){
-                pDetalle.setCliente(cliente);
-            }else{
-                pDetalle.setCliente("");
-            }
-            if(mesero != null){
-                pDetalle.setMesero(mesero);
-            }else{
-                pDetalle.setMesero("");
-            }
-            if(salon != null){
-                pDetalle.setSalon(salon);
-            }else{
-                pDetalle.setSalon("");
-            }
-            if(mesa != null){
-                pDetalle.setMesa(mesa);
-            }else{
-                pDetalle.setMesa("");
-            }
-            pDetalle.setFecha(formatoFecha(fechaFormateada));
-        }
-        Enviar();
+        BorrarPedidosVacios();
     }
 
     private void Enviar(){
         enviarListaTask.enviarLista(lstPD);
-        BorrarPedidosVacios();
     }
     private void EnviarListaCompleta(){
         for (PedidoDetalle pDetalle : lstPedidos) {
@@ -2266,21 +2309,31 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         try {
             // Verificar la versión de Android
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // Formatear la fecha y hora actual
+                // Parsear la fecha y hora proporcionada
                 LocalDateTime fecha = LocalDateTime.parse(fechaString, DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss"));
 
                 // Definir el formato deseado
-                DateTimeFormatter nuevoFormato = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                DateTimeFormatter nuevoFormato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-                // Imprimir la fecha formateada
+                // Formatear la fecha proporcionada
                 fechaFormateada = fecha.format(nuevoFormato);
             } else {
-                System.out.println("La versión de Android no es compatible con las clases java.time.");
+                // Usar SimpleDateFormat para versiones anteriores
+                SimpleDateFormat formatoEntrada = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.getDefault());
+                SimpleDateFormat formatoSalida = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+
+                // Parsear la fecha proporcionada
+                Date fecha = formatoEntrada.parse(fechaString);
+
+                // Formatear la fecha proporcionada
+                fechaFormateada = formatoSalida.format(fecha);
             }
+        } catch (ParseException e) {
+            System.out.println("Error al parsear la fecha proporcionada: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("Error al obtener la fecha y hora actual: " + e.getMessage());
+            System.out.println("Error inesperado: " + e.getMessage());
         }
-        return  fechaFormateada;
+        return fechaFormateada;
     }
     private void ObtenerPedidoPorId(String id){
         PedidoService pedidoService = new PedidoService();
