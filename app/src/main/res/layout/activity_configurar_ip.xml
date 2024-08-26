@@ -14,9 +14,9 @@
         android:id="@+id/toolbar"
         android:layout_width="fill_parent"
         android:layout_height="45sp"
-        android:background="?attr/colorButtonNormal"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
+        android:background="@color/colortres"
+        app:titleTextColor="@color/colorcinco"
+        android:minHeight="?attr/actionBarSize"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -73,7 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
-                android:inputType="text" />
+                android:inputType="number|text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button

@@ -1,2 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <color name="coloruno">#FEFFFF</color>
+    <color name="colordos">#DEF2F1</color>
+    <color name="colortres">#3AAFA9</color>
+    <color name="colorcuatro">#2B7A78</color>
+    <color name="colorcinco">#17252A</color>
+</resources>

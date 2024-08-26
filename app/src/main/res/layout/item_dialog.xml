@@ -6,19 +6,23 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="30dp">
+    android:padding="30dp"
+    android:background="@color/coloruno">
 
     <Button
         android:id="@+id/btnAgregar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Agregar Cliente" />
+        android:text="Agregar Cliente"
+        android:background="@drawable/button_background"
+        android:textColor="@color/coloruno"/>
 
     <ScrollView
         android:id="@+id/svClientes"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:contentDescription="Scroll pedidos">
+        android:contentDescription="Scroll pedidos"
+        android:background="@color/colordos">
 
         <LinearLayout
             android:id="@+id/llClientesScroll"

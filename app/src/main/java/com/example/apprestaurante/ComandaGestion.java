@@ -16,17 +16,18 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.icu.math.BigDecimal;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -39,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -99,7 +101,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     TextView tvTicket, textProductos, tvMesa, tvCliente, tvMesero;
     RecyclerView rcvPedidos;
     private LinearLayoutManager layoutManager;
-    LinearLayout llFamilias, llProductos, llAcciones;
+    LinearLayout llFamilias, llAcciones;
+    GridLayout glProductos;
     List<Familia> lstFamilias;
     public static List<Integer> lstPedidosEnMesa = null;
     public static List<Integer> lstPedidosVacios = null;
@@ -112,6 +115,7 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
     Pedido nuevoPedido = null;
     Button btnCuentas, btnEstilo;
     PedidoDetalle pDetalle;
+    int colorcuatro, colordos;
     public static List<PedidoDetalle> lstPedidos = new ArrayList<>();
     List<PedidoDetalle> lstPD = new ArrayList<>();
 
@@ -125,8 +129,10 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        colorcuatro = ContextCompat.getColor(ComandaGestion.this, R.color.colorcuatro);
+        colordos = ContextCompat.getColor(ComandaGestion.this, R.color.colordos);
         llFamilias = findViewById(R.id.llFamilias);
-        llProductos = findViewById(R.id.llProductos);
+        glProductos = findViewById(R.id.glProductos);
         textProductos = findViewById(R.id.textProductos);
         rcvPedidos = findViewById(R.id.rcvPedidos);
         tvTicket = findViewById(R.id.tvTicket);
@@ -139,6 +145,21 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
         btnEstilo = findViewById(R.id.btnEstilo);
         btnEstilo.setVisibility(View.GONE);
         Drawable background = btnEstilo.getBackground();
+
+        //ajustar automaticamente las columnas
+        // Obtener el ancho de pantalla en dp
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        float screenWidthDp = displayMetrics.widthPixels / displayMetrics.density;
+
+        // Establecer el número de columnas según el ancho de pantalla
+        int numberOfColumns;
+        if (screenWidthDp >= 600) { // Generalmente, se considera una tablet si el ancho es de 600dp o más
+            numberOfColumns = 3;
+        } else {
+            numberOfColumns = 1;
+        }
+
+        glProductos.setColumnCount(numberOfColumns);
 
         //Cargar la configuracion
         CargarConfiguracion();
@@ -205,9 +226,10 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         String texto = button.getText().toString();
                         int id = Integer.parseInt(texto);
                         if (id == idPedido2) {
-                            button.setBackground(background);
-                            button.setTextColor(Color.BLACK);
+                            button.setBackgroundColor(colorcuatro);
+                            button.setTextColor(colordos);
                         }
+
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -241,8 +263,8 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                         String texto = button.getText().toString();
                         int id = Integer.parseInt(texto);
                         if (id == idPedido2) {
-                            button.setBackground(background);
-                            button.setTextColor(Color.BLACK);
+                            button.setBackgroundColor(colorcuatro);
+                            button.setTextColor(colordos);
                         }
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -823,13 +845,15 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
     private void CrearBotones(View.OnClickListener accionClickListener) {
         llAcciones.removeAllViews();
-        String[] valores = {"comanda", "Extras", "Cambiar mesa", "Mesero", "Cliente", "Total comanda", "Imprimir Total"};
-        int[] imagen = {R.drawable.comanda, R.drawable.extras, R.drawable.cambio_mesa, R.drawable.mesero, R.drawable.cliente, R.drawable.total, R.drawable.total};
+        String[] valores = {"comanda", "Extras", "Cambiar mesa", "Mesero", "Cliente", "Ver total", "Imprimir Precuenta"};
+        int[] imagen = {R.drawable.comanda, R.drawable.extras, R.drawable.cambio_mesa, R.drawable.mesero, R.drawable.cliente, R.drawable.total, R.drawable.precuenta};
         int tamano = lstPedidos.size();
         for (int i = 0; i < valores.length; i++) {
             Button btnAccion = new Button(ComandaGestion.this);
             btnAccion.setText(valores[i]);
             btnAccion.setTag(i + 1);
+            btnAccion.setBackgroundColor(colordos);
+            btnAccion.setTextColor(colorcuatro);
             if (tamano > 0) {
                 btnAccion.setEnabled(true);
             } else {
@@ -988,6 +1012,20 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                     btnFamilia.setTag(familia.getIdFamilia());
                     btnFamilia.setText(familia.getNombre().toString());
                     btnFamilia.setOnClickListener(familiaClickListener);
+                    btnFamilia.setTextSize(10);
+
+                    // Establece el color de fondo del botón
+                    btnFamilia.setTextColor(colordos);
+                    btnFamilia.setBackgroundColor(colorcuatro);
+
+                    // Establece los márgenes
+                    ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+                    params.setMargins(16, 16, 16, 16); // Margen de 16 píxeles en todos los lados
+                    btnFamilia.setLayoutParams(params);
+
                     llFamilias.addView(btnFamilia);
                 }
             }
@@ -2134,9 +2172,20 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                 try {
 
                     if (response.isSuccessful()) {
-                        llProductos.removeAllViews();
+                        glProductos.removeAllViews();
                         lstProductos = response.body();
                         if (lstProductos != null) {
+
+                            // Obtener el ancho de pantalla en dp
+                            DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                            float screenWidthDp = displayMetrics.widthPixels / displayMetrics.density;
+                            // Establecer el número de columnas según el ancho de pantalla
+                            Boolean mayor = false;
+                            if (screenWidthDp >= 600) { // Generalmente, se considera una tablet si el ancho es de 600dp o más
+                                mayor = true;
+                            } else {
+                                mayor = false;
+                            }
 
                             for (Producto producto : lstProductos) {
                                 Button btnProducto = new Button(ComandaGestion.this);
@@ -2144,14 +2193,33 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
                                 btnProducto.setText(producto.getNombre());
                                 btnProducto.setOnClickListener(productoClickListener);
                                 btnProducto.setOnLongClickListener(productoLongClickListener);
+                                if(mayor) {
+                                    btnProducto.setWidth(120);
+                                    btnProducto.setHeight(120);
+                                } else {
+                                    btnProducto.setWidth(300);
+                                    btnProducto.setHeight(300);
+                                }
+                                // Establece el color de fondo del botón
+                                btnProducto.setTextColor(colorcuatro);
+                                btnProducto.setBackgroundColor(colordos);
 
-                                btnProducto.setTextSize(8);
+                                // Establece los márgenes
+                                ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
+                                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                                        ViewGroup.LayoutParams.WRAP_CONTENT
+                                );
+                                params.setMargins(16, 16, 16, 16); // Margen de 16 píxeles en todos los lados
+                                btnProducto.setLayoutParams(params);
+
+
                                 // Recuperar la imagen y asignarla directamente al botón
                                 ProductoService productoService = new ProductoService();
                                 productoService.recuperarImagen(producto.getFoto(), new ProductoService.OnImageLoadListener() {
                                     @Override
                                     public void onImageLoad(Bitmap bitmap) {
                                         // Redimensionar el Bitmap al tamaño deseado
+                                        btnProducto.setTextSize(6);
                                         int width = 200; // Ancho en píxeles
                                         int height = 200; // Alto en píxeles
                                         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
@@ -2162,18 +2230,10 @@ public class ComandaGestion extends AppCompatActivity implements  PedidosAdapter
 
                                     @Override
                                     public void onImageLoadError(String errorMessage) {// Manejar el caso en el que la recuperación de la imagen falló
-                                        // Redimensionar la imagen por defecto al tamaño deseado
-                                        int defaultWidth = 200; // Ancho en píxeles
-                                        int defaultHeight = 200; // Alto en píxeles
-                                        Drawable defaultDrawable = getResources().getDrawable(R.drawable.productos);
-                                        // Ajustar el tamaño de la imagen por defecto
-                                        defaultDrawable.setBounds(0, 0, defaultWidth, defaultHeight);
-                                        // Asignar la imagen por defecto encima del texto en el botón
-                                        btnProducto.setCompoundDrawables(null, defaultDrawable, null, null);
-
+                                        btnProducto.setTextSize(12);
                                     }
                                 });
-                                llProductos.addView(btnProducto);
+                                glProductos.addView(btnProducto);
 
                             }
                         }

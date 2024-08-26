@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -78,6 +79,21 @@ public class MesasSalones extends AppCompatActivity {
         llSalones = findViewById(R.id.llSalones);
         glMesas = findViewById(R.id.glMesas);
         textMesas = findViewById(R.id.textMesas);
+
+        //ajustar automaticamente las columnas
+        // Obtener el ancho de pantalla en dp
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        float screenWidthDp = displayMetrics.widthPixels / displayMetrics.density;
+
+        // Establecer el número de columnas según el ancho de pantalla
+        int numberOfColumns;
+        if (screenWidthDp >= 600) { // Generalmente, se considera una tablet si el ancho es de 600dp o más
+            numberOfColumns = 4;
+        } else {
+            numberOfColumns = 2;
+        }
+
+        glMesas.setColumnCount(numberOfColumns);
 
         // Define un OnClickListener común para los botones de mesas
         View.OnClickListener mesaClickListener = new View.OnClickListener() {

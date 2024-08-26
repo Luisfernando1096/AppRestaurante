@@ -89,38 +89,42 @@ public class MainActivity extends AppCompatActivity {
         }else{
             if(!pin.equals("")){
                 progressDialog.show();
-                Call<Usuario> call = ApiClient.getClient().create(UsuarioApi.class).ObtenerDatosUsuario(pin);
-                call.enqueue(new Callback<Usuario>() {
-                    @Override
-                    public void onResponse(Call<Usuario> call, Response<Usuario> response) {
-                        //Si hay respuesta
-                        try {
-                            if (response.isSuccessful()) {
-                                usuario = response.body();
-                                if(usuario != null){
-                                    if(usuario.getIdRol() == 1 || usuario.getIdRol() == 2){
-                                        startActivity(new Intent(MainActivity.this, MesasSalones.class));
+                try {
+                    Call<Usuario> call = ApiClient.getClient().create(UsuarioApi.class).ObtenerDatosUsuario(pin);
+                    call.enqueue(new Callback<Usuario>() {
+                        @Override
+                        public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                            //Si hay respuesta
+                            try {
+                                if (response.isSuccessful()) {
+                                    usuario = response.body();
+                                    if(usuario != null){
+                                        if(usuario.getIdRol() == 1 || usuario.getIdRol() == 2){
+                                            startActivity(new Intent(MainActivity.this, MesasSalones.class));
+                                        } else{
+                                            Toast.makeText(MainActivity.this, "Solo puede acceder un mesero o administrador.", Toast.LENGTH_SHORT).show();
+                                        }
                                     } else{
-                                        Toast.makeText(MainActivity.this, "Solo puede acceder un mesero o administrador.", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(MainActivity.this, "El pin no es valido.", Toast.LENGTH_SHORT).show();
                                     }
-                                } else{
-                                    Toast.makeText(MainActivity.this, "El pin no es valido.", Toast.LENGTH_SHORT).show();
                                 }
+                            } catch (Exception e) {
+                                Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
-                        } catch (Exception e) {
-                            Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
                         }
-                        progressDialog.dismiss();
-                    }
 
-                    @Override
-                    public void onFailure(Call<Usuario> call, Throwable t) {
-                        //Si hay error
-                        Toast.makeText(MainActivity.this, "Error en conexion de red." + t.getMessage(), Toast.LENGTH_SHORT).show();
-                        System.out.println("Error en conexion de red." + t.getMessage());
-                        progressDialog.dismiss();
-                    }
-                });
+                        @Override
+                        public void onFailure(Call<Usuario> call, Throwable t) {
+                            //Si hay error
+                            Toast.makeText(MainActivity.this, "Error en conexion de red." + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            System.out.println("Error en conexion de red." + t.getMessage());
+                            progressDialog.dismiss();
+                        }
+                    });
+                }catch (Exception e){
+                    System.out.println("Ocurrio un error: " + e);
+                }
             }else{
                 Toast.makeText(this, "Introduzca el pin", Toast.LENGTH_SHORT).show();
             }

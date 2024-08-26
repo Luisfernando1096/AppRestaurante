@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,9 +10,9 @@
         android:id="@+id/toolbar"
         android:layout_width="fill_parent"
         android:layout_height="45sp"
-        android:background="?attr/colorButtonNormal"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
+        android:background="@color/colortres"
+        app:titleTextColor="@color/colorcinco"
+        android:minHeight="?attr/actionBarSize"/>
 
     <TextView
         android:padding="10dp"
@@ -23,66 +24,72 @@
         android:textSize="25sp"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:padding="5dp"
-        android:text="@string/textSalones"
-        android:textAlignment="center"
-        android:textSize="20sp" />
-
-    <HorizontalScrollView
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:contentDescription="@string/textDescripcion">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:id="@+id/llSalones"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" />
+            android:layout_margin="5dp"
+            android:padding="5dp"
+            android:text="@string/textSalones"
+            android:layout_gravity="center"
+            android:textSize="20sp" />
 
-    </HorizontalScrollView>
-
-    <TextView
-        android:id="@+id/textMesas"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:padding="5dp"
-        android:text=""
-        android:textAlignment="center"
-        android:textSize="20sp" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="@string/textDescripcion">
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/textMesas"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:padding="5dp"
+            android:text="Mesa"
+            android:textSize="20sp" />
+    </LinearLayout>
 
-            <GridLayout
-                android:id="@+id/glMesas"
-                android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/textDescripcion"
+            android:layout_margin="5dp">
+
+            <LinearLayout
+                android:id="@+id/llSalones"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:columnCount="3"
-                android:layout_gravity="center">
+                android:orientation="vertical" />
 
-            </GridLayout>
+        </ScrollView>
 
-        </LinearLayout>
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/textDescripcion"
+            android:layout_margin="5dp">
 
-    </ScrollView>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
+                <GridLayout
+                    android:id="@+id/glMesas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center">
 
+                </GridLayout>
 
+            </LinearLayout>
 
+        </ScrollView>
+
+    </LinearLayout>
 
 </LinearLayout>

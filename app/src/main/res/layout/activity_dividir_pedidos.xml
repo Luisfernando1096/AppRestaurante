@@ -10,9 +10,9 @@
         android:id="@+id/toolbar"
         android:layout_width="fill_parent"
         android:layout_height="45sp"
-        android:background="?attr/colorButtonNormal"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
+        android:background="@color/colortres"
+        app:titleTextColor="@color/colorcinco"
+        android:minHeight="?attr/actionBarSize"/>
     <TextView
         android:padding="5dp"
         android:id="@+id/tvMesasSalonesDiv1"
